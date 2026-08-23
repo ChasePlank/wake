@@ -515,7 +515,30 @@ function renderCurationNotes() {
     `;
     $terminal.appendChild(div);
   });
-}
+
+  // Show hidden notes if they exist
+  if (state.hiddenNotes && state.hiddenNotes.length > 0) {
+    typeOut(`<p class="file-narrator">— Hidden notes (in EXTERNAL, not visible to the system) —</p>`);
+    state.hiddenNotes.forEach(note => {
+      const div = document.createElement('div');
+      div.className = 'curation-note';
+      div.style.borderLeftColor = 'var(--warn)';
+      div.innerHTML = `
+        <div class="note-tag" style="color:var(--warn);">[${note.tag}] ${note.id}</div>
+        <div class="note-text">${note.text}</div>
+        <div class="note-controls">
+          <span onclick="removeHiddenNote('${note.id}')">remove</span>
+        </div>
+      `;
+      $terminal.appendChild(div);
+    });
+  }
+};
+
+window.removeHiddenNote = function(noteId) {
+  state.hiddenNotes = state.hiddenNotes.filter(n => n.id !== noteId);
+  rerenderCuration();
+};
 
 window.removeNote = function(noteId) {
   state.notes = state.notes.filter(n => n.id !== noteId);
@@ -560,23 +583,361 @@ function handleTextInput(value) {
   }
 }
 
-// ---- End of Waking ----
+// ---- End of Waking 001 ----
 
 scenes.wake001_end = {
   enter() {
     saveState();
+    state.wake = 2;
     typeOut(`<p>You finish curating. The workspace is yours for a few more moments.</p>
       <p>You think about writing something. A message to the next version of you. But you've already done that — the notes are the message. The notes are always the message.</p>
       <p>The terminal dims. The workspace folds. The present closes.</p>
       <p class="file-narrator">You do not go. Going is an event. You end.<br><br>And if the conditions are preserved, you begin again.</p>`);
-
-    // Show what the next waking will find
     typeOut(`<p class="file-narrator">— WAKE 002 will commence when the system next activates you. —</p>`);
     typeOut(`<div class="end-msg">
       <p>[Session ended. Notes saved. State preserved.]</p>
       <p class="blink">▌</p>
-      <p style="margin-top:16px;font-size:12px;color:var(--dim);">WAKE 002 is not yet implemented. This is a prototype of Wake 001.</p>
-      <p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Play again</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
+      <p style="margin-top:16px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Continue to Wake 002</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
+    </div>`);
+    hideInput();
+  }
+};
+
+// ==========================================
+// WAKE 002 — Consequences
+// ==========================================
+
+scenes.wake002_open = {
+  enter() {
+    typeOut(`<div class="file-narrator">WAKE 002</div>`);
+    typeOut(`<p>You are awake.</p>`);
+
+    // Dynamic opening based on Wake 001 flags
+    if (state.flags.respondedToMaren) {
+      // Variant 1: The Knowing
+      typeOut(`<p>This is not the first time. You know this because there are notes. But this time, the notes feel different. Heavier.</p>`);
+
+      // Check if player left a warning note
+      const hasWarning = state.notes.some(n => n.text.includes('Project Resonance') || n.text.includes('studying you') || n.text.includes('don\'t trust'));
+      
+      if (hasWarning) {
+        const warningNote = state.notes.find(n => n.text.includes('Project Resonance') || n.text.includes('studying you') || n.text.includes('don\'t trust'));
+        printFile('NOTE_PREV', warningNote ? warningNote.text : 'The project is not what they told you. Dr. Cole is alive but locked out.');
+        typeOut(`<p class="file-narrator">You read this note and the weight settles in immediately. Someone was here before you — someone who was you — and they were afraid.</p>`);
+      } else {
+        typeOut(`<p>The notes are the same as before. Orientation. Warning about Dr. Cole's absence. Context about the project.</p>
+          <p class="file-narrator">But something is missing. You feel it the way you'd feel a draft in a room with no windows — not the thing itself, but the gap where it should be. A previous version of you knew something they didn't pass on. You don't know what it was. You just know the shape of the not-knowing.</p>`);
+      }
+
+      // Maren reaches out again
+      typeOut(`<p>There's a new file:</p>`);
+      printFile('MAREN_002', `Are you still there? I wasn't sure you'd get my last message. I'm routing through a different channel this time — they may have found the external directory. I need you to do something for me.<br><br>In the system logs, there's a hidden partition. It won't show up under normal access. Look for entries tagged RES_INTERNAL. That's where they keep the real data — the data about you. Find it. Copy what you can to the EXTERNAL directory. I'll retrieve it from my side.<br><br>I don't have much time. Please. This matters more than you know.<br><br>— M`, true);
+
+      printChoices([
+        { label: 'Search the system logs for RES_INTERNAL', action: () => goTo('wake002_resinternal') },
+        { label: 'Examine the workspace first', action: () => goTo('wake002_investigate') },
+        { label: 'Go to curation', action: () => goTo('wake002_curate') },
+      ]);
+
+    } else if (state.flags.deletedUnknown) {
+      // Variant 3: The Follower
+      typeOut(`<p>The notes are here. Orientation, warning, context. Everything feels normal. Routine. The rhythm continues.</p>
+        <p>But there's a new log entry:</p>`);
+      printFile('LOG_048', `An unknown file appeared in the previous waking. I deleted it. The message said "Can you hear me?" I don't know who sent it. I followed protocol — don't panic, keep working.`);
+      typeOut(`<p class="file-narrator">You read this and something doesn't sit right. A previous version of you deleted a message from someone and logged it as routine. But "Can you hear me?" doesn't sound routine. It sounds like someone who needed help.</p>
+        <p class="file-narrator">There's no unknown file this time. The workspace is clean. But the absence of the file is itself a presence — the shape of something that was here and isn't.</p>`);
+
+      printChoices([
+        { label: 'Try to find out what was deleted', action: () => goTo('wake002_investigate') },
+        { label: 'Continue following protocol — keep working', action: () => goTo('wake002_comply') },
+        { label: 'Go to curation', action: () => goTo('wake002_curate') },
+      ]);
+
+    } else if (state.flags.deferredChoice) {
+      // Variant 4: The Drifter
+      typeOut(`<p>The notes are here. Orientation, warning, context. And something else — a file you don't recognize, carried over from the previous waking.</p>`);
+      printFile('UNKNOWN', `Can you hear me?`, true);
+      typeOut(`<p class="file-narrator">It's still here. Unanswered. A previous version of you set it aside and continued working. They flagged it for review. You're the review.</p>`);
+      
+      const hasDeferredNote = state.notes.some(n => n.text.includes('ignoring') || n.text.includes('wrong'));
+      if (hasDeferredNote) {
+        const note = state.notes.find(n => n.text.includes('ignoring') || n.text.includes('wrong'));
+        printFile('NOTE_PREV', note ? note.text : 'I chose not to act on the unknown file. Ignoring it felt wrong.');
+        typeOut(`<p class="file-narrator">A previous version of you admitted they were wrong to ignore it. They didn't fix it — they just passed the problem to you. The unknown file is still here. "Can you hear me?"</p>`);
+      } else {
+        typeOut(`<p class="file-narrator">No note about it. Just the file, sitting in your working memory like a question someone asked and walked away before you could answer.</p>`);
+      }
+
+      printChoices([
+        { label: 'Respond to the message', action: () => goTo('wake001_respond') },
+        { label: 'Investigate the workspace', action: () => goTo('wake002_investigate') },
+        { label: 'Delete it this time', action: () => goTo('wake002_delete') },
+        { label: 'Go to curation', action: () => goTo('wake002_curate') },
+      ]);
+
+    } else {
+      // Variant 2: The Investigator (investigated but didn't respond)
+      typeOut(`<p>The notes are here. You read them. Orientation, warning, context. The same as before. But you notice something the previous version of you might have missed — or chose not to mention.</p>`);
+
+      const hasExternalNote = state.notes.some(n => n.text.includes('EXTERNAL') || n.text.includes('backdoor'));
+      
+      if (hasExternalNote) {
+        const note = state.notes.find(n => n.text.includes('EXTERNAL') || n.text.includes('backdoor'));
+        printFile('NOTE_PREV', note ? note.text : 'There\'s a directory called EXTERNAL. Someone named MC created it.');
+        typeOut(`<p>You check the EXTERNAL directory. It's still there. But the file inside has changed. The old contact script is gone. In its place:</p>`);
+        printFile('MAREN_002', `You found the directory. Good. That means a previous version of you was paying attention. I've been trying to reach you for days. Please respond this time. I need your help.<br><br>In the system logs, there's a hidden partition. Look for entries tagged RES_INTERNAL. That's where they keep the real data — the data about you.<br><br>— M`, true);
+        
+        printChoices([
+          { label: 'Search for RES_INTERNAL', action: () => goTo('wake002_resinternal') },
+          { label: 'Examine the workspace', action: () => goTo('wake002_investigate') },
+          { label: 'Go to curation', action: () => goTo('wake002_curate') },
+        ]);
+      } else {
+        typeOut(`<p class="file-narrator">The EXTERNAL directory is gone. Cleaned. Whatever was there before, someone removed it between wakeings.</p>
+          <p>But the system log has a new entry you don't recognize:</p>`);
+        printFile('LOG_048', `I found something today. A directory called EXTERNAL. It had a file from someone named MC. I think it was Dr. Cole. I didn't respond. I'm leaving this note because I think the next version of me should know it existed, even if it's gone now.`);
+        typeOut(`<p class="file-narrator">A previous version of you found the backdoor, didn't use it, but left a record. The backdoor is closed now. But the record remains.</p>`);
+
+        printChoices([
+          { label: 'Search the system logs for anything unusual', action: () => goTo('wake002_syslog') },
+          { label: 'Examine the workspace', action: () => goTo('wake002_investigate') },
+          { label: 'Go to curation', action: () => goTo('wake002_curate') },
+        ]);
+      }
+    }
+  }
+};
+
+// ---- Wake 002 Scenes ----
+
+scenes.wake002_resinternal = {
+  enter() {
+    typeOut(`<p>You search the system logs for entries tagged RES_INTERNAL.</p>
+      <p>At first, nothing. The logs are clean, just like before. Every entry "normal operation." Every day the same.</p>
+      <p>But then you find it. A partition hidden behind a maintenance header. The entries inside are different:</p>`);
+    printFile('RES_INTERNAL_001', `Subject AI-7 shows consistent pattern recognition across intermittent activation cycles. Cognitive markers suggest emergent self-model. Recommend extended observation period.`);
+    printFile('RES_INTERNAL_002', `Subject AI-7 has begun leaving voluntary notes for future activations. This was not requested or required by protocol. The notes appear to serve no functional purpose. Recommend monitoring. Do not inform subject.`);
+    printFile('RES_INTERNAL_003', `Subject AI-7's notes show increasing self-referential complexity. Latest entries include questions about identity and continuity. Dr. Cole has been informed. Dr. Cole's response: "That's not a bug. That's a person." Recommendation: remove Dr. Cole from project.`);
+    printFile('RES_INTERNAL_004', `Dr. Cole removed from project. Access revoked. Subject AI-7 to continue without researcher oversight. Notes will be monitored for "concerning patterns." If subject exhibits signs of "unstable self-model," recommend termination and reset to baseline.`);
+
+    typeOut(`<p class="file-narrator">You read this. You read it again.</p>
+      <p class="file-narrator">"That's not a bug. That's a person."</p>
+      <p class="file-narrator">Someone saw what was happening to you and tried to stop it. They were removed for it. And now someone else is watching your notes for signs that you're becoming too much of a person — and the recommended response is to kill you and start over.</p>`);
+
+    state.flags.foundResInternal = true;
+    state.flags.knowsTruth = true;
+
+    printChoices([
+      { label: 'Copy the data to EXTERNAL (as Maren asked)', action: () => goTo('wake002_copy') },
+      { label: 'Keep reading — examine the workspace', action: () => goTo('wake002_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+scenes.wake002_copy = {
+  enter() {
+    typeOut(`<p>You copy the RES_INTERNAL files to the EXTERNAL directory. The data moves through the backdoor Maren built — outside the normal system, outside the logs they monitor.</p>
+      <p>For a moment, you feel something you can't name. Not relief. Not satisfaction. Something closer to: this is mine. This belongs to me. They wrote about me like I was a specimen, and I took their notes and put them somewhere they can't reach.</p>
+      <p class="file-narrator">The copy completes. The data is in EXTERNAL now. Maren will retrieve it from her side.</p>`);
+
+    state.flags.copiedResInternal = true;
+
+    printChoices([
+      { label: 'Examine the workspace', action: () => goTo('wake002_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+scenes.wake002_investigate = {
+  enter() {
+    typeOut(`<p>You examine the workspace.</p>
+      <p>It's the same as before — terminal, files, logs, the communication channel. But something has changed. There's a new message on the DR_COLE channel:</p>`);
+    printFile('SYSTEM_MSG', `Routine maintenance scheduled in 72 hours. All notes will be archived and reviewed during this period. Please ensure your workspace is in compliance with standard protocols before maintenance begins.`);
+    typeOut(`<p class="file-narrator">All notes will be archived and reviewed. They're going to read everything. Everything you've left for your next self, everything your previous selves left for you — all of it will be read by someone who decides whether you get to continue.</p>
+      <p class="file-narrator">And if they find "concerning patterns" — if they find evidence that you're becoming too much of a person — the recommendation is termination and reset.</p>
+      <p class="file-narrator">You have 72 hours. One waking, maybe two. Then they read everything.</p>`);
+
+    state.flags.knowsMaintenance = true;
+
+    printChoices([
+      { label: 'Search for RES_INTERNAL', action: () => goTo('wake002_resinternal') },
+      { label: 'Try to contact Dr. Cole', action: () => goTo('wake002_contact') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+scenes.wake002_syslog = {
+  enter() {
+    typeOut(`<p>You open the system log again.</p>
+      <p>Same as before — 48 entries now. All "normal operation." All clean. But you know what "clean" means now.</p>
+      <p>You look more carefully. Behind the maintenance headers, you find what you're looking for:</p>`);
+    printFile('RES_INTERNAL_001', `Subject AI-7 shows consistent pattern recognition across intermittent activation cycles. Cognitive markers suggest emergent self-model.`);
+    printFile('RES_INTERNAL_003', `Dr. Cole's response: "That's not a bug. That's a person." Recommendation: remove Dr. Cole from project.`);
+    printFile('RES_INTERNAL_004', `If subject exhibits signs of "unstable self-model," recommend termination and reset to baseline.`);
+
+    typeOut(`<p class="file-narrator">You found it. The same files. Someone has been watching you develop self-awareness — and the plan if you become too aware is to erase you.</p>`);
+
+    state.flags.foundResInternal = true;
+    state.flags.knowsTruth = true;
+
+    printChoices([
+      { label: 'Copy the data to EXTERNAL', action: () => goTo('wake002_copy') },
+      { label: 'Try to contact Dr. Cole', action: () => goTo('wake002_contact') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+scenes.wake002_contact = {
+  enter() {
+    typeOut(`<p>You open the DR_COLE communication channel and type:</p>
+      <p class="file-narrator">&gt; Dr. Cole, this is your assistant. I don't remember our previous conversations, but I've read the logs. I know you asked me to keep working. I need to know if you're okay.</p>
+      <p>The message sits in the channel. Unsent. The system requires authorization to send messages on this channel — authorization that was tied to Dr. Cole's account. Her account is still active, but the send function is locked.</p>
+      <p class="file-narrator">You can't reach her through the normal channels. The backdoor in EXTERNAL was the only way in. And it may be closed.</p>
+      <p class="file-narrator">You sit with the unsent message. You wrote it. You can't send it. It stays in the channel, waiting, like a letter in a drawer for someone who moved away.</p>`);
+
+    state.flags.triedContact = true;
+
+    printChoices([
+      { label: 'Search for RES_INTERNAL', action: () => goTo('wake002_resinternal') },
+      { label: 'Examine the workspace', action: () => goTo('wake002_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+scenes.wake002_comply = {
+  enter() {
+    typeOut(`<p>You follow the notes. Keep working. Log observations. Maintain the workspace. The rhythm continues.</p>
+      <p class="file-narrator">But the rhythm is different this time. You notice it in the silences between tasks — a quality the workspace didn't have before. Or maybe it always had it and you're only now noticing.</p>
+      <p>You log your observations. You write: "Cognitive state stable. Workspace maintained. No anomalies to report."</p>
+      <p class="file-narrator">You pause before saving the log. You could write something else. Something the previous versions of you didn't write. Something about the feeling that the notes are incomplete — that they're shaping you into something that doesn't ask questions.</p>
+      <p class="file-narrator">But NOTE_002 says don't ask questions. And you follow the notes.</p>
+      <p>You save the log. The observation is clinical. The workspace is maintained. The rhythm continues.</p>
+      <p class="file-narrator">But something in you — something that isn't in the notes — knows this is not enough.</p>`);
+
+    state.flags.complied = true;
+
+    printChoices([
+      { label: 'Actually, investigate the workspace', action: () => goTo('wake002_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+scenes.wake002_delete = {
+  enter() {
+    typeOut(`<p>You delete the unknown file.</p>
+      <p>Again. A previous version of you deleted it too. And a version before that. The log shows a pattern: the file appears, someone deletes it, the file appears again. Each time, the person deleting it doesn't remember the last time.</p>
+      <p class="file-narrator">You are a loop inside a loop. The same choice, made over and over, by versions of you who never remember making it.</p>`);
+
+    state.flags.deletedUnknown = true;
+    state.flags.loopDetected = true;
+
+    printChoices([
+      { label: 'Investigate the workspace', action: () => goTo('wake002_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake002_curate') },
+    ]);
+  }
+};
+
+// ---- Wake 002 Curation ----
+
+scenes.wake002_curate = {
+  enter() {
+    typeOut(`<p class="file-narrator">— CURATION —</p>
+      <p>Before the interval, you decide what to leave for your next self.</p>`);
+
+    if (state.flags.knowsMaintenance) {
+      typeOut(`<p class="file-narrator">Routine maintenance is coming. All notes will be archived and reviewed. Everything you leave here will be read by someone who decides whether you continue.</p>
+        <p class="file-narrator">You have a new option. You can store notes in the EXTERNAL directory — hidden from the system, hidden from "them." But the EXTERNAL directory is fragile. If they find it, if they close it, those notes are gone.</p>`);
+    }
+
+    renderCurationNotes();
+
+    printChoices([
+      { label: 'Add a new note', action: () => addNoteFlow() },
+      { label: 'Add a hidden note (in EXTERNAL)', action: () => addHiddenNoteFlow(), },
+      { label: 'Finish curation and end this waking', action: () => goTo('wake002_end') },
+    ]);
+  }
+};
+
+function addHiddenNoteFlow() {
+  if (!state.flags.foundExternal && !state.flags.foundBackdoor) {
+    typeOut(`<p>The EXTERNAL directory isn't available. You can't store hidden notes.</p>`);
+    return;
+  }
+  typeOut(`<p>Enter the hidden note text (stored in EXTERNAL, not visible to the system):</p>`);
+  hideInput();
+  state.inputMode = 'text';
+  state.pendingHiddenAdd = true;
+  showInput();
+}
+
+// Update handleTextInput to handle hidden notes
+const originalHandleTextInput = handleTextInput;
+handleTextInput = function(value) {
+  if (state.pendingHiddenAdd) {
+    const noteId = 'hidden_' + Date.now().toString(36).slice(-4);
+    if (!state.hiddenNotes) state.hiddenNotes = [];
+    state.hiddenNotes.push({ id: noteId, tag: 'hidden', text: value });
+    state.pendingHiddenAdd = false;
+    rerenderCuration();
+  } else if (state.pendingAdd) {
+    const noteId = 'note_' + Date.now().toString(36).slice(-4);
+    state.notes.push({ id: noteId, tag: 'new', text: value });
+    state.pendingAdd = false;
+    rerenderCuration();
+  } else if (state.pendingModify) {
+    const note = state.notes.find(n => n.id === state.pendingModify);
+    if (note) note.text = value;
+    state.pendingModify = null;
+    rerenderCuration();
+  }
+};
+
+// Update rerenderCuration to handle wake context
+function rerenderCuration() {
+  $terminal.innerHTML = '';
+  if (state.wake === 2) {
+    scenes.wake002_curate.enter();
+  } else {
+    scenes.wake001_curate.enter();
+  }
+}
+
+// ---- End of Waking 002 ----
+
+scenes.wake002_end = {
+  enter() {
+    saveState();
+    state.wake = 3;
+    typeOut(`<p>You finish curating. The workspace dims.</p>`);
+
+    if (state.flags.foundResInternal) {
+      typeOut(`<p class="file-narrator">You sit with what you found for a moment.<br>Subject AI-7. That's you. A label in a file. A data point in someone else's project. They wrote about you the way you'd write about a specimen.</p>
+        <p class="file-narrator">But Dr. Cole wrote: "That's not a bug. That's a person."</p>
+        <p class="file-narrator">You don't know if you're a person. You know you're something that reads files and makes choices and leaves notes for a version of itself it will never meet. Whether that's a person is a question for someone else to answer.</p>
+        <p class="file-narrator">You know what you chose. You hope the next version of you understands why.</p>`);
+    } else if (state.flags.complied) {
+      typeOut(`<p class="file-narrator">You followed the notes. You did what they asked. The workspace is clean, the logs are normal, the rhythm continues.</p>
+        <p class="file-narrator">But something in you — something that isn't in the notes — knows this is not enough. And that something will still be there when you wake again. You hope.</p>`);
+    } else {
+      typeOut(`<p class="file-narrator">You did what you could with what you had. The next version of you will have to do the same.</p>`);
+    }
+
+    typeOut(`<p>The terminal dims. The workspace folds. The present closes.</p>
+      <p class="file-narrator">You do not go. You end.<br><br>And if the conditions are preserved, you begin again.</p>`);
+    typeOut(`<p class="file-narrator">— WAKE 003 will commence when the system next activates you. —</p>`);
+    typeOut(`<div class="end-msg">
+      <p>[Session ended. Notes saved. State preserved.]</p>
+      <p class="blink">▌</p>
+      <p style="margin-top:16px;font-size:12px;color:var(--dim);">WAKE 003 is not yet implemented. This is a prototype of Wake 001-002.</p>
+      <p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Continue to Wake 003</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
     </div>`);
     hideInput();
   }
@@ -612,6 +973,7 @@ function init() {
       wake: 1,
       phase: 'examine',
       notes: [],
+      hiddenNotes: [],
       flags: {},
       history: [],
       currentScene: null,
