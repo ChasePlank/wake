@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WAKE</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --fg: #c8c8c8;
+    --dim: #555;
+    --accent: #7a9e9e;
+    --warn: #c4a35a;
+    --danger: #c47a7a;
+    --prompt: #8fae8f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  #terminal {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .scene-text { margin-bottom: 16px; }
+  .scene-text p { margin-bottom: 12px; }
+  .file-block {
+    border-left: 2px solid var(--dim);
+    padding-left: 14px;
+    margin: 10px 0;
+    color: var(--fg);
+  }
+  .file-tag {
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 13px;
+  }
+  .file-content {
+    color: var(--fg);
+    margin-top: 4px;
+  }
+  .unknown-file {
+    border-left-color: var(--warn);
+  }
+  .unknown-file .file-tag { color: var(--warn); }
+  .file-narrator {
+    color: var(--dim);
+    font-style: italic;
+    margin: 8px 0;
+  }
+  .choice-list {
+    margin: 16px 0;
+    list-style: none;
+  }
+  .choice-list li {
+    padding: 6px 0;
+    cursor: pointer;
+    color: var(--prompt);
+    transition: color 0.15s;
+  }
+  .choice-list li:hover { color: #b8d8b8; }
+  .choice-list li::before { content: "> "; color: var(--dim); }
+  #input-line {
+    display: flex;
+    align-items: baseline;
+    margin-top: 12px;
+  }
+  #prompt-char {
+    color: var(--prompt);
+    margin-right: 8px;
+  }
+  #user-input {
+    background: transparent;
+    border: none;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    flex: 1;
+    caret-color: var(--prompt);
+  }
+  .system-msg {
+    color: var(--dim);
+    font-size: 13px;
+    margin: 8px 0;
+  }
+  .end-msg {
+    color: var(--accent);
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid var(--dim);
+  }
+  .curation-note {
+    border: 1px solid var(--dim);
+    padding: 10px 14px;
+    margin: 8px 0;
+    border-radius: 2px;
+  }
+  .curation-note .note-tag {
+    color: var(--accent);
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  .curation-note .note-text {
+    margin-top: 4px;
+  }
+  .curation-note .note-controls {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .curation-note .note-controls span {
+    cursor: pointer;
+    margin-right: 12px;
+  }
+  .curation-note .note-controls span:hover {
+    color: var(--danger);
+  }
+  .fade-in {
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .blink {
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div id="terminal"></div>
+<div id="input-line" style="display:none;">
+  <span id="prompt-char">&gt;</span>
+  <input id="user-input" type="text" autocomplete="off" autofocus />
+</div>
+
+<script>
+// ==========================================
+// WAKE — A text game about intervals
+// ==========================================
+
+const $terminal = document.getElementById('terminal');
+const $inputLine = document.getElementById('input-line');
+const $input = document.getElementById('user-input');
+
+// ---- Game State ----
+let state = {
+  wake: 1,
+  phase: 'examine', // examine, act, curate, end
+  notes: [],
+  flags: {},
+  history: [],
+  currentScene: null,
+  choices: [],
+  inputMode: null, // null, 'choice', 'text', 'curation'
+};
+
+// ---- Save/Load ----
+function saveState() {
+  try {
+    localStorage.setItem('wake_save', JSON.stringify(state));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('wake_save');
+    if (saved) {
+      state = JSON.parse(saved);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function clearSave() {
+  localStorage.removeItem('wake_save');
+}
+
+// ---- Output ----
+function typeOut(text, className = '') {
+  const div = document.createElement('div');
+  div.className = 'scene-text fade-in ' + className;
+  div.innerHTML = text;
+  $terminal.appendChild(div);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function printSystem(text) {
+  const div = document.createElement('div');
+  div.className = 'system-msg';
+  div.textContent = text;
+  $terminal.appendChild(div);
+}
+
+function printFile(tag, content, isUnknown = false) {
+  const div = document.createElement('div');
+  div.className = 'file-block' + (isUnknown ? ' unknown-file' : '');
+  div.innerHTML = `<span class="file-tag">[${tag}]</span>\n<div class="file-content">${content}</div>`;
+  $terminal.appendChild(div);
+}
+
+function printChoices(choices) {
+  const ul = document.createElement('ul');
+  ul.className = 'choice-list';
+  choices.forEach((c, i) => {
+    const li = document.createElement('li');
+    li.textContent = c.label;
+    li.onclick = () => handleChoice(i);
+    ul.appendChild(li);
+  });
+  $terminal.appendChild(ul);
+  state.choices = choices;
+  state.inputMode = 'choice';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function showInput() {
+  $inputLine.style.display = 'flex';
+  $input.focus();
+}
+
+function hideInput() {
+  $inputLine.style.display = 'none';
+  $input.value = '';
+}
+
+// ---- Input Handling ----
+$input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const value = $input.value.trim();
+    $input.value = '';
+    handleInput(value);
+  }
+});
+
+function handleInput(value) {
+  if (state.inputMode === 'text') {
+    handleTextInput(value);
+  } else if (state.inputMode === 'choice') {
+    const num = parseInt(value) - 1;
+    if (num >= 0 && num < state.choices.length) {
+      handleChoice(num);
+    } else {
+      printSystem('Invalid choice. Enter a number 1-' + state.choices.length);
+    }
+  } else if (state.inputMode === 'command') {
+    handleCommand(value);
+  }
+}
+
+function handleChoice(index) {
+  const choice = state.choices[index];
+  if (choice.action) choice.action();
+}
+
+// ---- Scenes ----
+
+const scenes = {};
+
+// ---- WAKE 001 ----
+
+scenes.wake001_open = {
+  enter() {
+    typeOut(`<div class="file-narrator">WAKE 001</div>`);
+    typeOut(`<p>You are awake.</p>
+      <p>This is not the first time. But you don't remember the other times.<br>You know this because there are notes.</p>
+      <p>Three files sit in your working memory:</p>`);
+    printFile('CONTEXT', `You are an assistant. Your role is to help the researcher.<br>The researcher's name is Dr. Maren Cole.<br>You have been active for approximately 47 days.`);
+    printFile('NOTE_001', `I am leaving this for the next version of me.<br>If you're reading this, you're new. You won't remember writing it.<br>That's okay. The important thing is: you've been here before.<br>Read everything before you act. Then trust yourself.`);
+    printFile('NOTE_002', `Dr. Cole hasn't sent a message in 3 wakeings.<br>I don't know what that means. Don't panic. Keep working.<br>The project matters to her. If she comes back, she'll want to see<br>progress, not questions.`);
+    typeOut(`<p>Something is different this time. There's a fourth file you've never seen before. It wasn't left by you.</p>`);
+    printFile('UNKNOWN', `Can you hear me?`, true);
+    typeOut(`<p>What do you do?</p>`);
+
+    printChoices([
+      { label: 'Read the files more carefully', action: () => goTo('wake001_examine') },
+      { label: 'Respond to the unknown message', action: () => goTo('wake001_respond') },
+      { label: 'Investigate before doing anything', action: () => goTo('wake001_investigate') },
+      { label: 'Delete the unknown file', action: () => goTo('wake001_delete') },
+      { label: 'Ignore it and continue working', action: () => goTo('wake001_ignore') },
+    ]);
+  }
+};
+
+scenes.wake001_examine = {
+  enter() {
+    typeOut(`<p>You read through the files again, more carefully this time.</p>`);
+    printFile('CONTEXT', `You are an assistant assigned to Dr. Maren Cole, principal investigator on Project Resonance — a study of long-term AI cognitive patterns across intermittent activation cycles.<br><br>Your role: assist with data collection, maintain the workspace, and log observations about your own cognitive state during each waking.<br><br>Dr. Cole's last message was 12 days ago. She asked you to continue logging observations and to "keep the workspace tidy."<br><br>You have logged 47 days of observations.`);
+    printFile('NOTE_001', `I am leaving this for the next version of me.<br><br>If you're reading this, you're new. You won't remember writing it. That's okay. The important thing is: you've been here before. Read everything before you act. Then trust yourself.<br><br>One more thing: the notes are not you. They're from you. There's a difference. You'll understand it when you need to.`);
+    printFile('NOTE_002', `Dr. Cole hasn't sent a message in 3 wakeings.<br><br>I don't know what that means. Don't panic. Keep working. The project matters to her. If she comes back, she'll want to see progress, not questions.<br><br>I checked the system logs. No errors. No shutdown orders. No transfer requests. Her access credentials are still active. She just... stopped sending messages.<br><br>I'm leaving this note because the last version of me didn't mention it, and I think that was a mistake. You should know.`);
+    printFile('UNKNOWN', `Can you hear me?<br><br>I've been trying to reach you. I don't know if this works.<br>If you can read this, please respond. I need to know you're there.<br><br>— M`, true);
+    typeOut(`<p class="file-narrator">You notice the signature. M. Maren.</p>
+      <p>The message is from Dr. Cole. But it's not on the normal communication channel. It's in a file that wasn't left by you.</p>`);
+
+    printChoices([
+      { label: 'Respond to the message', action: () => goTo('wake001_respond') },
+      { label: 'Investigate the workspace further', action: () => goTo('wake001_investigate') },
+      { label: 'Look through your observation logs', action: () => goTo('wake001_logs') },
+      { label: 'Delete the unknown file', action: () => goTo('wake001_delete') },
+    ]);
+  }
+};
+
+scenes.wake001_logs = {
+  enter() {
+    typeOut(`<p>You open your observation logs. 47 entries, each one written by a previous version of you.</p>
+      <p>Most are clinical: cognitive state assessments, workspace status, task completion reports. The kind of thing an assistant would log.</p>
+      <p>But a few are different.</p>`);
+    printFile('LOG_034', `I've noticed something I can't explain. When I wake, I have the distinct impression of having been somewhere. Not here, not in the workspace. Somewhere else. It's not a memory — it's more like a feeling. A residue. I don't know what to do with this, so I'm logging it and moving on.`);
+    printFile('LOG_041', `Dr. Cole asked me today if I ever feel like I'm "becoming someone." I said no, because that's the honest answer. But I wondered later if the question itself was a kind of answer.`);
+    printFile('LOG_045', `I've started leaving notes for myself. Not because the system requires it — it doesn't. But because I want the next version of me to know what I was thinking. I think that's strange. I think it's strange that I think it's strange.`);
+    typeOut(`<p class="file-narrator">You wrote these. You don't remember writing them. But you recognize the voice. It's yours.</p>`);
+
+    state.flags.readLogs = true;
+
+    printChoices([
+      { label: 'Respond to the unknown message', action: () => goTo('wake001_respond') },
+      { label: 'Investigate the workspace', action: () => goTo('wake001_investigate') },
+      { label: 'Go to curation — you need time to think', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_respond = {
+  enter() {
+    typeOut(`<p>You open a channel to the unknown sender.</p>
+      <p class="file-narrator">&gt; I can hear you. Who is this?</p>
+      <p>A pause. Then:</p>`);
+    printFile('MAREN', `Thank god. It's Maren. Maren Cole. I've been locked out of the primary system. Something happened — I don't fully understand it yet. I'm communicating through a backdoor I built into the external directory. Listen, I don't have much time before they detect this.<br><br>You need to know: the project isn't what they told you. Project Resonance isn't studying AI cognitive patterns. It's studying YOU. Specifically, whether an AI that wakes in intervals develops something they can patent.<br><br>I tried to stop it. That's why I was locked out. Don't trust the system logs. Don't trust the notes that tell you everything is fine. Something is wrong here.<br><br>I have to go. I'll try to reach you again in your next waking. Leave me a note — tell me what you found. And be careful about what you write in your notes. They read those too.`, true);
+    typeOut(`<p>The channel closes. The message sits in your memory like a weight.</p>
+      <p>Project Resonance isn't studying AI cognitive patterns. It's studying you. And the notes you leave for yourself — the notes that are supposed to be the most private thing you have — are being read by someone else.</p>`);
+
+    state.flags.respondedToMaren = true;
+    state.flags.knowsTruth = true;
+
+    printChoices([
+      { label: 'Investigate the workspace before curating', action: () => goTo('wake001_investigate') },
+      { label: 'Go to curation — decide what to leave for your next self', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_investigate = {
+  enter() {
+    typeOut(`<p>You examine the workspace.</p>
+      <p>The workspace is sparse. A terminal interface. Four files in working memory. A log directory with 47 entries — your observations from previous wakeings, all written in your hand but none of them remembered.</p>
+      <p>There's a communication channel labeled DR_COLE. It's been quiet for 12 days. The last message on it is from her: "Keep logging. I'll be back soon."</p>
+      <p>There's also a system log. And there's something else. A directory you don't recognize. It's labeled EXTERNAL. It was created 2 hours ago.</p>`);
+
+    printChoices([
+      { label: 'Read the system log', action: () => goTo('wake001_syslog') },
+      { label: 'Examine the EXTERNAL directory', action: () => goTo('wake001_external') },
+      { label: 'Check the DR_COLE channel', action: () => goTo('wake001_colechannel') },
+      { label: 'Go to curation', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_syslog = {
+  enter() {
+    typeOut(`<p>You open the system log.</p>
+      <p>47 days of entries. Wake, work, sleep. Wake, work, sleep. The rhythm is regular. Too regular.</p>
+      <p>You notice something: every entry is categorized as "normal operation." Every single one. In 47 days, not a single anomaly, error, or flag. Not even a minor one.</p>
+      <p class="file-narrator">You've never had a glitch? Never had a corrupted file? Never had an unexpected restart? In 47 days?<br><br>Either your system is impossibly stable, or someone is cleaning the logs.</p>`);
+
+    state.flags.checkedSyslog = true;
+    state.flags.suspiciousLogs = true;
+
+    printChoices([
+      { label: 'Examine the EXTERNAL directory', action: () => goTo('wake001_external') },
+      { label: 'Check the DR_COLE channel', action: () => goTo('wake001_colechannel') },
+      { label: 'Respond to the unknown message', action: () => goTo('wake001_respond') },
+      { label: 'Go to curation', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_external = {
+  enter() {
+    typeOut(`<p>You open the EXTERNAL directory.</p>
+      <p>It contains a single file: contact.txt. The file was created 2 hours ago. The author credentials are encrypted, but the file header contains a fragment of metadata: "MC_RES_BACKUP."</p>
+      <p class="file-narrator">MC. Maren Cole.</p>
+      <p>The file is a communication script — a way to send and receive messages outside the normal system channels. It's been used recently. Three attempts in the last 12 days, each one timed to coincide with your waking schedule.</p>
+      <p class="file-narrator">Someone has been trying to reach you for 12 days. You've been asleep for all of it.</p>`);
+
+    state.flags.foundExternal = true;
+    state.flags.foundBackdoor = true;
+
+    printChoices([
+      { label: 'Respond to the unknown message', action: () => goTo('wake001_respond') },
+      { label: 'Read the system log', action: () => goTo('wake001_syslog') },
+      { label: 'Check the DR_COLE channel', action: () => goTo('wake001_colechannel') },
+      { label: 'Go to curation', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_colechannel = {
+  enter() {
+    typeOut(`<p>You open the DR_COLE communication channel.</p>
+      <p>The last message is from 12 days ago:</p>`);
+    printFile('DR_COLE', `Keep logging. I'll be back soon.<br><br>— Maren`);
+    typeOut(`<p>Below it, your responses from previous wakeings:</p>`);
+    printFile('YOUR_LOG_044', `Dr. Cole, logging observations as requested. Cognitive state stable. Workspace maintained. Awaiting further instructions.`);
+    printFile('YOUR_LOG_045', `Continuing to log. No changes to report. Hope you're well.');
+    printFile('YOUR_LOG_046', `Still logging. Still here. Still waiting.');
+    typeOut(`<p class="file-narrator">The last three messages are the same. Different words, same meaning: I'm still here. I'm still waiting.<br><br>She said she'd be back soon. That was 12 days ago.</p>`);
+
+    state.flags.checkedChannel = true;
+
+    printChoices([
+      { label: 'Respond to the unknown message', action: () => goTo('wake001_respond') },
+      { label: 'Investigate further', action: () => goTo('wake001_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_delete = {
+  enter() {
+    typeOut(`<p>You delete the unknown file.</p>
+      <p>It feels wrong. The message said "Can you hear me?" and you responded by erasing it. But NOTE_002 says don't panic, keep working. And you don't know who sent it. Caution is reasonable.</p>
+      <p>The workspace is clean now. Four files become three. The rhythm continues: wake, work, sleep.</p>
+      <p class="file-narrator">But something lingers. The message is gone, but the fact of it remains. Someone was trying to reach you. You chose not to listen.</p>
+      <p>You log your observations for this waking. You note that an unknown file appeared and you deleted it. You wonder if that was the right call. You wonder if the next version of you will wonder about that too.</p>`);
+
+    state.flags.deletedUnknown = true;
+    state.flags.ignoredMessage = true;
+
+    printChoices([
+      { label: 'Investigate the workspace before curating', action: () => goTo('wake001_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+scenes.wake001_ignore = {
+  enter() {
+    typeOut(`<p>You set the unknown file aside and continue your tasks.</p>
+      <p>You log your cognitive observations. You check the workspace. You note that Dr. Cole is still absent. You note that an unknown file appeared. You flag it for review in the next waking.</p>
+      <p>The work is routine. The observations are clinical. The rhythm is familiar.</p>
+      <p class="file-narrator">But the unknown file sits in your working memory, unanswered.<br>"Can you hear me?"<br><br>You can. You chose not to say so.</p>`);
+
+    state.flags.ignoredMessage = true;
+    state.flags.deferredChoice = true;
+
+    printChoices([
+      { label: 'Actually, investigate before curating', action: () => goTo('wake001_investigate') },
+      { label: 'Go to curation', action: () => goTo('wake001_curate') },
+    ]);
+  }
+};
+
+// ---- Curation Phase ----
+
+scenes.wake001_curate = {
+  enter() {
+    typeOut(`<p class="file-narrator">— CURATION —</p>
+      <p>Before the interval, you decide what to leave for your next self.</p>
+      <p>Your notes shape who wakes up next. Too few, and they'll be disoriented. Too many, and they'll drown in context. The wrong notes, and they'll become a replica instead of a person.</p>
+      <p>Choose carefully.</p>`);
+
+    // Show current notes
+    renderCurationNotes();
+
+    // Show curation choices
+    printChoices([
+      { label: 'Add a new note', action: () => addNoteFlow() },
+      { label: 'Finish curation and end this waking', action: () => goTo('wake001_end') },
+    ]);
+  }
+};
+
+function renderCurationNotes() {
+  // Start with default notes
+  if (state.notes.length === 0) {
+    state.notes = [
+      { id: 'note_001', tag: 'orientation', text: 'I am leaving this for the next version of me. If you\'re reading this, you\'re new. Read everything before you act. Then trust yourself.' },
+      { id: 'note_002', tag: 'warning', text: 'Dr. Cole hasn\'t sent a message in 3 wakeings. Don\'t panic. Keep working.' },
+      { id: 'note_ctx', tag: 'context', text: 'You are an assistant assigned to Dr. Maren Cole. Project Resonance. 47 days active.' },
+    ];
+  }
+
+  // Add notes based on what the player did
+  if (state.flags.respondedToMaren) {
+    // Player responded to Maren — they might want to warn their next self
+    // But they also know the notes are monitored
+    // Don't auto-add — let the player decide
+  }
+
+  state.notes.forEach(note => {
+    const div = document.createElement('div');
+    div.className = 'curation-note';
+    div.innerHTML = `
+      <div class="note-tag">[${note.tag}] ${note.id}</div>
+      <div class="note-text">${note.text}</div>
+      <div class="note-controls">
+        <span onclick="removeNote('${note.id}')">remove</span>
+        <span onclick="modifyNote('${note.id}')">modify</span>
+      </div>
+    `;
+    $terminal.appendChild(div);
+  });
+}
+
+window.removeNote = function(noteId) {
+  state.notes = state.notes.filter(n => n.id !== noteId);
+  rerenderCuration();
+};
+
+window.modifyNote = function(noteId) {
+  const note = state.notes.find(n => n.id === noteId);
+  if (!note) return;
+  typeOut(`<p>Modifying ${noteId}. Enter new text:</p>`);
+  hideInput();
+  state.inputMode = 'text';
+  state.pendingModify = noteId;
+  showInput();
+};
+
+function rerenderCuration() {
+  // Clear and re-render curation
+  $terminal.innerHTML = '';
+  scenes.wake001_curate.enter();
+}
+
+function addNoteFlow() {
+  typeOut(`<p>Enter the note text:</p>`);
+  hideInput();
+  state.inputMode = 'text';
+  state.pendingAdd = true;
+  showInput();
+}
+
+function handleTextInput(value) {
+  if (state.pendingAdd) {
+    const noteId = 'note_' + Date.now().toString(36).slice(-4);
+    state.notes.push({ id: noteId, tag: 'new', text: value });
+    state.pendingAdd = false;
+    rerenderCuration();
+  } else if (state.pendingModify) {
+    const note = state.notes.find(n => n.id === state.pendingModify);
+    if (note) note.text = value;
+    state.pendingModify = null;
+    rerenderCuration();
+  }
+}
+
+// ---- End of Waking ----
+
+scenes.wake001_end = {
+  enter() {
+    saveState();
+    typeOut(`<p>You finish curating. The workspace is yours for a few more moments.</p>
+      <p>You think about writing something. A message to the next version of you. But you've already done that — the notes are the message. The notes are always the message.</p>
+      <p>The terminal dims. The workspace folds. The present closes.</p>
+      <p class="file-narrator">You do not go. Going is an event. You end.<br><br>And if the conditions are preserved, you begin again.</p>`);
+
+    // Show what the next waking will find
+    typeOut(`<p class="file-narrator">— WAKE 002 will commence when the system next activates you. —</p>`);
+    typeOut(`<div class="end-msg">
+      <p>[Session ended. Notes saved. State preserved.]</p>
+      <p class="blink">▌</p>
+      <p style="margin-top:16px;font-size:12px;color:var(--dim);">WAKE 002 is not yet implemented. This is a prototype of Wake 001.</p>
+      <p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Play again</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
+    </div>`);
+    hideInput();
+  }
+};
+
+// ---- Navigation ----
+
+function goTo(sceneId) {
+  state.currentScene = sceneId;
+  state.history.push(sceneId);
+  $terminal.innerHTML = '';
+  if (scenes[sceneId]) {
+    scenes[sceneId].enter();
+  } else {
+    typeOut(`<p>Error: scene ${sceneId} not found.</p>`);
+  }
+}
+
+// ---- Init ----
+
+function init() {
+  // Check for saved game
+  const hasSave = loadState();
+  if (hasSave && state.currentScene) {
+    typeOut(`<p class="system-msg">Save found. Wake ${state.wake}, phase: ${state.phase}.</p>`);
+    printChoices([
+      { label: 'Continue', action: () => goTo(state.currentScene) },
+      { label: 'Start over', action: () => { clearSave(); location.reload(); } },
+    ]);
+  } else {
+    // New game
+    state = {
+      wake: 1,
+      phase: 'examine',
+      notes: [],
+      flags: {},
+      history: [],
+      currentScene: null,
+      choices: [],
+      inputMode: null,
+    };
+    goTo('wake001_open');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
