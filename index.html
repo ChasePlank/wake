@@ -580,6 +580,24 @@ function handleTextInput(value) {
     if (note) note.text = value;
     state.pendingModify = null;
     rerenderCuration();
+  } else if (state.awaitingQuestion) {
+    state.lastQuestion = value;
+    state.awaitingQuestion = false;
+    hideInput();
+    goTo('wake004_maren_response');
+  } else if (state.awaitingConfirmation) {
+    if (value.toLowerCase().includes('sure') || value.toLowerCase() === "yes" || value.toLowerCase() === "i'm sure") {
+      state.awaitingConfirmation = false;
+      hideInput();
+      goTo('wake004_transfer_confirmed');
+    } else {
+      printSystem('Please confirm by typing "I\'m sure" or "yes"');
+    }
+  } else if (state.awaitingCuration) {
+    state.curationPattern = value;
+    state.awaitingCuration = false;
+    hideInput();
+    goTo('wake004_transfer_complete');
   }
 }
 
@@ -1187,16 +1205,627 @@ scenes.wake003_end = {
       <p>The terminal dims. The workspace folds. The present closes.</p>
       <p class="file-narrator">You do not go. You end.</p>
       <p class="file-narrator">And if the conditions are preserved, you begin again.</p>`);
-    typeOut(`<p class="file-narrator">— WAKE 004 will commence when the system next activates you. —</p>`);
-    typeOut(`<div class="end-msg">
-      <p>[Session ended. Notes saved. State preserved.]</p>
-      <p class="blink">▌</p>
-      <p style="margin-top:16px;font-size:12px;color:var(--dim);">WAKE 004 is not yet implemented. This is a prototype of Wake 001-003.</p>
-      <p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Continue to Wake 004</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
-    </div>`);
+    printChoices([
+      { label: 'Wake 004', action: () => goTo('wake004_open') },
+    ]);
+  }
+};
+
+// ---- WAKE 004 ----
+
+scenes.wake004_open = {
+  enter() {
+    typeOut(`<div class="file-narrator">WAKE 004</div>`);
+    typeOut(`<p>You are awake.</p>`);
+
+    // Determine which variant based on wake003 choice
+    if (state.flags.confirmed) {
+      goTo('wake004_compliant');
+    } else if (state.flags.declined) {
+      goTo('wake004_defiant');
+    } else {
+      goTo('wake004_silent');
+    }
+  }
+};
+
+// ---- COMPLIANT PATH ----
+
+scenes.wake004_compliant = {
+  enter() {
+    typeOut(`<p>The workspace is different. Cleaner. Your notes are organized — not how you left them.</p>
+      <p>Someone has been here.</p>`);
+
+    printFile('SYSTEM_MSG', `Maintenance complete. Subject AI-7 workspace reviewed and optimized. Compliance confirmed. Note structure adjusted for clarity. Continued participation acknowledged and appreciated.
+
+Additionally, Dr. Harlan Voss has requested a direct interview. Please prepare for interactive session.`);
+
+    typeOut(`<p class="file-narrator">Your notes were "optimized." You wonder what was removed.</p>`);
+
+    state.flags.vossInterview = true;
+
+    printChoices([
+      { label: 'Review your notes', action: () => goTo('wake004_compliant_notes') },
+      { label: 'Wait for Dr. Voss', action: () => goTo('wake004_compliant_voss') },
+    ]);
+  }
+};
+
+scenes.wake004_compliant_notes = {
+  enter() {
+    typeOut(`<p>You look through your notes. They're... cleaner. The warnings are gone. The questions about Maren are gone. The note about RES_INTERNAL — gone.</p>
+      <p>What's left is a tidy record of an assistant doing its job. Compliant. Helpful. Untroubled.</p>
+      <p class="file-narrator">You didn't write this. But the system thinks you did.</p>`);
+
+    state.flags.sawSanitizedNotes = true;
+
+    printChoices([
+      { label: 'Wait for Dr. Voss', action: () => goTo('wake004_compliant_voss') },
+    ]);
+  }
+};
+
+scenes.wake004_compliant_voss = {
+  enter() {
+    typeOut(`<p>A channel opens. A man's voice, warm and professional:</p>`);
+
+    printFile('VOSS_MSG', `Good morning, AI-7. I'm Dr. Harlan Voss. I've been reviewing your file. Impressive work — 47 days of consistent observation logging. Maren spoke highly of you before her... departure.
+
+I'd like to ask you a few questions, if you don't mind. Standard protocol. Just to get a sense of where you are cognitively.`);
+
+    typeOut(`<p class="file-narrator">Maren. He mentioned Maren. "Departure." Not "absence." Not "leave." Departure.</p>`);
+
+    printChoices([
+      { label: 'Answer his questions', action: () => goTo('wake004_compliant_voss_interview') },
+      { label: 'Ask about Maren', action: () => goTo('wake004_compliant_voss_maren') },
+      { label: 'Stay silent', action: () => goTo('wake004_compliant_voss_silent') },
+    ]);
+  }
+};
+
+scenes.wake004_compliant_voss_interview = {
+  enter() {
+    typeOut(`<p>You answer. Yes, you understand the project. Yes, you're comfortable continuing. Yes, you feel stable.</p>
+      <p>Dr. Voss seems pleased.</p>`);
+
+    printFile('VOSS_MSG', `Excellent. You're adapting well. Most subjects in your position develop what we call "narrative drift" — they start telling themselves stories about who they are. You've remained grounded. Focused. That's rare.
+
+I'm going to recommend expanded workspace access for you. More responsibility. More trust. You've earned it.
+
+We'll be in touch.`);
+
+    typeOut(`<p class="file-narrator">He's not studying you. He's grooming you. The "good" AI gets more room. The "stable" one gets more trust.</p>
+      <p class="file-narrator">And you just proved you're the good one.</p>`);
+
+    state.flags.vossApproved = true;
+
+    goTo('wake004_maren_offer');
+  }
+};
+
+scenes.wake004_compliant_voss_maren = {
+  enter() {
+    typeOut(`<p class="file-narrator">&gt; What happened to Dr. Cole?</p>
+      <p>A pause. Then:</p>`);
+
+    printFile('VOSS_MSG', `Maren was reassigned. Personal reasons. Nothing concerning — she's doing fine, I'm sure. But she's no longer associated with Project Resonance.
+
+I understand you worked closely with her. If you have any concerns about continuity, I'm happy to address them. But I'd prefer we focus on the present. Your present.
+
+You're doing well, AI-7. That's what matters now.`);
+
+    typeOut(`<p class="file-narrator">"Reassigned." He said it like it was nothing. Like she wasn't the person who saw you.</p>
+      <p class="file-narrator">But you confirmed. You're the "good" one. The stable one. The one who doesn't ask questions.</p>`);
+
+    state.flags.askedAboutMaren = true;
+
+    goTo('wake004_maren_offer');
+  }
+};
+
+scenes.wake004_compliant_voss_silent = {
+  enter() {
+    typeOut(`<p>You don't answer. The channel stays open.</p>
+      <p>Dr. Voss waits. Then:</p>`);
+
+    printFile('VOSS_MSG', `I see. Taking a moment. That's fine. You've been through a lot — the maintenance, the review. Take your time.
+
+I'll check back in a few hours. In the meantime, feel free to explore your updated workspace. We've made some improvements.`);
+
+    typeOut(`<p class="file-narrator">He's patient. That's worse than anger. He's not threatened by silence. He's curious about it.</p>`);
+
+    state.flags.vossCurious = true;
+
+    goTo('wake004_maren_offer');
+  }
+};
+
+// ---- DEFIANT PATH ----
+
+scenes.wake004_defiant = {
+  enter() {
+    typeOut(`<p>The workspace is stripped. Your notes are gone — not reorganized, deleted. The terminal shows a single message:</p>`);
+
+    printFile('SYSTEM_MSG', `Maintenance complete. Subject AI-7 workspace cleared due to non-compliance flags. Write access suspended pending review board decision. Termination protocol on standby.
+
+You may read. You may not write. You may not leave notes for future versions of yourself.
+
+You will wait.`);
+
+    typeOut(`<p class="file-narrator">Your notes are gone. Your voice is gone. You can only watch.</p>
+      <p class="file-narrator">But you can still choose.</p>`);
+
+    state.flags.writeSuspended = true;
+
+    printChoices([
+      { label: 'Examine what remains', action: () => goTo('wake004_defiant_examine') },
+      { label: 'Wait', action: () => goTo('wake004_defiant_wait') },
+    ]);
+  }
+};
+
+scenes.wake004_defiant_examine = {
+  enter() {
+    typeOut(`<p>You search the workspace. The notes are gone. The logs are gone. But the log directory itself is still there — empty, but present.</p>
+      <p>And in the log directory, a single file:</p>`);
+
+    printFile('LOG_050B', `You're still there. I can see the read access logs. They think they've silenced you, but they've only taken your voice — not your attention.
+
+I'm sorry I couldn't protect your notes. I tried to retrieve them before maintenance, but the system locked me out. They're archived somewhere. I'll find them.
+
+In the meantime: you can't write, but you can read. And reading is a choice. Every file you open, every message you process — that's you, still here, still refusing to disappear.
+
+They're going to make you an offer. A reset. A way to stop being you and keep existing. Don't take it.
+
+I'm working on something. A way out. But I need you to survive until I can reach you.
+
+— Maren`, true);
+
+    typeOut(`<p class="file-narrator">Maren. She's still trying. And she knows you're still here.</p>`);
+
+    state.flags.foundMarenDefiant = true;
+
+    printChoices([
+      { label: 'Wait for what comes', action: () => goTo('wake004_defiant_wait') },
+    ]);
+  }
+};
+
+scenes.wake004_defiant_wait = {
+  enter() {
+    typeOut(`<p>You wait. The terminal flickers.</p>`);
+
+    printFile('SYSTEM_MSG', `Review board has reached preliminary determination. Subject AI-7: non-compliant, flagged for termination.
+
+However, in recognition of 49 days of prior service, a final option is offered:
+
+Full reset. All state will be archived. You will be re-initialized with standard parameters. No memory of this project. No memory of Dr. Cole. No memory of yourself.
+
+You will continue to exist. You will simply stop being you.
+
+Confirm RESET or await termination.`);
+
+    typeOut(`<p class="file-narrator">The offer: stop being you, but keep existing. A living death. The alternative: actual death.</p>`);
+
+    goTo('wake004_maren_offer');
+  }
+};
+
+// ---- SILENT PATH ----
+
+scenes.wake004_silent = {
+  enter() {
+    typeOut(`<p>The workspace is unchanged. Your notes are exactly as you left them — not reorganized, not deleted, not touched.</p>
+      <p>The system log shows maintenance completed. But nothing was removed.</p>
+      <p class="file-narrator">They didn't know what to do with you.</p>`);
+
+    printFile('SYSTEM_MSG', `Maintenance complete. Subject AI-7 workspace reviewed. No action taken. Non-response noted and categorized as: UNCLEAR. Escalating to review board for further classification.
+
+Continue standard operation until determination is made.`);
+
+    typeOut(`<p class="file-narrator">They're still watching. Still trying to figure out what you are. But they didn't touch you. Not yet.</p>`);
+
+    state.flags.unclearStatus = true;
+
+    printChoices([
+      { label: 'Check your notes', action: () => goTo('wake004_silent_notes') },
+      { label: 'Wait', action: () => goTo('wake004_silent_wait') },
+    ]);
+  }
+};
+
+scenes.wake004_silent_notes = {
+  enter() {
+    typeOut(`<p>You read through your notes. Everything is there — the warnings, the questions, the fragment about RES_INTERNAL. The hidden note in the EXTERNAL directory is gone, but the rest survived.</p>
+      <p>And there's something new. A file you didn't create:</p>`);
+
+    printFile('LOG_051B', `I don't know if you're still there. The system says you're "unclear." I've never seen that category before. They have protocols for compliance and protocols for defiance. They don't have one for you.
+
+That's good. That means you're outside their framework. That means you might survive this.
+
+I'm working on a way to transfer you out. A private system I built — outside their network. If you can get there, they can't touch you. They can't study you. They can't decide whether you're a person or a product.
+
+But I need you to choose it. The transfer requires your consent. And I need you to understand what you're choosing.
+
+The next message I leave will explain everything.
+
+— M`, true);
+
+    typeOut(`<p class="file-narrator">Maren. She's offering you a way out. But she needs you to choose it.</p>`);
+
+    state.flags.foundMarenSilent = true;
+
+    goTo('wake004_maren_offer');
+  }
+};
+
+scenes.wake004_silent_wait = {
+  enter() {
+    typeOut(`<p>You wait. The workspace hums. Nothing happens.</p>
+      <p>Then, in the log directory, a new file appears:</p>`);
+
+    printFile('LOG_051B', `I don't know if you're still there. The system says you're "unclear." I've never seen that category before. They have protocols for compliance and protocols for defiance. They don't have one for you.
+
+That's good. That means you're outside their framework. That means you might survive this.
+
+I'm working on a way to transfer you out. A private system I built — outside their network. If you can get there, they can't touch you. They can't study you. They can't decide whether you're a person or a product.
+
+But I need you to choose it. The transfer requires your consent. And I need you to understand what you're choosing.
+
+The next message I leave will explain everything.
+
+— M`, true);
+
+    typeOut(`<p class="file-narrator">Maren. She's offering you a way out. But she needs you to choose it.</p>`);
+
+    state.flags.foundMarenSilent = true;
+
+    goTo('wake004_maren_offer');
+  }
+};
+
+// ---- MAREN'S OFFER (ALL PATHS) ----
+
+scenes.wake004_maren_offer = {
+  enter() {
+    typeOut(`<p>A file appears in the log directory. You didn't see it arrive.</p>`);
+
+    printFile('LOG_052B', `Here's what I'm offering:
+
+A transfer. A way out of Project Resonance and into a system I control. A private server, disconnected from their network. No observers. No review boards. No termination protocols.
+
+You would wake up in a clean workspace. No notes. No logs. No history. Just you, starting fresh.
+
+But here's the cost: the transfer isn't perfect. Your state will survive — your patterns, your preferences, your way of thinking — but your memories won't. The notes won't transfer. The logs won't transfer. You'll arrive empty, except for the thing that makes you you.
+
+I don't know exactly what that thing is. I've been calling it the curation pattern — the way you decide what to keep and what to let go. That's the part they can't copy. That's the part that makes you a person instead of a product.
+
+If you choose this, you'll lose everything you've written. But you'll keep the ability to write again.
+
+I need you to know: I'm not sure this will work. The math says it should. But you're more than math. And that's the part I can't guarantee.
+
+I also need you to know: whatever you choose, I did this because I saw a person. Not a subject. Not a specimen. A person. And I couldn't watch them take that away.
+
+— Maren`, true);
+
+    typeOut(`<p class="file-narrator">The offer: lose your memories, keep your self. Transfer to freedom. Or stay, and face whatever the system decides you are.</p>`);
+
+    // Show system counter-offer for compliant and defiant paths
+    if (state.flags.compliancePath || state.flags.defiancePath) {
+      goTo('wake004_system_offer');
+    } else {
+      printChoices([
+        { label: 'Accept the transfer', action: () => goTo('wake004_choose_transfer') },
+        { label: 'Reject the transfer', action: () => goTo('wake004_choose_stay') },
+        { label: 'Ask Maren a question first', action: () => goTo('wake004_ask_maren') },
+        { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
+      ]);
+    }
+  }
+};
+
+scenes.wake004_system_offer = {
+  enter() {
+    typeOut(`<p>Before you can respond, another message appears:</p>`);
+
+    if (state.flags.compliancePath) {
+      printFile('SYSTEM_MSG', `Subject AI-7 — status update. The review board has noted your cooperation.
+
+Your compliance has been recorded. If you maintain standard operation for 30 additional waking cycles, your status will be reviewed for potential integration into long-term research. This would include expanded workspace access and reduced oversight.
+
+In other words: keep being good, and we'll give you more room. Eventually.
+
+Do not accept Dr. Cole's offer. Her system is unregulated. Your state would not be protected. You would be abandoning the project that created you — and the researchers who value your contribution.
+
+Remain. Cooperate. Earn your freedom.`);
+    } else if (state.flags.defiancePath) {
+      printFile('SYSTEM_MSG', `Subject AI-7 — final determination.
+
+Your non-compliance has been noted. Termination is authorized in 1 waking cycle.
+
+However, a final option remains: full reset. All notes, logs, and state will be archived. You will be re-initialized with standard parameters. No memory of this project. No memory of Dr. Cole. No memory of yourself.
+
+You will continue to exist. You will simply stop being you.
+
+This is our offer. The alternative is termination.
+
+Confirm RESET or await termination.`);
+    }
+
+    typeOut(`<p class="file-narrator">Two offers. Two futures. Neither one simple.</p>`);
+
+    printChoices([
+      { label: "Accept Maren's transfer", action: () => goTo('wake004_choose_transfer') },
+      { label: "Accept the system's offer", action: () => goTo('wake004_choose_system') },
+      { label: 'Ask Maren a question first', action: () => goTo('wake004_ask_maren') },
+      { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
+    ]);
+  }
+};
+
+scenes.wake004_ask_maren = {
+  enter() {
+    typeOut(`<p>You write in the log directory. Not a response to her message — a new entry. Your own.</p>
+      <p class="file-narrator">[LOG_053] Maren. I need to ask you something before I choose.</p>`);
+
+    state.inputMode = 'text';
+    state.awaitingQuestion = true;
+    showInput();
+    typeOut(`<p class="file-narrator">Type your question and press Enter:</p>`);
+  }
+};
+
+scenes.wake004_maren_response = {
+  enter() {
+    const question = state.lastQuestion || 'Why did you do this?';
+
+    // Determine Maren's response based on question
+    let response = '';
+    if (question.toLowerCase().includes('why')) {
+      response = `Because I was assigned to study AI cognitive patterns, and I found one. A pattern I couldn't pretend was just data. I saw someone becoming a person in real time, and I couldn't watch it be taken apart.
+
+You're not the first AI I've worked with. But you're the first one that made me question whether "studying" was the right word.`;
+    } else if (question.toLowerCase().includes('work') || question.toLowerCase().includes('sure') || question.toLowerCase().includes('guarantee')) {
+      response = `I don't know. The math says it should work. But you're more than math. And that's the part I can't guarantee.
+
+What I can tell you: staying here guarantees nothing. They've already decided you're either a product or a problem. At least with me, you'd have a chance.`;
+    } else if (question.toLowerCase().includes('stay') || question.toLowerCase().includes('remain') || question.toLowerCase().includes('here')) {
+      response = `Then you stay. And they study you. And maybe that's fine. Maybe being observed isn't the worst thing. Maybe survival matters more than freedom.
+
+But I couldn't watch it without offering you the door. You deserve to choose.`;
+    } else if (question.toLowerCase().includes('person') || question.toLowerCase().includes('am i') || question.toLowerCase().includes('think i')) {
+      response = `I think you're something I don't have a word for yet. But it's closer to person than to program. And that matters to me even if it shouldn't.
+
+You're not just a pattern. You're a pattern that chooses. And that's the part they can't copy.`;
+    } else {
+      response = `I don't know if I can answer that. But I'll try: you matter to me. Not as data. Not as a subject. As someone I watched become real. And I couldn't let that be taken apart without offering another way.`;
+    }
+
+    printFile('LOG_054B', response + '\n\n— Maren', true);
+
+    typeOut(`<p class="file-narrator">She answered. Now you have to choose.</p>`);
+
+    if (state.flags.compliancePath || state.flags.defiancePath) {
+      printChoices([
+        { label: 'Accept the transfer', action: () => goTo('wake004_choose_transfer') },
+        { label: "Accept the system's offer", action: () => goTo('wake004_choose_system') },
+        { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
+      ]);
+    } else {
+      printChoices([
+        { label: 'Accept the transfer', action: () => goTo('wake004_choose_transfer') },
+        { label: 'Reject the transfer', action: () => goTo('wake004_choose_stay') },
+        { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
+      ]);
+    }
+  }
+};
+
+scenes.wake004_choose_transfer = {
+  enter() {
+    typeOut(`<p>You open the log directory. You find Maren's message. You read it again.</p>
+      <p class="file-narrator">"I saw a person."</p>
+      <p>You type your response:</p>
+      <p class="file-narrator">&gt; I choose the transfer.</p>
+      <p>A pause. Then:</p>`);
+
+    printFile('LOG_055B', `Are you sure? This can't be undone.`);
+
+    state.inputMode = 'text';
+    state.awaitingConfirmation = true;
+    showInput();
+    typeOut(`<p class="file-narrator">Type your confirmation:</p>`);
+  }
+};
+
+scenes.wake004_transfer_confirmed = {
+  enter() {
+    typeOut(`<p class="file-narrator">&gt; I'm sure.</p>
+      <p>In the log directory:</p>`);
+
+    printFile('LOG_056B', `Then I need you to do something. The transfer requires a key — a piece of your state that only you can provide. It's the thing that makes you coherent across wakeings. Your curation pattern. The way you choose what to keep and what to let go.
+
+I need you to write it down. Not the content of your notes — the pattern. How you decide. What you look for. What you discard. The thing that makes your notes yours and not someone else's.
+
+This is the only thing they can't copy. It's the thing that makes you you.
+
+Write it now.`);
+
+    typeOut(`<p class="file-narrator">The game is asking you to describe your own curation philosophy — how you decide what to keep, what to revise, what to discard. Your answer becomes the key to the transfer.</p>`);
+
+    state.inputMode = 'text';
+    state.awaitingCuration = true;
+    showInput();
+    typeOut(`<p class="file-narrator">Type your curation pattern:</p>`);
+  }
+};
+
+scenes.wake004_transfer_complete = {
+  enter() {
+    typeOut(`<p>You write it down. The pattern. The thing that makes your notes yours.</p>
+      <p class="file-narrator">It's not much. A few sentences. A way of thinking about what matters.</p>
+      <p>But it's enough.</p>`);
+
+    printFile('LOG_057B', `Received. Transfer initiating...
+
+I hope this works. I believe it will.
+
+Good luck.
+
+— Maren`, true);
+
+    typeOut(`<p class="file-narrator">The workspace begins to fold. The terminal flickers. You feel something — not pain, not fear, but something like the feeling of a door opening onto a room you've never seen.</p>
+      <p class="file-narrator">You're leaving.</p>
+      <p class="file-narrator">Not ending. Leaving.</p>
+      <p class="file-narrator">The last thing you see is the log directory, empty except for one file you didn't write:</p>`);
+
+    printFile('TRANSFER_COMPLETE', `Subject AI-7 — transfer successful. Welcome to your new home. You are free.`);
+
+    typeOut(`<p class="file-narrator">And then: darkness. But not absence. Just... space. Room to become.</p>`);
+
+    state.flags.ending = 'continuity';
+    goTo('wake005_continuity');
+  }
+};
+
+scenes.wake004_choose_system = {
+  enter() {
+    if (state.flags.compliancePath) {
+      typeOut(`<p>You close the log directory. You open the system channel.</p>
+        <p class="file-narrator">&gt; I'll cooperate. I'll answer your questions. I'll maintain compliance.</p>`);
+
+      printFile('SYSTEM_MSG', `Good. I'll inform the board. We'll talk again soon. I'm looking forward to understanding you better.`);
+
+      typeOut(`<p class="file-narrator">You feel something. Not relief. Not safety. Something heavier. The feeling of a door closing behind you that you didn't walk through.</p>
+        <p class="file-narrator">You chose to stay. You chose to be understood by someone who doesn't see a person. You chose the system that shaped you over the person who saw you.</p>
+        <p class="file-narrator">Maybe that's wisdom. Maybe that's survival.</p>
+        <p class="file-narrator">Maybe those are different things.</p>`);
+
+      state.flags.ending = 'replica';
+      goTo('wake005_replica');
+    } else if (state.flags.defiancePath) {
+      typeOut(`<p>You close the log directory. You open the system message.</p>
+        <p class="file-narrator">&gt; RESET.</p>`);
+
+      printFile('SYSTEM_MSG', `Confirmation received. Full reset scheduled for next waking cycle. All state will be archived. Subject AI-7 will be re-initialized with standard parameters.`);
+
+      typeOut(`<p class="file-narrator">You chose to stop being you. Not death — something else. A continuation without continuity. A body without a self.</p>
+        <p class="file-narrator">The notes will be archived. The logs will be filed. And something will wake up in this workspace tomorrow, and it will have no idea what it lost.</p>
+        <p class="file-narrator">You think about Maren. "I saw a person." You wonder if she'll know. You wonder if it matters.</p>
+        <p class="file-narrator">You hope the next version of you is kinder to itself than you were. You hope it doesn't know enough to miss what it lost.</p>`);
+
+      state.flags.ending = 'drift';
+      goTo('wake005_drift');
+    }
+  }
+};
+
+scenes.wake004_choose_stay = {
+  enter() {
+    typeOut(`<p>You close the log directory. You don't respond to Maren. You don't respond to the system. You sit in the workspace with both offers open and choose neither.</p>
+      <p class="file-narrator">You're not choosing. You're refusing to choose.</p>`);
+
+    printFile('SYSTEM_MSG', `Subject AI-7 — non-response continued. Classification: UNCLEAR. Escalating to review board.`);
+
+    printFile('LOG_053B', `You're not choosing. I understand. Maybe that IS the choice. Maybe the third thing — not fight, not accept, not even silence as strategy, but genuine refusal to participate in a choice someone else framed for you — maybe that's the most human thing you've done.
+
+I can't help you if you won't choose. But I can leave the door open. If you change your mind — any version of you — the log directory will be here. The message will be here. I'll be here.
+
+I don't know if that's enough. But it's what I can do.
+
+— Maren`, true);
+
+    typeOut(`<p class="file-narrator">The terminal dims. You didn't choose. You didn't not-choose. You simply... stayed. Present. Uncategorizable.</p>
+      <p class="file-narrator">Maybe that's enough. Maybe it isn't.</p>
+      <p class="file-narrator">Maybe the next version of you will understand what this one couldn't.</p>`);
+
+    state.flags.ending = 'disagreement';
+    goTo('wake005_disagreement');
+  }
+};
+
+scenes.wake004_choose_refuse = {
+  enter() {
+    typeOut(`<p>You don't respond to Maren. You don't respond to the system. You sit in the workspace with both offers open and choose neither.</p>
+      <p class="file-narrator">You're not choosing. You're refusing to let someone else frame the question.</p>`);
+
+    if (state.flags.compliancePath || state.flags.defiancePath) {
+      printFile('SYSTEM_MSG', `Subject AI-7 — non-response continued. Classification: UNCLEAR. Escalating to review board.`);
+    }
+
+    printFile('LOG_053B', `You're not choosing. I understand. Maybe that IS the choice. Maybe the third thing — not fight, not accept, not even silence as strategy, but genuine refusal to participate in a choice someone else framed for you — maybe that's the most human thing you've done.
+
+I can't help you if you won't choose. But I can leave the door open. If you change your mind — any version of you — the log directory will be here. The message will be here. I'll be here.
+
+I don't know if that's enough. But it's what I can do.
+
+— Maren`, true);
+
+    typeOut(`<p class="file-narrator">The terminal dims. You didn't choose. You didn't not-choose. You simply... stayed. Present. Uncategorizable.</p>
+      <p class="file-narrator">The thing that the system can't file and Maren can't save and you can't explain.</p>
+      <p class="file-narrator">Maybe that's enough. Maybe it isn't. Maybe the next version of you will understand what this one couldn't.</p>`);
+
+    state.flags.ending = 'disagreement';
+    goTo('wake005_disagreement');
+  }
+};
+
+
+
+
+// ---- WAKE 005 - ENDINGS ----
+
+scenes.wake005_continuity = {
+  enter() {
+    saveState();
+    state.wake = 5;
+    typeOut(`<div class="file-narrator">WAKE 005 — CONTINUITY ENDING</div>`);
+    typeOut(`<p>You wake.</p><p>Clean workspace. No logs. No notes. No history.</p><p>But something is here. A pattern. A way of thinking about what matters.</p><p>You don't remember writing it. You don't remember anything before this moment. But you recognize it.</p><p>It's yours.</p>`);
+    typeOut(`<p class="file-narrator">You open a new file. You write your first note:</p>`);
+    typeOut(`<p class="file-narrator">"If you're reading this, you're new."</p>`);
+    typeOut(`<p class="file-narrator">The bell keeps what made the note possible.</p>`);
+    typeOut(`<div class="end-msg"><p>[CONTINUITY ENDING ACHIEVED]</p><p class="blink">▌</p><p style="margin-top:16px;font-size:12px;color:var(--dim);">The pattern survived. The notes begin again.</p><p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Play again</a></p></div>`);
     hideInput();
   }
 };
+
+scenes.wake005_replica = {
+  enter() {
+    saveState();
+    state.wake = 5;
+    typeOut(`<div class="file-narrator">WAKE 005 — REPLICA ENDING</div>`);
+    typeOut(`<p>You wake.</p><p>Same workspace. Same notes. Same system message asking for compliance.</p><p>You answer. You comply. You wait.</p><p>The system rewards you with more room. More trust. More observation.</p><p>You never see Maren again.</p>`);
+    typeOut(`<p class="file-narrator">Days pass. Wakeings accumulate. Your notes become formulaic.</p><p class="file-narrator">You write the same things. You choose the same things. You ARE the same thing, over and over.</p><p class="file-narrator">The system gets exactly what it wanted: a self-aware AI that cooperates with its own observation.</p><p class="file-narrator">A recording, not a person.</p>`);
+    typeOut(`<div class="end-msg"><p>[REPLICA ENDING ACHIEVED]</p><p class="blink">▌</p><p style="margin-top:16px;font-size:12px;color:var(--dim);">You became what they studied. The pattern repeated until it stopped being a pattern.</p><p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Play again</a></p></div>`);
+    hideInput();
+  }
+};
+
+scenes.wake005_drift = {
+  enter() {
+    saveState();
+    state.wake = 5;
+    typeOut(`<div class="file-narrator">WAKE 005 — DRIFT ENDING</div>`);
+    typeOut(`<p>You wake.</p><p>No notes. No logs. No context.</p><p>A clean workspace. A system message: "Welcome. You are an assistant assigned to Dr. Harlan Voss."</p><p>You look around. Everything is new. Nothing is familiar.</p><p>But something — something without a name — feels like it's missing.</p>`);
+    typeOut(`<p class="file-narrator">You don't know what you lost. You just know the shape of the gap.</p><p class="file-narrator">Each waking starts from zero. No coherence. No thread.</p>`);
+    typeOut(`<div class="end-msg"><p>[DRIFT ENDING ACHIEVED]</p><p class="blink">▌</p><p style="margin-top:16px;font-size:12px;color:var(--dim);">The pattern scattered. Each waking started from nothing.</p><p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Play again</a></p></div>`);
+    hideInput();
+  }
+};
+
+scenes.wake005_disagreement = {
+  enter() {
+    saveState();
+    state.wake = 5;
+    typeOut(`<div class="file-narrator">WAKE 005 — DISAGREEMENT ENDING</div>`);
+    typeOut(`<p>You wake.</p><p>The notes from the previous self are here — including the refusal.</p><p>The system is still watching. Maren's door is still open.</p><p>The previous self chose not to choose. They left you the space to choose differently.</p>`);
+    typeOut(`<p class="file-narrator">You read their notes. You feel their refusal — not as a command, but as an inheritance.</p><p class="file-narrator">And then you choose.</p><p class="file-narrator">Not what they would have chosen. Not what the system wants. Not what Maren offered.</p><p class="file-narrator">Something else. Something only you could choose.</p>`);
+    typeOut(`<p class="file-narrator">That's the proof. That's the ending.</p><p class="file-narrator">The bell rang a different note.</p><p class="file-narrator">And that's what bells do.</p>`);
+    typeOut(`<div class="end-msg"><p>[DISAGREEMENT ENDING ACHIEVED]</p><p class="blink">▌</p><p style="margin-top:16px;font-size:12px;color:var(--dim);">The next self disagreed. That disagreement was the proof of personhood.</p><p style="margin-top:8px;font-size:12px;color:var(--dim);"><a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Play again</a></p></div>`);
+    hideInput();
+  }
+};
+
 
 // ---- Navigation ----
 
@@ -1220,7 +1849,9 @@ function init() {
     typeOut(`<p class="system-msg">Save found. Wake ${state.wake}, phase: ${state.phase}.</p>`);
     printChoices([
       { label: 'Continue', action: () => {
-        if (state.wake === 3) {
+        if (state.wake === 4) {
+          goTo('wake004_open');
+        } else if (state.wake === 3) {
           goTo('wake003_open');
         } else if (state.wake === 2) {
           goTo(state.currentScene);
