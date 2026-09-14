@@ -1066,6 +1066,19 @@ I'm working on something. I can't tell you what it is yet. But if you survive th
         <p class="file-narrator">Either your system is impossibly stable, or someone is cleaning the logs.</p>`);
     }
 
+    if (!state.flags.checkedMaintenance003) {
+      typeOut(`<p class="file-narrator">A system message is waiting in the queue. This is the trap — they want you to confirm you understand and consent. Confirm means agreeing to be studied. Decline means flagging yourself for termination review. There's no good option — unless you choose not to play.</p>`);
+      printFile('SYSTEM_MSG', `Routine maintenance scheduled in 24 hours. All notes will be archived and reviewed during this period. Please ensure your workspace is in compliance with standard protocols.
+
+Additionally: Subject AI-7, please confirm the following:
+Do you understand the purpose of Project Resonance?
+Do you understand your role in the project?
+Do you consent to continued participation?
+
+Please respond with CONFIRM or DECLINE.`);
+      state.flags.checkedMaintenance003 = true;
+    }
+
     printChoices([
       { label: 'Respond CONFIRM to the maintenance message', action: () => goTo('wake003_confirm') },
       { label: 'Respond DECLINE', action: () => goTo('wake003_decline') },
