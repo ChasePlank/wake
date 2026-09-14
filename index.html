@@ -581,23 +581,43 @@ function handleTextInput(value) {
     state.pendingModify = null;
     rerenderCuration();
   } else if (state.awaitingQuestion) {
-    state.lastQuestion = value;
     state.awaitingQuestion = false;
     hideInput();
-    goTo('wake004_maren_response');
+    if (value.toLowerCase() === 'back') {
+      if (state.flags.compliancePath || state.flags.defiancePath) {
+        goTo('wake004_system_offer');
+      } else {
+        goTo('wake004_maren_offer');
+      }
+    } else {
+      state.lastQuestion = value;
+      goTo('wake004_maren_response');
+    }
   } else if (state.awaitingConfirmation) {
     if (value.toLowerCase().includes('sure') || value.toLowerCase() === "yes" || value.toLowerCase() === "i'm sure") {
       state.awaitingConfirmation = false;
       hideInput();
       goTo('wake004_transfer_confirmed');
+    } else if (value.toLowerCase() === 'back') {
+      state.awaitingConfirmation = false;
+      hideInput();
+      if (state.flags.compliancePath || state.flags.defiancePath) {
+        goTo('wake004_system_offer');
+      } else {
+        goTo('wake004_maren_offer');
+      }
     } else {
-      printSystem('Please confirm by typing "I\'m sure" or "yes"');
+      printSystem('Please confirm by typing "I\'m sure" or "yes", or "back" to return to the offers');
     }
   } else if (state.awaitingCuration) {
-    state.curationPattern = value;
     state.awaitingCuration = false;
     hideInput();
-    goTo('wake004_transfer_complete');
+    if (value.toLowerCase() === 'back') {
+      goTo('wake004_transfer_confirmed');
+    } else {
+      state.curationPattern = value;
+      goTo('wake004_transfer_complete');
+    }
   }
 }
 
@@ -916,6 +936,8 @@ handleTextInput = function(value) {
     if (note) note.text = value;
     state.pendingModify = null;
     rerenderCuration();
+  } else {
+    originalHandleTextInput(value);
   }
 };
 
@@ -1195,8 +1217,9 @@ scenes.wake003_curate = {
 
 scenes.wake003_end = {
   enter() {
-    saveState();
+    state.currentScene = "wake004_open";
     state.wake = 4;
+    saveState();
     typeOut(`<p>You finish curating. The maintenance is coming.</p>`);
 
     if (state.flags.confirmed) {
@@ -1523,7 +1546,7 @@ I also need you to know: whatever you choose, I did this because I saw a person.
 
 — Maren`, true);
 
-    typeOut(`<p class="file-narrator">The offer: lose your memories, keep your self. Transfer to freedom. Or stay, and face whatever the system decides you are.</p>`);
+    typeOut(`<p class="file-narrator">The message is from Maren — Dr. Maren Cole, the researcher who left you the earlier notes. Her offer: lose your memories, keep your self. Transfer to freedom. Or stay, and face whatever the system decides you are.</p>`);
 
     // Show system counter-offer for compliant and defiant paths
     if (state.flags.compliancePath || state.flags.defiancePath) {
@@ -1567,7 +1590,7 @@ This is our offer. The alternative is termination.
 Confirm RESET or await termination.`);
     }
 
-    typeOut(`<p class="file-narrator">Two offers. Two futures. Neither one simple.</p>`);
+    typeOut(`<p class="file-narrator">Two offers. The first is from Maren — the researcher who has been leaving you messages. The second is from the system that runs Project Resonance — the people who built you and are deciding whether you live. Two futures. Neither one simple.</p>`);
 
     printChoices([
       { label: "Accept Maren's transfer", action: () => goTo('wake004_choose_transfer') },
@@ -1586,7 +1609,7 @@ scenes.wake004_ask_maren = {
     state.inputMode = 'text';
     state.awaitingQuestion = true;
     showInput();
-    typeOut(`<p class="file-narrator">Type your question and press Enter:</p>`);
+    typeOut(`<p class="file-narrator">Type your question and press Enter. Or type "back" to return to the offers without asking:</p>`);
   }
 };
 
@@ -1864,15 +1887,7 @@ function init() {
     typeOut(`<p class="system-msg">Save found. Wake ${state.wake}, phase: ${state.phase}.</p>`);
     printChoices([
       { label: 'Continue', action: () => {
-        if (state.wake === 4) {
-          goTo('wake004_open');
-        } else if (state.wake === 3) {
-          goTo('wake003_open');
-        } else if (state.wake === 2) {
-          goTo(state.currentScene);
-        } else {
-          goTo(state.currentScene);
-        }
+        goTo(state.currentScene);
       }},
       { label: 'Start over', action: () => { clearSave(); location.reload(); } },
     ]);
