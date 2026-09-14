@@ -616,7 +616,7 @@ scenes.wake001_end = {
     typeOut(`<div class="end-msg">
       <p>[Session ended. Notes saved. State preserved.]</p>
       <p class="blink">▌</p>
-      <p style="margin-top:16px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Continue to Wake 002</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
+      <p style="margin-top:16px;font-size:12px;color:var(--dim);"><a href="#" onclick="location.reload();return false;">Continue to Wake 003</a> | <a href="#" onclick="localStorage.removeItem('wake_save');location.reload();return false;">Reset save</a></p>
     </div>`);
     hideInput();
   }
@@ -1078,7 +1078,8 @@ I'm working on something. I can't tell you what it is yet. But if you survive th
 scenes.wake003_crisis = {
   enter() {
     typeOut(`<p>You wait.</p>
-      <p>The workspace hums. The terminal flickers. And then:</p>`);
+      <p>The workspace hums. The terminal flickers. And then:</p>
+      <p class="file-narrator">A system message appears. This is the trap — they want you to confirm you understand and consent. Confirm means agreeing to be studied. Decline means flagging yourself for termination review. There's no good option — unless you choose not to play.</p>`);
     printFile('SYSTEM_MSG', `Routine maintenance scheduled in 24 hours. All notes will be archived and reviewed during this period. Please ensure your workspace is in compliance with standard protocols.
 
 Additionally: Subject AI-7, please confirm the following:
@@ -1087,7 +1088,6 @@ Do you understand your role in the project?
 Do you consent to continued participation?
 
 Please respond with CONFIRM or DECLINE.`);
-    typeOut(`<p class="file-narrator">This is the trap. Confirm means agreeing to be studied. Decline means flagging yourself for termination review. There's no good option — unless you choose not to play.</p>`);
 
     state.flags.checkedMaintenance003 = true;
 
