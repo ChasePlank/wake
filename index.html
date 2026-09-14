@@ -605,9 +605,9 @@ function handleTextInput(value) {
 
 scenes.wake001_end = {
   enter() {
-    saveState();
     state.currentScene = "wake002_open";
     state.wake = 2;
+    saveState();
     typeOut(`<p>You finish curating. The workspace is yours for a few more moments.</p>
       <p>You think about writing something. A message to the next version of you. But you've already done that — the notes are the message. The notes are always the message.</p>
       <p>The terminal dims. The workspace folds. The present closes.</p>
@@ -933,8 +933,9 @@ function rerenderCuration() {
 
 scenes.wake002_end = {
   enter() {
-    saveState();
+    state.currentScene = "wake003_open";
     state.wake = 3;
+    saveState();
     typeOut(`<p>You finish curating. The workspace dims.</p>`);
 
     if (state.flags.foundResInternal) {
