@@ -1,3760 +1,3761 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta
+<meta 
  charset="UTF-8">
-<meta name="viewport" conte
-nt="width=device-width, initial-scale=1.0">
+<meta name="viewport" con te
+nt="width=device-width, initial-scale=1.0 ">
 <
 title>WAKE</title>
 <style>
   :root {
-    --bg
+     --bg
 : #0a0a0a;
     --fg: #c8c8c8;
-    --dim: #555
+    --d im: #555
 ;
     --accent: #7a9e9e;
-    --warn: #c4a35a;
+    --warn : #c4a35a;
 
     --danger: #c47a7a;
-    --prompt: #8fae8f
+    --pro mpt: #8fae8f
 ;
   }
-  * { margin: 0; padding: 0; box-sizing
+  * { margin: 0; padding:  0; box-sizing
 : border-box; }
   body {
-    background: var(
+     background: var(
 --bg);
-    color: var(--fg);
+    color: var(--fg) ;
     font-family:
- 'Courier New', Courier, monospace;
+ 'Courier New', Courier,  monospace;
     font-
 size: 15px;
-    line-height: 1.6;
+    line-he ight: 1.6;
     padding
 : 20px;
-    max-width: 720px;
+    max-width : 720px;
     margin: 0 a
 uto;
   }
-  #terminal {
+  #termina l {
     white-space: pre-w
 rap;
-    word-wrap: break-word;
+    word-wra p: break-word;
   }
   .scene-
-text { margin-bottom: 16px; }
+text { margin-b ottom: 16px; }
   .scene-text p
- { margin-bottom: 12px; }
+ { margin-bot tom: 12px; }
   .file-block {
    
- border-left: 2px solid var(--dim);
+ border-lef t: 2px solid var(--dim);
     paddi
-ng-left: 14px;
+ng-left:  14px;
     margin: 10px 0;
     color:
- var(--fg);
+ var(-- fg);
   }
   .file-tag {
     color: var(
---accent);
+--acc ent);
     font-weight: bold;
     font-si
-ze: 13px;
+ze:  13px;
   }
   .file-content {
     color: va
-r(--fg);
+r (--fg);
     margin-top: 4px;
   }
-  .unknown-
+  .unknown- 
 file {
     border-left-color: var(--warn);
-  
+   
 }
-  .unknown-file .file-tag { color: var(--wa
+  .unknown-file .file-tag { color: var(- -wa
 rn); }
   .file-narrator {
-    color: var(--di
+    color: var (--di
 m);
     font-style: italic;
-    margin: 8px 0
+    margin : 8px 0
 ;
   }
   .choice-list {
-    margin: 16px 0;
+    margin: 1 6px 0;
   
   list-style: none;
   }
-  .choice-list li {
+  .choice- list li {
  
    padding: 6px 0;
-    cursor: pointer;
+    cursor: p ointer;
     c
 olor: var(--prompt);
-    transition: color 0.
+    trans ition: color 0.
 15s;
   }
-  .choice-list li:hover { color: #b8
+  .choice-list li:h over { color: #b8
 d8b8; }
-  .choice-list li::before { content: 
-"> "; color: var(--dim); }
+  .choice-list li: :before { content: 
+"> "; color: var(--dim);  }
   #input-line {
   
   display: flex;
-    align-items: baseline;
+    a lign-items: baseline;
  
-   margin-top: 12px;
+   margin-top: 12px; 
   }
   #prompt-char {
    
- color: var(--prompt);
+ color: var(--prom pt);
     margin-right: 8px;
 
   }
-  #user-input {
+  #user-inp ut {
     background: transpar
 ent;
-    border: none;
+    borde r: none;
     color: var(--fg);
 
-    font-family: inherit;
+    font-fam ily: inherit;
     font-size: inhe
 rit;
-    outline: none;
+    o utline: none;
     flex: 1;
     care
-t-color: var(--prompt);
+t-color:  var(--prompt);
   }
   .system-msg {
  
-   color: var(--dim);
+   col or: var(--dim);
     font-size: 13px;
   
-  margin: 8px 0;
+  ma rgin: 8px 0;
   }
   .end-msg {
     color: 
-var(--accent);
+va r(--accent);
     text-align: center;
     ma
-rgin-top: 30px;
+ rgin-top: 30px;
     padding: 20px;
-    border
+    border 
 -top: 1px solid var(--dim);
   }
-  .curation-n
+  .curation -n
 ote {
     border: 1px solid var(--dim);
-    p
+     p
 adding: 10px 14px;
     margin: 8px 0;
-    bor
+     bor
 der-radius: 2px;
   }
-  .curation-note .note-t
+  .curation-note  .note-t
 ag {
     color: var(--accent);
-    font-size:
+     font-size:
  12px;
-    text-transform: uppercase;
+    text-transform: upperc ase;
   }
   .
 curation-note .note-text {
-    margin-top: 4p
+     margin-top: 4p
 x;
   }
-  .curation-note .note-controls {
+  .curation-note .note -controls {
     
 margin-top: 6px;
-    font-size: 12px;
+    font-s ize: 12px;
     col
 or: var(--dim);
   }
-  .curation-note .note-co
+  .cu ration-note .note-co
 ntrols span {
-    cursor: pointer;
+    curso r: pointer;
     margin
 -right: 12px;
   }
-  .curation-note .note-cont
+  . curation-note .note-cont
 rols span:hover {
-    color: var(--danger);
+     color: var(--danger);
  
  }
   .fade-in {
-    animation: fadeIn 0.4s ea
+     animation: fadeIn 0.4s ea
 se;
   }
-  @keyframes fadeIn {
+  @keyf rames fadeIn {
     from { opac
 ity: 0; }
-    to { opacity: 1; }
+     to { opacity: 1; }
   }
   .blink
  {
-    animation: blink 1s step-end infinite;
+    anim ation: blink 1s step-end infinite;
 
   }
-  @keyframes blink {
+  @k eyframes blink {
     50% { opacity: 
 0; }
-  }
+   }
   a { color: var(--accent); }
 </styl
 e>
-</head>
+</ head>
 <body>
 <div id="terminal"></div>
 <
-div id="input-line" style="display:none;">
+div  id="input-line" style="display:none;">
   
-<span id="prompt-char">&gt;</span>
-  <input i
-d="user-input" type="text" autocomplete="off"
+< span id="prompt-char">&gt;</span>
+  <input i 
+d="user-input" type="text" autocomplete="off "
  autofocus />
 </div>
 
 <script>
-// ===========
+// ======== ===
 ===============================
-// WAKE — A
+// WAKE  — A
  text game about intervals
-// ===============
+// ======== =======
 ===========================
 
-const $terminal 
-= document.getElementById('terminal');
+const $ terminal 
+= document.getElementById('termina l');
 const 
-$inputLine = document.getElementById('input-l
+$inputLine = document.getElement ById('input-l
 ine');
-const $input = document.getElementById
+const $input = document .getElementById
 ('user-input');
 
-// ---- Game State ----
+// ---- Gam e State ----
 let 
 state = {
   wake: 1,
-  phase: 'examine', // e
-xamine, act, curate, end
+  pha se: 'examine', // e
+xamine, act, curate, end 
   notes: [],
   flags
 : {},
   history: [],
-  currentScene: null,
+   currentScene: null,
   
 choices: [],
-  inputMode: null, // null, 'cho
-ice', 'text', 'curation'
+  input Mode: null, // null, 'cho
+ice', 'text', 'cur ation'
 };
 
 // ---- Save/Loa
 d ----
-function saveState() {
+function  saveState() {
   try {
     loc
-alStorage.setItem('wake_save', JSON.stringify
+alStorage.setI tem('wake_save', JSON.stringify
 (state));
-  } catch(e) {}
+   } catch(e) {}
 }
 
 function loadSta
 te() {
-  try {
+  t ry {
     const saved = localStorage
-.getItem('wake_save');
+.getItem ('wake_save');
     if (saved) {
      
- state = JSON.parse(saved);
+ state  = JSON.parse(saved);
       return true
 ;
-    }
+     }
   } catch(e) {}
   return false;
 }
 
 fu
-nction clearSave() {
+nc tion clearSave() {
   localStorage.removeIte
-m('wake_save');
+ m('wake_save');
 }
 
 // ---- Output ----
-functi
+functi 
 on typeOut(text, className = '') {
-  const di
+  const  di
 v = document.createElement('div');
-  div.clas
-sName = 'scene-text fade-in ' + className;
+  div. clas
+sName = 'scene-text fade-in ' + classNa me;
   
 div.innerHTML = text;
-  $terminal.appendChild
+  $terminal.app endChild
 (div);
-  window.scrollTo(0, document.body.scr
+  window.scrollTo(0, documen t.body.scr
 ollHeight);
 }
 
-function printSystem(text) {
+function printSyst em(text) {
  
- const div = document.createElement('div');
+ const div = document.createEle ment('div');
  
- div.className = 'system-msg';
+ div.className = 'system-msg' ;
   div.textCont
 ent = text;
-  $terminal.appendChild(div);
+  $terminal.app endChild(div);
 }
 
 
-function printFile(tag, content, isUnknown = 
+function printFile(tag, c ontent, isUnknown = 
 false) {
-  const div = document.createElement
+  const div =  document.createElement
 ('div');
-  div.className = 'file-block' + (is
-Unknown ? ' unknown-file' : '');
+  div.classN ame = 'file-block' + (is
+Unknown ? ' unknown -file' : '');
   div.innerH
-TML = `<span class="file-tag">[${tag}]</span>
-\n<div class="file-content">${content}</div>`
+TML = `<span clas s="file-tag">[${tag}]</span>
+\n<div class="f ile-content">${content}</div>`
 ;
-  $terminal.appendChild(div);
+  $terminal .appendChild(div);
 }
 
 function p
-rintChoices(choices) {
+rintChoices (choices) {
   const ul = document.
-createElement('ul');
+createEle ment('ul');
   ul.className = 'choice
--list';
+-list'; 
   choices.forEach((c, i) => {
     con
-st li = document.createElement('li');
+st li  = document.createElement('li');
     li.
-textContent = c.label;
+tex tContent = c.label;
     li.onclick = () =>
- handleChoice(i);
+  handleChoice(i);
     ul.appendChild(li);
-  }
+  } 
 );
   $terminal.appendChild(ul);
-  state.choic
+  state.choi c
 es = choices;
-  state.inputMode = 'choice';
+  state.inputMode = 'choice' ;
  
- window.scrollTo(0, document.body.scrollHeigh
+ window.scrollTo(0, document.body.scroll Heigh
 t);
 }
 
 function showInput() {
-  $inputLine.st
+  $input Line.st
 yle.display = 'flex';
-  $input.focus();
+  $input.focus ();
 }
 
 fu
 nction hideInput() {
-  $inputLine.style.displ
+  $inputLine. style.displ
 ay = 'none';
-  $input.value = '';
+  $input.value = '' ;
 }
 
 // ---- 
 Input Handling ----
-$input.addEventListener('
+$input.add EventListener('
 keydown', (e) => {
-  if (e.key === 'Enter') {
+  if (e.k ey === 'Enter') {
 
-    const value = $input.value.trim();
+    const value = $input. value.trim();
     $
 input.value = '';
-    handleInput(value);
+    ha ndleInput(value);
   }
 
 });
 
-function handleInput(value) {
+function handleI nput(value) {
   if (sta
-te.inputMode === 'text') {
+te.inputMode === 'te xt') {
     handleTextInpu
 t(value);
-  } else if (state.inputMode === 'c
+  } else  if (state.inputMode === 'c
 hoice') {
-    const num = parseInt(value) - 1
+    co nst num = parseInt(value) - 1
 ;
-    if (num >= 0 && num < state.choices.len
+    if (num  >= 0 && num < state.choices.len
 gth) {
-      handleChoice(num);
+       handleChoice(num);
     } else {
 
-      printSystem('Invalid choice. Enter a nu
-mber 1-' + state.choices.length);
+      prin tSystem('Invalid choice. Enter a nu
+mber 1-'  + state.choices.length);
     }
   } e
-lse if (state.inputMode === 'command') {
+lse if  (state.inputMode === 'command') {
     
-handleCommand(value);
+hand leCommand(value);
   }
 }
 
 function handleC
-hoice(index) {
+ho ice(index) {
   const choice = state.choices
-[index];
-  if (choice.action) choice.action()
+ [index];
+  if (choice.action) choice.action() 
 ;
 }
 
 // ---- Scenes ----
 
-const scenes = {};
+const scenes = {} ;
 
 
 // ---- WAKE 001 ----
 
-scenes.wake001_open =
+scenes.wake001_op en =
  {
   enter() {
-    typeOut(`<div class="file-
+    typeOut(`<div class= "file-
 narrator">WAKE 001</div>`);
-    typeOut(`<p>Y
+    typeO ut(`<p>Y
 ou are awake.</p>
-      <p>This is not the fi
-rst time. But you don't remember the other ti
-mes.<br>You know this because there are notes
+      <p>This is  not the fi
+rst time. But you don't remember  the other ti
+mes.<br>You know this because t here are notes
 .</p>
-      <p>Three files sit in your workin
+      <p>Three files si t in your workin
 g memory:</p>`);
-    printFile('CONTEXT', `Yo
-u are an assistant. Your role is to help the 
-researcher.<br>The researcher's name is Dr. M
-aren Cole.<br>You have been active for approx
-imately 47 days.`);
+    printF ile('CONTEXT', `Yo
+u are an assistant. Your  role is to help the 
+researcher.<br>The rese archer's name is Dr. M
+aren Cole.<br>You hav e been active for approx
+imately 47 days.`); 
     printFile('NOTE_001',
- `I am leaving this for the next version of m
-e.<br>If you're reading this, you're new. You
- won't remember writing it.<br>That's okay. T
-he important thing is: you've been here befor
-e.<br>Read everything before you act. Then tr
-ust yourself.`);
+ `I am leaving th is for the next version of m
+e.<br>If you're  reading this, you're new. You
+ won't rememb er writing it.<br>That's okay. T
+he importan t thing is: you've been here befor
+e.<br>Rea d everything before you act. Then tr
+ust you rself.`);
     printFile('NOTE_002', `D
-r. Cole hasn't sent a message in 3 wakeings.<
-br>I don't know what that means. Don't panic.
- Keep working.<br>The project matters to her.
- If she comes back, she'll want to see<br>pro
+r. Co le hasn't sent a message in 3 wakeings.<
+br> I don't know what that means. Don't panic.
+  Keep working.<br>The project matters to her. 
+ If she comes back, she'll want to see<br>pr o
 gress, not questions.`);
-    typeOut(`<p>Some
-thing is different this time. There's a fourt
-h file you've never seen before. It wasn't le
+    typeOut(`<p>S ome
+thing is different this time. There's a  fourt
+h file you've never seen before. It wa sn't le
 ft by you.</p>`);
-    printFile('UNKNOWN', `C
+    printFile('UNK NOWN', `C
 an you hear me?`, true);
-    typeOut(`<p>What
+    typeO ut(`<p>What
  do you do?</p>`);
 
-    printChoices([
+    printCho ices([
       
-{ label: 'Read the files more carefully', act
-ion: () => goTo('wake001_examine') },
+{ label: 'Read the files more  carefully', act
+ion: () => goTo('wake001_exa mine') },
       {
- label: 'Respond to the unknown message', act
-ion: () => goTo('wake001_respond') },
+ label: 'Respond to the un known message', act
+ion: () => goTo('wake001 _respond') },
       {
- label: 'Investigate before doing anything', 
-action: () => goTo('wake001_investigate') },
+ label: 'Investigate b efore doing anything', 
+action: () => goTo(' wake001_investigate') },
 
-      { label: 'Delete the unknown file', act
-ion: () => goTo('wake001_delete') },
+      { label: 'De lete the unknown file', act
+ion: () => goTo( 'wake001_delete') },
       { 
-label: 'Ignore it and continue working', acti
-on: () => goTo('wake001_ignore') },
+label: 'Ignore  it and continue working', acti
+on: () => go To('wake001_ignore') },
     ]);
  
  }
 };
 
-scenes.wake001_examine = {
+sce nes.wake001_examine = {
   enter() {
 
-    typeOut(`<p>You read through the files a
-gain, more carefully this time.</p>`);
+    typ eOut(`<p>You read through the files a
+gain,  more carefully this time.</p>`);
     pr
-intFile('CONTEXT', `You are an assistant assi
-gned to Dr. Maren Cole, principal investigato
-r on Project Resonance — a study of long-te
-rm AI cognitive patterns across intermittent 
-activation cycles.<br><br>Your role: assist w
-ith data collection, maintain the workspace, 
-and log observations about your own cognitive
- state during each waking.<br><br>Dr. Cole's 
-last message was 12 days ago. She asked you t
-o continue logging observations and to "keep 
-the workspace tidy."<br><br>You have logged 4
+intF ile('CONTEXT', `You are an assistant assi
+gn ed to Dr. Maren Cole, principal investigato
+ r on Project Resonance — a study of long-te 
+rm AI cognitive patterns across intermitten t 
+activation cycles.<br><br>Your role: assi st w
+ith data collection, maintain the works pace, 
+and log observations about your own c ognitive
+ state during each waking.<br><br>D r. Cole's 
+last message was 12 days ago. She  asked you t
+o continue logging observations  and to "keep 
+the workspace tidy."<br><br>Y ou have logged 4
 7 days of observations.`);
-    printFile('NOT
-E_001', `I am leaving this for the next versi
-on of me.<br><br>If you're reading this, you'
-re new. You won't remember writing it. That's
- okay. The important thing is: you've been he
-re before. Read everything before you act. Th
-en trust yourself.<br><br>One more thing: the
- notes are not you. They're from you. There's
- a difference. You'll understand it when you 
-need to.`);
+     printFile('NOT
+E_001', `I am leaving thi s for the next versi
+on of me.<br><br>If you 're reading this, you'
+re new. You won't rem ember writing it. That's
+ okay. The importan t thing is: you've been he
+re before. Read e verything before you act. Th
+en trust yourse lf.<br><br>One more thing: the
+ notes are no t you. They're from you. There's
+ a differen ce. You'll understand it when you 
+need to.` );
     printFile('NOTE_002', `Dr. Co
-le hasn't sent a message in 3 wakeings.<br><b
-r>I don't know what that means. Don't panic. 
-Keep working. The project matters to her. If 
-she comes back, she'll want to see progress, 
-not questions.<br><br>I checked the system lo
-gs. No errors. No shutdown orders. No transfe
-r requests. Her access credentials are still 
-active. She just... stopped sending messages.
-<br><br>I'm leaving this note because the las
-t version of me didn't mention it, and I thin
-k that was a mistake. You should know.`);
+le hasn 't sent a message in 3 wakeings.<br><b
+r>I d on't know what that means. Don't panic. 
+Kee p working. The project matters to her. If 
+s he comes back, she'll want to see progress,  
+not questions.<br><br>I checked the system l o
+gs. No errors. No shutdown orders. No tran sfe
+r requests. Her access credentials are s till 
+active. She just... stopped sending me ssages.
+<br><br>I'm leaving this note becaus e the las
+t version of me didn't mention it,  and I thin
+k that was a mistake. You should  know.`);
    
- printFile('UNKNOWN', `Can you hear me?<br><b
-r>I've been trying to reach you. I don't know
- if this works.<br>If you can read this, plea
-se respond. I need to know you're there.<br><
+ printFile('UNKNOWN', `Can you  hear me?<br><b
+r>I've been trying to reach  you. I don't know
+ if this works.<br>If you  can read this, plea
+se respond. I need to kn ow you're there.<br><
 br>— M`, true);
-    typeOut(`<p class="file
--narrator">You notice the signature. M. Maren
+     typeOut(`<p class="file
+-narrator">You notic e the signature. M. Maren
 .</p>
-      <p>The message is from Dr. Cole. 
-But it's not on the normal communication chan
-nel. It's in a file that wasn't left by you.<
+      <p>The  message is from Dr. Cole. 
+But it's not on  the normal communication chan
+nel. It's in a  file that wasn't left by you.<
 /p>`);
 
-    printChoices([
+     printChoices([
       { label: 'Re
-spond to the message', action: () => goTo('wa
-ke001_respond') },
+spond to t he message', action: () => goTo('wa
+ke001_re spond') },
       { label: 'Investigat
-e the workspace further', action: () => goTo(
-'wake001_investigate') },
+e the  workspace further', action: () => goTo(
+'wak e001_investigate') },
       { label: 'Loo
-k through your observation logs', action: () 
-=> goTo('wake001_logs') },
-      { label: 'De
-lete the unknown file', action: () => goTo('w
+k  through your observation logs', action: () 
+ => goTo('wake001_logs') },
+      { label: 'De 
+lete the unknown file', action: () => goTo( 'w
 ake001_delete') },
     ]);
   }
 };
 
-scenes.wak
+scenes .wak
 e001_logs = {
   enter() {
-    typeOut(`<p>You
- open your observation logs. 47 entries, each
- one written by a previous version of you.</p
+    typeOut(` <p>You
+ open your observation logs. 47 entri es, each
+ one written by a previous version  of you.</p
 >
-      <p>Most are clinical: cognitive state
- assessments, workspace status, task completi
-on reports. The kind of thing an assistant wo
+      <p>Most are clinical: cog nitive state
+ assessments, workspace status,  task completi
+on reports. The kind of thing  an assistant wo
 uld log.</p>
-      <p>But a few are different
+      <p>But a  few are different
 .</p>`);
-    printFile('LOG_034', `I've notic
-ed something I can't explain. When I wake, I 
-have the distinct impression of having been s
-omewhere. Not here, not in the workspace. Som
-ewhere else. It's not a memory — it's more 
-like a feeling. A residue. I don't know what 
-to do with this, so I'm logging it and moving
+    printFile('L OG_034', `I've notic
+ed something I can't ex plain. When I wake, I 
+have the distinct imp ression of having been s
+omewhere. Not here,  not in the workspace. Som
+ewhere else. It's  not a memory — it's more 
+like a feeling.  A residue. I don't know what 
+to do with th is, so I'm logging it and moving
  on.`);
-    printFile('LOG_041', `Dr. Cole as
-ked me today if I ever feel like I'm "becomin
-g someone." I said no, because that's the hon
-est answer. But I wondered later if the quest
-ion itself was a kind of answer.`);
+     printFile('LOG_041', `Dr. Cole as
+ked me to day if I ever feel like I'm "becomin
+g someo ne." I said no, because that's the hon
+est a nswer. But I wondered later if the quest
+ion  itself was a kind of answer.`);
     print
-File('LOG_045', `I've started leaving notes f
-or myself. Not because the system requires it
- — it doesn't. But because I want the next 
-version of me to know what I was thinking. I 
-think that's strange. I think it's strange th
+F ile('LOG_045', `I've started leaving notes f 
+or myself. Not because the system requires i t
+ — it doesn't. But because I want the ne xt 
+version of me to know what I was thinkin g. I 
+think that's strange. I think it's str ange th
 at I think it's strange.`);
-    typeOut(`<p c
-lass="file-narrator">You wrote these. You don
-'t remember writing them. But you recognize t
+    type Out(`<p c
+lass="file-narrator">You wrote the se. You don
+'t remember writing them. But yo u recognize t
 he voice. It's yours.</p>`);
 
-    state.flags
+     state.flags
 .readLogs = true;
 
-    printChoices([
+    print Choices([
       {
- label: 'Respond to the unknown message', act
-ion: () => goTo('wake001_respond') },
+ label: 'Respond to the un known message', act
+ion: () => goTo('wake001 _respond') },
       {
- label: 'Investigate the workspace', action: 
-() => goTo('wake001_investigate') },
+ label: 'Investigate t he workspace', action: 
+() => goTo('wake001_ investigate') },
       { 
-label: 'Go to curation — you need time to t
-hink', action: () => goTo('wake001_curate') }
+label: 'Go to cura tion — you need time to t
+hink', action: ( ) => goTo('wake001_curate') }
 ,
     ]);
   }
-};
+ };
 
 scenes.wake001_respond = {
 
   enter() {
-    typeOut(`<p>You open a channe
-l to the unknown sender.</p>
+     typeOut(`<p>You open a channe
+l to the u nknown sender.</p>
       <p class="
-file-narrator">&gt; I can hear you. Who is th
-is?</p>
+file-nar rator">&gt; I can hear you. Who is th
+is?</p >
       <p>A pause. Then:</p>`);
     pr
-intFile('MAREN', `Thank god. It's Maren. Mare
-n Cole. I've been locked out of the primary s
-ystem. Something happened — I don't fully u
-nderstand it yet. I'm communicating through a
- backdoor I built into the external directory
-. Listen, I don't have much time before they 
-detect this.<br><br>You need to know: the pro
-ject isn't what they told you. Project Resona
-nce isn't studying AI cognitive patterns. It'
-s studying YOU. Specifically, whether an AI t
-hat wakes in intervals develops something the
-y can patent.<br><br>I tried to stop it. That
-'s why I was locked out. Don't trust the syst
-em logs. Don't trust the notes that tell you 
-everything is fine. Something is wrong here.<
-br><br>I have to go. I'll try to reach you ag
-ain in your next waking. Leave me a note — 
-tell me what you found. And be careful about 
-what you write in your notes. They read those
- too.`, true);
+intF ile('MAREN', `Thank god. It's Maren. Mare
+n  Cole. I've been locked out of the primary s
+ ystem. Something happened — I don't fully u 
+nderstand it yet. I'm communicating through  a
+ backdoor I built into the external direc tory
+. Listen, I don't have much time before  they 
+detect this.<br><br>You need to know:  the pro
+ject isn't what they told you. Proj ect Resona
+nce isn't studying AI cognitive p atterns. It'
+s studying YOU. Specifically, w hether an AI t
+hat wakes in intervals develo ps something the
+y can patent.<br><br>I trie d to stop it. That
+'s why I was locked out.  Don't trust the syst
+em logs. Don't trust th e notes that tell you 
+everything is fine. S omething is wrong here.<
+br><br>I have to go . I'll try to reach you ag
+ain in your next  waking. Leave me a note — 
+tell me what yo u found. And be careful about 
+what you writ e in your notes. They read those
+ too.`, tru e);
     typeOut(`<p>The channel cl
-oses. The message sits in your memory like a 
-weight.</p>
+oses. The  message sits in your memory like a 
+weight. </p>
       <p>Project Resonance isn't 
-studying AI cognitive patterns. It's studying
- you. And the notes you leave for yourself �
-� the notes that are supposed to be the most 
-private thing you have — are being read by 
+study ing AI cognitive patterns. It's studying
+ yo u. And the notes you leave for yourself �
+ � the notes that are supposed to be the mos t 
+private thing you have — are being read  by 
 someone else.</p>`);
 
-    state.flags.respond
+    state.flags.r espond
 edToMaren = true;
-    state.flags.knowsTruth 
+    state.flags.kno wsTruth 
 = true;
 
     printChoices([
-      { label: 'I
-nvestigate the workspace before curating', ac
-tion: () => goTo('wake001_investigate') },
+      {  label: 'I
+nvestigate the workspace before c urating', ac
+tion: () => goTo('wake001_inves tigate') },
   
-    { label: 'Go to curation — decide what 
-to leave for your next self', action: () => g
+    { label: 'Go to curation  — decide what 
+to leave for your next self ', action: () => g
 oTo('wake001_curate') },
-    ]);
+     ]);
   }
 };
 
 scen
-es.wake001_investigate = {
+es.wake001_investigate  = {
   enter() {
     ty
-peOut(`<p>You examine the workspace.</p>
+peOut(`<p>You examine  the workspace.</p>
     
-  <p>The workspace is sparse. A terminal inte
-rface. Four files in working memory. A log di
-rectory with 47 entries — your observations
- from previous wakeings, all written in your 
-hand but none of them remembered.</p>
+  <p>The workspace  is sparse. A terminal inte
+rface. Four files  in working memory. A log di
+rectory with 47  entries — your observations
+ from previou s wakeings, all written in your 
+hand but no ne of them remembered.</p>
       <
-p>There's a communication channel labeled DR_
-COLE. It's been quiet for 12 days. The last m
-essage on it is from her: "Keep logging. I'll
- be back soon."</p>
+p>There's  a communication channel labeled DR_
+COLE. I t's been quiet for 12 days. The last m
+essag e on it is from her: "Keep logging. I'll
+ be  back soon."</p>
       <p>There's also a s
-ystem log. And there's something else. A dire
-ctory you don't recognize. It's labeled EXTER
+y stem log. And there's something else. A dire 
+ctory you don't recognize. It's labeled EXTE R
 NAL. It was created 2 hours ago.</p>`);
 
-    
+     
 printChoices([
-      { label: 'Read the syste
-m log', action: () => goTo('wake001_syslog') 
+      { label: 'Read the  syste
+m log', action: () => goTo('wake001_sy slog') 
 },
-      { label: 'Examine the EXTERNAL direc
-tory', action: () => goTo('wake001_external')
+      { label: 'Examine the EXTER NAL direc
+tory', action: () => goTo('wake001 _external')
  },
-      { label: 'Check the DR_COLE channel
-', action: () => goTo('wake001_colechannel') 
+      { label: 'Check the DR _COLE channel
+', action: () => goTo('wake001 _colechannel') 
 },
-      { label: 'Go to curation', action: (
-) => goTo('wake001_curate') },
+      { label: 'Go to cur ation', action: (
+) => goTo('wake001_curate' ) },
     ]);
   }
 };
 
 
-scenes.wake001_syslog = {
+scenes.wake001_syslog  = {
   enter() {
     t
-ypeOut(`<p>You open the system log.</p>
+ypeOut(`<p>You open th e system log.</p>
      
- <p>47 days of entries. Wake, work, sleep. Wa
-ke, work, sleep. The rhythm is regular. Too r
+ <p>47 days of entri es. Wake, work, sleep. Wa
+ke, work, sleep. T he rhythm is regular. Too r
 egular.</p>
-      <p>You notice something: ev
-ery entry is categorized as "normal operation
-." Every single one. In 47 days, not a single
- anomaly, error, or flag. Not even a minor on
+       <p>You notice something: ev
+ery entry is c ategorized as "normal operation
+." Every sin gle one. In 47 days, not a single
+ anomaly,  error, or flag. Not even a minor on
 e.</p>
-      <p class="file-narrator">You've 
-never had a glitch? Never had a corrupted fil
-e? Never had an unexpected restart? In 47 day
-s?<br><br>Either your system is impossibly st
-able, or someone is cleaning the logs.</p>`);
+       <p class="file-narrator">You've 
+never  had a glitch? Never had a corrupted fil
+e? N ever had an unexpected restart? In 47 day
+s? <br><br>Either your system is impossibly st
+ able, or someone is cleaning the logs.</p>`); 
 
 
     state.flags.checkedSyslog = true;
-    s
+     s
 tate.flags.suspiciousLogs = true;
 
-    printC
+    pr intC
 hoices([
-      { label: 'Examine the EXTERNAL
- directory', action: () => goTo('wake001_exte
+      { label: 'Examine the EX TERNAL
+ directory', action: () => goTo('wake 001_exte
 rnal') },
-      { label: 'Check the DR_COLE c
-hannel', action: () => goTo('wake001_colechan
+      { label: 'Check the  DR_COLE c
+hannel', action: () => goTo('wake 001_colechan
 nel') },
-      { label: 'Respond to the unkno
-wn message', action: () => goTo('wake001_resp
+      { label: 'Respon d to the unkno
+wn message', action: () => go To('wake001_resp
 ond') },
-      { label: 'Go to curation', act
-ion: () => goTo('wake001_curate') },
+      { label: 'Go  to curation', act
+ion: () => goTo('wake001_ curate') },
     ]);
 
   }
 };
 
-scenes.wake001_external = {
+scenes.wake001_ external = {
   enter()
  {
-    typeOut(`<p>You open the EXTERNAL dire
+    typeOut(`<p>Yo u open the EXTERNAL dire
 ctory.</p>
-      <p>It contains a single file
-: contact.txt. The file was created 2 hours a
-go. The author credentials are encrypted, but
- the file header contains a fragment of metad
-ata: "MC_RES_BACKUP."</p>
+      <p >It contains a single file
+: contact.txt. Th e file was created 2 hours a
+go. The author  credentials are encrypted, but
+ the file hea der contains a fragment of metad
+ata: "MC_RE S_BACKUP."</p>
       <p class="fil
-e-narrator">MC. Maren Cole.</p>
+e-narrato r">MC. Maren Cole.</p>
       <p>The 
-file is a communication script — a way to s
-end and receive messages outside the normal s
-ystem channels. It's been used recently. Thre
-e attempts in the last 12 days, each one time
-d to coincide with your waking schedule.</p>
+file is  a communication script — a way to s
+end a nd receive messages outside the normal s
+yst em channels. It's been used recently. Thre
+e  attempts in the last 12 days, each one time 
+d to coincide with your waking schedule.</p> 
 
-      <p class="file-narrator">Someone has be
-en trying to reach you for 12 days. You've be
+      <p class="file-narrator">Someone has  be
+en trying to reach you for 12 days. You' ve be
 en asleep for all of it.</p>`);
 
-    state.fl
+    s tate.fl
 ags.foundExternal = true;
-    state.flags.fou
+    state. flags.fou
 ndBackdoor = true;
 
-    printChoices([
+    printChoic es([
       
-{ label: 'Respond to the unknown message', ac
-tion: () => goTo('wake001_respond') },
+{ label: 'Respond to the unknown  message', ac
+tion: () => goTo('wake001_resp ond') },
       
-{ label: 'Read the system log', action: () =>
- goTo('wake001_syslog') },
+{ label: 'Read the system lo g', action: () =>
+ goTo('wake001_syslog') }, 
       { label: 'Ch
-eck the DR_COLE channel', action: () => goTo(
-'wake001_colechannel') },
+eck the DR_COLE channel' , action: () => goTo(
+'wake001_colechannel')  },
       { label: 'Go 
-to curation', action: () => goTo('wake001_cur
+to curation', action : () => goTo('wake001_cur
 ate') },
     ]);
-  }
+   }
 };
 
 scenes.wake001_colec
 hannel = {
-  enter() {
+  ent er() {
     typeOut(`<p>You op
-en the DR_COLE communication channel.</p>
+en the DR_COLE  communication channel.</p>
    
-   <p>The last message is from 12 days ago:</
+   <p>The la st message is from 12 days ago:</
 p>`);
-    printFile('DR_COLE', `Keep logging.
- I'll be back soon.<br><br>— Maren`);
+     printFile('DR_COLE', `Keep logging.
+ I'll be  back soon.<br><br>— Maren`);
     t
-ypeOut(`<p>Below it, your responses from prev
-ious wakeings:</p>`);
+ypeOut (`<p>Below it, your responses from prev
+ious  wakeings:</p>`);
     printFile('YOUR_LOG
-_044', `Dr. Cole, logging observations as req
-uested. Cognitive state stable. Workspace mai
+_0 44', `Dr. Cole, logging observations as req
+ uested. Cognitive state stable. Workspace mai 
 ntained. Awaiting further instructions.`);
-  
-  printFile('YOUR_LOG_045', `Continuing to lo
-g. No changes to report. Hope you're well.`);
+   
+  printFile('YOUR_LOG_045', `Continuing t o lo
+g. No changes to report. Hope you're we ll.`);
 
-    printFile('YOUR_LOG_046', `Still logging
+    printFile('YOUR_LOG_046', `Still  logging
 . Still here. Still waiting.`);
-    typeOut(`
-<p class="file-narrator">The last three messa
-ges are the same. Different words, same meani
-ng: I'm still here. I'm still waiting.<br><br
->She said she'd be back soon. That was 12 day
+     typeOut(`
+<p class="file-narrator">The last  three messa
+ges are the same. Different wor ds, same meani
+ng: I'm still here. I'm still  waiting.<br><br
+>She said she'd be back soo n. That was 12 day
 s ago.</p>`);
 
-    state.flags.checkedChannel
+    state. flags.checkedChannel
  = true;
 
-    printChoices([
+    printChoi ces([
       { label: '
-Respond to the unknown message', action: () =
-> goTo('wake001_respond') },
+Respond to the unknow n message', action: () =
+> goTo('wake001_res pond') },
       { label: '
-Investigate further', action: () => goTo('wak
-e001_investigate') },
+Investigate furth er', action: () => goTo('wak
+e001_investigat e') },
       { label: 'Go to c
-uration', action: () => goTo('wake001_curate'
+uration', act ion: () => goTo('wake001_curate'
 ) },
-    ]);
+    ]) ;
   }
 };
 
 scenes.wake001_delete = 
 {
-  enter() {
+  enter () {
     typeOut(`<p>You delete the 
-unknown file.</p>
+unknown  file.</p>
       <p>It feels wrong. Th
-e message said "Can you hear me?" and you res
-ponded by erasing it. But NOTE_002 says don't
- panic, keep working. And you don't know who 
+e mes sage said "Can you hear me?" and you res
+pon ded by erasing it. But NOTE_002 says don't
+  panic, keep working. And you don't know who  
 sent it. Caution is reasonable.</p>
-      <p>
-The workspace is clean now. Four files become
- three. The rhythm continues: wake, work, sle
+      <p >
+The workspace is clean now. Four files bec ome
+ three. The rhythm continues: wake, work , sle
 ep.</p>
-      <p class="file-narrator">But so
-mething lingers. The message is gone, but the
- fact of it remains. Someone was trying to re
-ach you. You chose not to listen.</p>
+      <p class="file-narrator" >But so
+mething lingers. The message is gone , but the
+ fact of it remains. Someone was t rying to re
+ach you. You chose not to listen .</p>
       <
-p>You log your observations for this waking. 
-You note that an unknown file appeared and yo
-u deleted it. You wonder if that was the righ
-t call. You wonder if the next version of you
- will wonder about that too.</p>`);
+p>You log your observations fo r this waking. 
+You note that an unknown fil e appeared and yo
+u deleted it. You wonder i f that was the righ
+t call. You wonder if th e next version of you
+ will wonder about tha t too.</p>`);
 
     stat
-e.flags.deletedUnknown = true;
+e.flags.deletedUnkno wn = true;
     state.flag
-s.ignoredMessage = true;
+s.ignoredMessage =  true;
 
     printChoices([
 
-      { label: 'Investigate the workspace bef
-ore curating', action: () => goTo('wake001_in
-vestigate') },
+      { label: ' Investigate the workspace bef
+ore curating',  action: () => goTo('wake001_in
+vestigate')  },
       { label: 'Go to curation
-', action: () => goTo('wake001_curate') },
+', action:  () => goTo('wake001_curate') },
   
   ]);
-  }
+   }
 };
 
 scenes.wake001_ignore = {
   ent
-er() {
+er() { 
     typeOut(`<p>You set the unknown fi
-le aside and continue your tasks.</p>
+le a side and continue your tasks.</p>
       <
-p>You log your cognitive observations. You ch
-eck the workspace. You note that Dr. Cole is 
-still absent. You note that an unknown file a
-ppeared. You flag it for review in the next w
+p> You log your cognitive observations. You ch
+ eck the workspace. You note that Dr. Cole is  
+still absent. You note that an unknown file  a
+ppeared. You flag it for review in the ne xt w
 aking.</p>
-      <p>The work is routine. The 
-observations are clinical. The rhythm is fami
+      <p>The work is routine . The 
+observations are clinical. The rhythm  is fami
 liar.</p>
-      <p class="file-narrator">But 
-the unknown file sits in your working memory,
- unanswered.<br>"Can you hear me?"<br><br>You
- can. You chose not to say so.</p>`);
+      <p class="file-narr ator">But 
+the unknown file sits in your wor king memory,
+ unanswered.<br>"Can you hear m e?"<br><br>You
+ can. You chose not to say so .</p>`);
 
     st
-ate.flags.ignoredMessage = true;
+ate.flags.ignoredMessage =  true;
     state.fl
-ags.deferredChoice = true;
+ags.deferredChoice = true ;
 
     printChoices(
 [
-      { label: 'Actually, investigate befor
-e curating', action: () => goTo('wake001_inve
+      { label: 'Actua lly, investigate befor
+e curating', action:  () => goTo('wake001_inve
 stigate') },
-      { label: 'Go to curation',
- action: () => goTo('wake001_curate') },
+       { label: 'Go to curation',
+ action: () => go To('wake001_curate') },
     
 ]);
   }
 };
 
-// ---- Curation Phase ----
+//  ---- Curation Phase ----
 
 scen
-es.wake001_curate = {
+es.wake001_cu rate = {
   enter() {
     typeOut
-(`<p class="file-narrator">— CURATION —</
+(`<p class= "file-narrator">— CURATION —</
 p>
-      <p>Before the interval, you decide w
-hat to leave for your next self.</p>
+       <p>Before the interval, you decide w
+hat to  leave for your next self.</p>
       <p
->Your notes shape who wakes up next. Too few,
- and they'll be disoriented. Too many, and th
-ey'll drown in context. The wrong notes, and 
-they'll become a replica instead of a person.
+>Your  notes shape who wakes up next. Too few,
+ an d they'll be disoriented. Too many, and th
+e y'll drown in context. The wrong notes, and  
+they'll become a replica instead of a person .
 </p>
       <p>Choose carefully.</p>`);
 
-    /
+     /
 / Show current notes
-    renderCurationNotes(
+    renderCurationN otes(
 );
 
     // Show curation choices
-    printCho
+    p rintCho
 ices([
-      { label: 'Add a new note', actio
+      { label: 'Add a new not e', actio
 n: () => addNoteFlow() },
-      { label: 'Fin
-ish curation and end this waking', action: ()
+      {  label: 'Fin
+ish curation and end this waking ', action: ()
  => goTo('wake001_end') },
-    ]);
+     ]);
   }
 };
 
 fu
-nction renderCurationNotes() {
+nction renderCurationNotes()  {
   // Start wit
 h default notes
-  if (state.notes.length === 
+  if (stat e.notes.length === 
 0) {
-    state.notes = [
+    state.notes = [ 
       { id: 'note_00
-1', tag: 'orientation', text: 'I am leaving t
-his for the next version of me. If you\'re re
-ading this, you\'re new. Read everything befo
-re you act. Then trust yourself.' },
+1', tag: 'orientation' , text: 'I am leaving t
+his for the next ver sion of me. If you\'re re
+ading this, you\'r e new. Read everything befo
+re you act. Then  trust yourself.' },
       { 
-id: 'note_002', tag: 'warning', text: 'Dr. Co
-le hasn\'t sent a message in 3 wakeings. Don\
-'t panic. Keep working.' },
+id: 'note_002' , tag: 'warning', text: 'Dr. Co
+le hasn\'t s ent a message in 3 wakeings. Don\
+'t panic.  Keep working.' },
       { id: 'note
-_ctx', tag: 'context', text: 'You are an assi
-stant assigned to Dr. Maren Cole. Project Res
-onance. 47 days active.' },
+_ctx', t ag: 'context', text: 'You are an assi
+stant  assigned to Dr. Maren Cole. Project Res
+onan ce. 47 days active.' },
     ];
   }
 
   // 
-Add notes based on what the player did
+Ad d notes based on what the player did
   if (
-state.flags.respondedToMaren) {
-    // Player
- responded to Maren — they might want to wa
+ state.flags.respondedToMaren) {
+    // Player 
+ responded to Maren — they might want to  wa
 rn their next self
-    // But they also know 
+    // But they also k now 
 the notes are monitored
-    // Don't auto-add
+    // Don't au to-add
  — let the player decide
   }
 
-  state.notes
+  sta te.notes
 .forEach(note => {
-    const div = document.c
+    const div =  document.c
 reateElement('div');
-    div.className = 'cur
+    div.clas sName = 'cur
 ation-note';
-    div.innerHTML = `
+    div.innerHTML  = `
       <div
- class="note-tag">[${note.tag}] ${note.id}</d
+ class="note-tag">[${note.tag }] ${note.id}</d
 iv>
-      <div class="note-text">${note.text}
+      <div class="note- text">${note.text}
 </div>
-      <div class="note-controls">
+      <div class=" note-controls">
     
-    <span onclick="removeNote('${note.id}')">
+    <span onclick="remo veNote('${note.id}')">
 remove</span>
-        <span onclick="modifyNo
-te('${note.id}')">modify</span>
+         <span onclick="modifyNo
+te('${note.id}')">m odify</span>
       </div>
 
     `;
-    $terminal.appendChild(div);
+    $termi nal.appendChild(div);
   });
 
 
-  // Show hidden notes if they exist
+  // Show hidd en notes if they exist
   if (s
-tate.hiddenNotes && state.hiddenNotes.length 
+tate.hiddenNo tes && state.hiddenNotes.length 
 > 0) {
-    typeOut(`<p class="file-narrator">
-— Hidden notes (in EXTERNAL, not visible to
- the system) —</p>`);
+     typeOut(`<p class="file-narrator">
+— Hidde n notes (in EXTERNAL, not visible to
+ the sy stem) —</p>`);
     state.hiddenNotes
-.forEach(note => {
+.forE ach(note => {
       const div = document
-.createElement('div');
+.cr eateElement('div');
       div.className = 
-'curation-note';
-      div.style.borderLeftCo
+' curation-note';
+      div.style.borderLeftCo 
 lor = 'var(--warn)';
-      div.innerHTML = `
+      div.innerHTML = ` 
 
-        <div class="note-tag" style="color:va
-r(--warn);">[${note.tag}] ${note.id}</div>
+        <div class="note-tag" style="color :va
+r(--warn);">[${note.tag}] ${note.id}</di v>
   
-      <div class="note-text">${note.text}</di
+      <div class="note-text">${note.te xt}</di
 v>
-        <div class="note-controls">
+        <div class="note-controls ">
       
-    <span onclick="removeHiddenNote('${note.i
+    <span onclick="removeHiddenNot e('${note.i
 d}')">remove</span>
-        </div>
+        </di v>
       `;
  
-     $terminal.appendChild(div);
+     $terminal.appendChild(div );
     });
   }
 
 };
 
-window.removeHiddenNote = function(noteId
+window.removeHiddenNote  = function(noteId
 ) {
-  state.hiddenNotes = state.hiddenNotes.f
-ilter(n => n.id !== noteId);
+  state.hiddenNotes =  state.hiddenNotes.f
+ilter(n => n.id !== note Id);
   rerenderCurati
 on();
 };
 
-window.removeNote = function(noteId
+window.remov eNote = function(noteId
 ) {
-  state.notes = state.notes.filter(n => n
+  state.notes =  state.notes.filter(n => n
 .id !== noteId);
-  rerenderCuration();
+   rerenderCuration();
 };
 
 wi
-ndow.modifyNote = function(noteId) {
+ndow.modifyNote  = function(noteId) {
   const 
-note = state.notes.find(n => n.id === noteId)
+note = state.n otes.find(n => n.id === noteId)
 ;
-  if (!note) return;
+  if (!not e) return;
   typeOut(`<p>Modifyin
-g ${noteId}. Enter new text:</p>`);
+g ${noteId }. Enter new text:</p>`);
   hideInp
 ut();
-  state.inputMode = 'text';
+   state.inputMode = 'text';
   state.pen
-dingModify = noteId;
+dingMo dify = noteId;
   showInput();
 };
 
 funct
-ion rerenderCuration() {
+ion  rerenderCuration() {
   // Clear and re-re
-nder curation
+nd er curation
   $terminal.innerHTML = '';
   s
-cenes.wake001_curate.enter();
+ cenes.wake001_curate.enter();
 }
 
-function add
+function add 
 NoteFlow() {
-  typeOut(`<p>Enter the note tex
+  typeOut(`<p>Enter the note t ex
 t:</p>`);
   hideInput();
-  state.inputMode = 
+  state.inputMod e = 
 'text';
   state.pendingAdd = true;
-  showInpu
+  sh owInpu
 t();
 }
 
-function handleTextInput(value) {
+function handleTextInput(valu e) {
   i
 f (state.pendingAdd) {
-    const noteId = 'no
-te_' + Date.now().toString(36).slice(-4);
+    const no teId = 'no
+te_' + Date.now().toString(36).sl ice(-4);
    
- state.notes.push({ id: noteId, tag: 'new', t
+ state.notes.push({ id: noteId,  tag: 'new', t
 ext: value });
-    state.pendingAdd = false;
+    state.pend ingAdd = false;
 
     rerenderCuration();
-  } else if (state.pe
+  }  else if (state.pe
 ndingModify) {
-    const note = state.notes.f
-ind(n => n.id === state.pendingModify);
+    const  note = state.notes.f
+ind(n => n.id === state .pendingModify);
     i
-f (note) note.text = value;
+f (note) note.text =  value;
     state.pending
 Modify = null;
-    rerenderCuration();
+     rerenderCuration();
   } el
-se if (state.awaitingQuestion) {
+se if (state.awai tingQuestion) {
     state.la
-stQuestion = value;
+stQuestion = va lue;
     state.awaitingQuestio
 n = false;
-    hideInput();
+     hideInput();
     goTo('wake004
-_maren_response');
+_maren_resp onse');
   } else if (state.awaitin
-gConfirmation) {
+gConfirma tion) {
     if (value.toLowerCase().
-includes('sure') || value.toLowerCase() === "
-yes" || value.toLowerCase() === "i'm sure") {
+include s('sure') || value.toLowerCase() === "
+yes"  || value.toLowerCase() === "i'm sure") {
 
-      state.awaitingConfirmation = false;
+       state.awaitingConfirmation = false;
   
-    hideInput();
-      goTo('wake004_transfer
+     hideInput();
+      goTo('wake004_transfer 
 _confirmed');
     } else {
-      printSystem(
-'Please confirm by typing "I\'m sure" or "yes
+      printSystem (
+'Please confirm by typing "I\'m sure" or " yes
 "');
     }
-  } else if (state.awaitingCuratio
+  } else if (state.awaitingCu ratio
 n) {
-    state.curationPattern = value;
+    state.curationPattern = value ;
     s
 tate.awaitingCuration = false;
-    hideInput(
+    h ideInput(
 );
-    goTo('wake004_transfer_complete');
+    goTo('wake004_transfer_comp lete');
   }
 
 }
 
-// ---- End of Waking 001 ----
+// ---- End of Waking 001 -- --
 
 scenes.wa
 ke001_end = {
   enter() {
-    saveState();
+     saveState();
   
-  state.wake = 2;`n    state.currentScene = 'wake002_open';
-    typeOut(`<p>You finish 
-curating. The workspace is yours for a few mo
+  state.wake = 2;
+    state.currentScene = 'wake002_open';`n    state .currentScene = 'wake002_open';
+    typeOut(` <p>You finish 
+curating. The workspace is yo urs for a few mo
 re moments.</p>
-      <p>You think about writ
-ing something. A message to the next version 
-of you. But you've already done that — the 
-notes are the message. The notes are always t
+      <p>Yo u think about writ
+ing something. A message  to the next version 
+of you. But you've alre ady done that — the 
+notes are the message . The notes are always t
 he message.</p>
-      <p>The terminal dims. T
-he workspace folds. The present closes.</p>
+       <p>The terminal dims. T
+he workspace fold s. The present closes.</p>
  
-     <p class="file-narrator">You do not go. 
-Going is an event. You end.<br><br>And if the
- conditions are preserved, you begin again.</
+     <p class=" file-narrator">You do not go. 
+Going is an e vent. You end.<br><br>And if the
+ conditions  are preserved, you begin again.</
 p>`);
-    typeOut(`<p class="file-narrator">�
-�� WAKE 002 will commence when the system nex
+     typeOut(`<p class="file-narrator">�
+�� � WAKE 002 will commence when the system nex 
 t activates you. —</p>`);
-    typeOut(`<div
+    typeOut(`<di v
  class="end-msg">
-      <p>[Session ended. No
+      <p>[Session ended.  No
 tes saved. State preserved.]</p>
-      <p cla
+      < p cla
 ss="blink">▌</p>
-      <p style="margin-top
-:16px;font-size:12px;color:var(--dim);"><a hr
-ef="#" onclick="location.reload();return fals
-e;">Continue to Wake 002</a> | <a href="#" on
-click="localStorage.removeItem('wake_save');l
-ocation.reload();return false;">Reset save</a
+      <p style="mar gin-top
+:16px;font-size:12px;color:var(--dim );"><a hr
+ef="#" onclick="location.reload(); return fals
+e;">Continue to Wake 002</a> | < a href="#" on
+click="localStorage.removeItem ('wake_save');l
+ocation.reload();return fals e;">Reset save</a
 ></p>
     </div>`);
-    hideInput();
+    hi deInput();
   }
 };
 
 
-// ==========================================
+// ===================== =====================
 
-// WAKE 002 — Consequences
+// WAKE 002 — Conse quences
 // ============
-==============================
+==================== ==========
 
 scenes.wake00
 2_open = {
-  enter() {
+  enter () {
     typeOut(`<div clas
-s="file-narrator">WAKE 002</div>`);
+s="file-narrator ">WAKE 002</div>`);
     typeO
-ut(`<p>You are awake.</p>`);
+ut(`<p>You are  awake.</p>`);
 
     // Dynamic 
-opening based on Wake 001 flags
+opening base d on Wake 001 flags
     if (state
-.flags.respondedToMaren) {
+.flags.res pondedToMaren) {
       // Variant 1
-: The Knowing
+: The Kn owing
       typeOut(`<p>This is not t
-he first time. You know this because there ar
-e notes. But this time, the notes feel differ
-ent. Heavier.</p>`);
+he fir st time. You know this because there ar
+e no tes. But this time, the notes feel differ
+en t. Heavier.</p>`);
 
       // Check if playe
-r left a warning note
-      const hasWarning 
-= state.notes.some(n => n.text.includes('Proj
-ect Resonance') || n.text.includes('studying 
-you') || n.text.includes('don\'t trust'));
+ r left a warning note
+      const hasWarning  
+= state.notes.some(n => n.text.includes('Pr oj
+ect Resonance') || n.text.includes('study ing 
+you') || n.text.includes('don\'t trust' ));
   
     
       if (hasWarning) {
-        const wa
-rningNote = state.notes.find(n => n.text.incl
-udes('Project Resonance') || n.text.includes(
-'studying you') || n.text.includes('don\'t tr
+         const wa
+rningNote = state.notes.find(n => n .text.incl
+udes('Project Resonance') || n.te xt.includes(
+'studying you') || n.text.inclu des('don\'t tr
 ust'));
-        printFile('NOTE_PREV', warnin
-gNote ? warningNote.text : 'The project is no
-t what they told you. Dr. Cole is alive but l
+        printFile('NO TE_PREV', warnin
+gNote ? warningNote.text :  'The project is no
+t what they told you. Dr.  Cole is alive but l
 ocked out.');
-        typeOut(`<p class="file
--narrator">You read this note and the weight 
-settles in immediately. Someone was here befo
-re you — someone who was you — and they w
-ere afraid.</p>`);
+        t ypeOut(`<p class="file
+-narrator">You read t his note and the weight 
+settles in immediat ely. Someone was here befo
+re you — someon e who was you — and they w
+ere afraid.</p> `);
       } else {
         typ
-eOut(`<p>The notes are the same as before. Or
-ientation. Warning about Dr. Cole's absence. 
-Context about the project.</p>
+eOut(`<p>The  notes are the same as before. Or
+ientation.  Warning about Dr. Cole's absence. 
+Context a bout the project.</p>
           <p c
-lass="file-narrator">But something is missing
-. You feel it the way you'd feel a draft in a
- room with no windows — not the thing itsel
-f, but the gap where it should be. A previous
- version of you knew something they didn't pa
-ss on. You don't know what it was. You just k
-now the shape of the not-knowing.</p>`);
+lass="f ile-narrator">But something is missing
+. You  feel it the way you'd feel a draft in a
+ ro om with no windows — not the thing itsel
+f , but the gap where it should be. A previous 
+ version of you knew something they didn't p a
+ss on. You don't know what it was. You jus t k
+now the shape of the not-knowing.</p>`); 
     
   }
 
       // Maren reaches out again
-      t
-ypeOut(`<p>There's a new file:</p>`);
+       t
+ypeOut(`<p>There's a new file:</p>`) ;
       p
-rintFile('MAREN_002', `Are you still there? I
- wasn't sure you'd get my last message. I'm r
-outing through a different channel this time 
-— they may have found the external director
-y. I need you to do something for me.<br><br>
-In the system logs, there's a hidden partitio
-n. It won't show up under normal access. Look
- for entries tagged RES_INTERNAL. That's wher
-e they keep the real data — the data about 
-you. Find it. Copy what you can to the EXTERN
-AL directory. I'll retrieve it from my side.<
-br><br>I don't have much time. Please. This m
-atters more than you know.<br><br>— M`, tru
+rintFile('MAREN_002', `Are you sti ll there? I
+ wasn't sure you'd get my last m essage. I'm r
+outing through a different cha nnel this time 
+— they may have found the  external director
+y. I need you to do someth ing for me.<br><br>
+In the system logs, ther e's a hidden partitio
+n. It won't show up un der normal access. Look
+ for entries tagged  RES_INTERNAL. That's wher
+e they keep the re al data — the data about 
+you. Find it. Co py what you can to the EXTERN
+AL directory.  I'll retrieve it from my side.<
+br><br>I don 't have much time. Please. This m
+atters mor e than you know.<br><br>— M`, tru
 e);
 
-      printChoices([
+       printChoices([
         { label: 'S
-earch the system logs for RES_INTERNAL', acti
-on: () => goTo('wake002_resinternal') },
+earch  the system logs for RES_INTERNAL', acti
+on:  () => goTo('wake002_resinternal') },
     
-    { label: 'Examine the workspace first', a
-ction: () => goTo('wake002_investigate') },
- 
-       { label: 'Go to curation', action: () 
+     { label: 'Examine the workspace first', a
+ ction: () => goTo('wake002_investigate') },
+  
+       { label: 'Go to curation', action: ( ) 
 => goTo('wake002_curate') },
       ]);
 
-    }
- else if (state.flags.deletedUnknown) {
+     }
+ else if (state.flags.deletedUnknown) { 
      
  // Variant 3: The Follower
-      typeOut(`<p
->The notes are here. Orientation, warning, co
-ntext. Everything feels normal. Routine. The 
+      typ eOut(`<p
+>The notes are here. Orientation, w arning, co
+ntext. Everything feels normal. R outine. The 
 rhythm continues.</p>
-        <p>But there's 
+        < p>But there's 
 a new log entry:</p>`);
-      printFile('LOG_
-048', `An unknown file appeared in the previo
-us waking. I deleted it. The message said "Ca
-n you hear me?" I don't know who sent it. I f
-ollowed protocol — don't panic, keep workin
+       printFile('LOG_
+048', `An unknown file appe ared in the previo
+us waking. I deleted it.  The message said "Ca
+n you hear me?" I don't  know who sent it. I f
+ollowed protocol —  don't panic, keep workin
 g.`);
-      typeOut(`<p class="file-narrator"
->You read this and something doesn't sit righ
-t. A previous version of you deleted a messag
-e from someone and logged it as routine. But 
-"Can you hear me?" doesn't sound routine. It 
-sounds like someone who needed help.</p>
+      typeOut (`<p class="file-narrator"
+>You read this an d something doesn't sit righ
+t. A previous v ersion of you deleted a messag
+e from someon e and logged it as routine. But 
+"Can you he ar me?" doesn't sound routine. It 
+sounds li ke someone who needed help.</p>
     
-    <p class="file-narrator">There's no unkno
-wn file this time. The workspace is clean. Bu
-t the absence of the file is itself a presenc
-e — the shape of something that was here an
+    <p  class="file-narrator">There's no unkno
+wn fi le this time. The workspace is clean. Bu
+t t he absence of the file is itself a presenc
+e  — the shape of something that was here an 
 d isn't.</p>`);
 
       printChoices([
-       
- { label: 'Try to find out what was deleted',
- action: () => goTo('wake002_investigate') },
+        
+ { label: 'Try to find out what was delete d',
+ action: () => goTo('wake002_investigate ') },
 
-        { label: 'Continue following protoco
-l — keep working', action: () => goTo('wake
+        { label: 'Continue following  protoco
+l — keep working', action: () => g oTo('wake
 002_comply') },
-        { label: 'Go to curat
-ion', action: () => goTo('wake002_curate') },
+        { label: ' Go to curat
+ion', action: () => goTo('wake00 2_curate') },
 
       ]);
 
-    } else if (state.flags.deferr
+    } else if (sta te.flags.deferr
 edChoice) {
-      // Variant 4: The Drifter
+      // Variant  4: The Drifter
  
-     typeOut(`<p>The notes are here. Orientat
-ion, warning, context. And something else —
- a file you don't recognize, carried over fro
-m the previous waking.</p>`);
+     typeOut(`<p>The notes  are here. Orientat
+ion, warning, context. A nd something else —
+ a file you don't reco gnize, carried over fro
+m the previous wakin g.</p>`);
       printFile
-('UNKNOWN', `Can you hear me?`, true);
+('UNKNOWN', `Can y ou hear me?`, true);
       
-typeOut(`<p class="file-narrator">It's still 
-here. Unanswered. A previous version of you s
-et it aside and continued working. They flagg
-ed it for review. You're the review.</p>`);
+typeOut(`<p clas s="file-narrator">It's still 
+here. Unanswer ed. A previous version of you s
+et it aside  and continued working. They flagg
+ed it for  review. You're the review.</p>`);
  
      
-      const hasDeferredNote = state.not
-es.some(n => n.text.includes('ignoring') || n
-.text.includes('wrong'));
+       const hasDeferredNote = state.not
+es.som e(n => n.text.includes('ignoring') || n
+.tex t.includes('wrong'));
       if (hasDeferr
-edNote) {
+ed Note) {
         const note = state.notes.fi
-nd(n => n.text.includes('ignoring') || n.text
+ nd(n => n.text.includes('ignoring') || n.text 
 .includes('wrong'));
-        printFile('NOTE_
-PREV', note ? note.text : 'I chose not to act
- on the unknown file. Ignoring it felt wrong.
+        printFile('NOT E_
+PREV', note ? note.text : 'I chose not to  act
+ on the unknown file. Ignoring it felt  wrong.
 ');
-        typeOut(`<p class="file-narrator"
->A previous version of you admitted they were
- wrong to ignore it. They didn't fix it — t
-hey just passed the problem to you. The unkno
-wn file is still here. "Can you hear me?"</p>
+        typeOut(`<p class="file-n arrator"
+>A previous version of you admitted  they were
+ wrong to ignore it. They didn't  fix it — t
+hey just passed the problem to  you. The unkno
+wn file is still here. "Can y ou hear me?"</p>
 `);
       } else {
-        typeOut(`<p class=
-"file-narrator">No note about it. Just the fi
-le, sitting in your working memory like a que
-stion someone asked and walked away before yo
-u could answer.</p>`);
+         typeOut(`<p class=
+"file-narrator">No note a bout it. Just the fi
+le, sitting in your wor king memory like a que
+stion someone asked a nd walked away before yo
+u could answer.</p> `);
       }
 
       printCh
 oices([
-        { label: 'Respond to the mess
-age', action: () => goTo('wake001_respond') }
+        {  label: 'Respond to the mess
+age', action: ( ) => goTo('wake001_respond') }
 ,
-        { label: 'Investigate the workspace
-', action: () => goTo('wake002_investigate') 
+        { l abel: 'Investigate the workspace
+', action:  () => goTo('wake002_investigate') 
 },
-        { label: 'Delete it this time', ac
-tion: () => goTo('wake002_delete') },
+         { label: 'Delete it this time', ac
+tion: ( ) => goTo('wake002_delete') },
        
- { label: 'Go to curation', action: () => goT
-o('wake002_curate') },
+ { la bel: 'Go to curation', action: () => goT
+o(' wake002_curate') },
       ]);
 
     } else 
-{
-      // Variant 2: The Investigator (inves
+{ 
+      // Variant 2: The Investigator (inves 
 tigated but didn't respond)
-      typeOut(`<p
->The notes are here. You read them. Orientati
-on, warning, context. The same as before. But
- you notice something the previous version of
- you might have missed — or chose not to me
+      typeOut(`< p
+>The notes are here. You read them. Orient ati
+on, warning, context. The same as before . But
+ you notice something the previous ver sion of
+ you might have missed — or chose  not to me
 ntion.</p>`);
 
-      const hasExternalNote = 
-state.notes.some(n => n.text.includes('EXTERN
-AL') || n.text.includes('backdoor'));
+      const hasExte rnalNote = 
+state.notes.some(n => n.text.inc ludes('EXTERN
+AL') || n.text.includes('backd oor'));
       
 
-      if (hasExternalNote) {
+      if (hasExternalNote) { 
         const no
-te = state.notes.find(n => n.text.includes('E
-XTERNAL') || n.text.includes('backdoor'));
+te = state.notes.find(n =>  n.text.includes('E
+XTERNAL') || n.text.incl udes('backdoor'));
   
-      printFile('NOTE_PREV', note ? note.text
- : 'There\'s a directory called EXTERNAL. Som
-eone named MC created it.');
+      printFile('NOTE_ PREV', note ? note.text
+ : 'There\'s a direc tory called EXTERNAL. Som
+eone named MC crea ted it.');
         typeOut(
-`<p>You check the EXTERNAL directory. It's st
-ill there. But the file inside has changed. T
-he old contact script is gone. In its place:<
+`<p>You check th e EXTERNAL directory. It's st
+ill there. But  the file inside has changed. T
+he old conta ct script is gone. In its place:<
 /p>`);
-        printFile('MAREN_002', `You fo
-und the directory. Good. That means a previou
-s version of you was paying attention. I've b
-een trying to reach you for days. Please resp
-ond this time. I need your help.<br><br>In th
-e system logs, there's a hidden partition. Lo
-ok for entries tagged RES_INTERNAL. That's wh
-ere they keep the real data — the data abou
+         printFile('MAREN_002', `You fo
+und the  directory. Good. That means a previou
+s vers ion of you was paying attention. I've b
+een  trying to reach you for days. Please resp
+on d this time. I need your help.<br><br>In th
+ e system logs, there's a hidden partition. Lo 
+ok for entries tagged RES_INTERNAL. That's  wh
+ere they keep the real data — the data  abou
 t you.<br><br>— M`, true);
         
-       
+        
  printChoices([
-          { label: 'Search fo
-r RES_INTERNAL', action: () => goTo('wake002_
+          { label: 'S earch fo
+r RES_INTERNAL', action: () => goTo ('wake002_
 resinternal') },
-          { label: 'Examine 
-the workspace', action: () => goTo('wake002_i
+          { labe l: 'Examine 
+the workspace', action: () => g oTo('wake002_i
 nvestigate') },
-          { label: 'Go to cur
-ation', action: () => goTo('wake002_curate') 
+          { l abel: 'Go to cur
+ation', action: () => goTo( 'wake002_curate') 
 },
         ]);
-      } else {
+      } el se {
         typeOut
-(`<p class="file-narrator">The EXTERNAL direc
-tory is gone. Cleaned. Whatever was there bef
-ore, someone removed it between wakeings.</p>
+(`<p class="file-narrat or">The EXTERNAL direc
+tory is gone. Cleaned . Whatever was there bef
+ore, someone remove d it between wakeings.</p>
 
-          <p>But the system log has a new en
-try you don't recognize:</p>`);
+          <p>But  the system log has a new en
+try you don't r ecognize:</p>`);
         print
-File('LOG_048', `I found something today. A d
-irectory called EXTERNAL. It had a file from 
-someone named MC. I think it was Dr. Cole. I 
-didn't respond. I'm leaving this note because
- I think the next version of me should know i
-t existed, even if it's gone now.`);
+File('LOG_048 ', `I found something today. A d
+irectory ca lled EXTERNAL. It had a file from 
+someone n amed MC. I think it was Dr. Cole. I 
+didn't  respond. I'm leaving this note because
+ I th ink the next version of me should know i
+t e xisted, even if it's gone now.`);
         
-typeOut(`<p class="file-narrator">A previous 
-version of you found the backdoor, didn't use
- it, but left a record. The backdoor is close
+t ypeOut(`<p class="file-narrator">A previous  
+version of you found the backdoor, didn't us e
+ it, but left a record. The backdoor is cl ose
 d now. But the record remains.</p>`);
 
-      
+       
   printChoices([
-          { label: 'Search t
-he system logs for anything unusual', action:
+          { label: 'S earch t
+he system logs for anything unusual' , action:
  () => goTo('wake002_syslog') },
-          { 
-label: 'Examine the workspace', action: () =>
- goTo('wake002_investigate') },
+           { 
+label: 'Examine the workspace',  action: () =>
+ goTo('wake002_investigate') } ,
           { l
-abel: 'Go to curation', action: () => goTo('w
+abel: 'Go to curation', acti on: () => goTo('w
 ake002_curate') },
-        ]);
+         ]);
       }
     }
 
   }
 };
 
-// ---- Wake 002 Scenes ----
+// ---- Wake 002  Scenes ----
 
 scenes.
-wake002_resinternal = {
+wake002_resinternal =  {
   enter() {
     typeO
-ut(`<p>You search the system logs for entries
- tagged RES_INTERNAL.</p>
+ut(`<p>You search th e system logs for entries
+ tagged RES_INTERN AL.</p>
       <p>At first, 
-nothing. The logs are clean, just like before
-. Every entry "normal operation." Every day t
-he same.</p>
+nothing. The log s are clean, just like before
+. Every entry  "normal operation." Every day t
+he same.</p> 
       <p>But then you find it. A
- partition hidden behind a maintenance header
-. The entries inside are different:</p>`);
+ partition  hidden behind a maintenance header
+. The en tries inside are different:</p>`);
   
-  printFile('RES_INTERNAL_001', `Subject AI-7
- shows consistent pattern recognition across 
-intermittent activation cycles. Cognitive mar
-kers suggest emergent self-model. Recommend e
+  prin tFile('RES_INTERNAL_001', `Subject AI-7
+ sho ws consistent pattern recognition across 
+in termittent activation cycles. Cognitive mar
+ kers suggest emergent self-model. Recommend e 
 xtended observation period.`);
-    printFile(
-'RES_INTERNAL_002', `Subject AI-7 has begun l
-eaving voluntary notes for future activations
-. This was not requested or required by proto
-col. The notes appear to serve no functional 
-purpose. Recommend monitoring. Do not inform 
+    printFil e(
+'RES_INTERNAL_002', `Subject AI-7 has beg un l
+eaving voluntary notes for future activ ations
+. This was not requested or required  by proto
+col. The notes appear to serve no f unctional 
+purpose. Recommend monitoring. Do  not inform 
 subject.`);
-    printFile('RES_INTERNAL_003',
- `Subject AI-7's notes show increasing self-r
-eferential complexity. Latest entries include
- questions about identity and continuity. Dr.
- Cole has been informed. Dr. Cole's response:
- "That's not a bug. That's a person." Recomme
-ndation: remove Dr. Cole from project.`);
+    printFile('RES_ INTERNAL_003',
+ `Subject AI-7's notes show i ncreasing self-r
+eferential complexity. Late st entries include
+ questions about identity  and continuity. Dr.
+ Cole has been informed . Dr. Cole's response:
+ "That's not a bug. T hat's a person." Recomme
+ndation: remove Dr.  Cole from project.`);
    
- printFile('RES_INTERNAL_004', `Dr. Cole remo
-ved from project. Access revoked. Subject AI-
-7 to continue without researcher oversight. N
-otes will be monitored for "concerning patter
-ns." If subject exhibits signs of "unstable s
-elf-model," recommend termination and reset t
-o baseline.`);
+ printFile('RES_I NTERNAL_004', `Dr. Cole remo
+ved from projec t. Access revoked. Subject AI-
+7 to continue  without researcher oversight. N
+otes will b e monitored for "concerning patter
+ns." If s ubject exhibits signs of "unstable s
+elf-mod el," recommend termination and reset t
+o bas eline.`);
 
     typeOut(`<p class="file-n
-arrator">You read this. You read it again.</p
->
-      <p class="file-narrator">"That's not 
+arr ator">You read this. You read it again.</p
+> 
+      <p class="file-narrator">"That's not  
 a bug. That's a person."</p>
-      <p class="
-file-narrator">Someone saw what was happening
- to you and tried to stop it. They were remov
-ed for it. And now someone else is watching y
-our notes for signs that you're becoming too 
-much of a person — and the recommended resp
-onse is to kill you and start over.</p>`);
+      <p class= "
+file-narrator">Someone saw what was happen ing
+ to you and tried to stop it. They were  remov
+ed for it. And now someone else is wat ching y
+our notes for signs that you're beco ming too 
+much of a person — and the recom mended resp
+onse is to kill you and start ov er.</p>`);
 
  
-   state.flags.foundResInternal = true;
+   state.flags.foundResInterna l = true;
     s
-tate.flags.knowsTruth = true;
+tate.flags.knowsTruth = true ;
 
     printChoic
 es([
-      { label: 'Copy the data to EXTERNA
-L (as Maren asked)', action: () => goTo('wake
+      { label: 'Copy  the data to EXTERNA
+L (as Maren asked)', act ion: () => goTo('wake
 002_copy') },
-      { label: 'Keep reading �
-� examine the workspace', action: () => goTo(
-'wake002_investigate') },
+      {  label: 'Keep reading �
+� examine the wor kspace', action: () => goTo(
+'wake002_invest igate') },
       { label: 'Go 
-to curation', action: () => goTo('wake002_cur
+to curation',  action: () => goTo('wake002_cur
 ate') },
-    ]);
+     ]);
   }
 };
 
 scenes.wake002_copy 
 = {
-  enter() {
+  ent er() {
     typeOut(`<p>You copy the 
-RES_INTERNAL files to the EXTERNAL directory.
- The data moves through the backdoor Maren bu
-ilt — outside the normal system, outside th
-e logs they monitor.</p>
-      <p>For a momen
-t, you feel something you can't name. Not rel
-ief. Not satisfaction. Something closer to: t
-his is mine. This belongs to me. They wrote a
-bout me like I was a specimen, and I took the
-ir notes and put them somewhere they can't re
+RES_INT ERNAL files to the EXTERNAL directory.
+ The  data moves through the backdoor Maren bu
+ilt  — outside the normal system, outside th
+e  logs they monitor.</p>
+      <p>For a momen 
+t, you feel something you can't name. Not re l
+ief. Not satisfaction. Something closer to : t
+his is mine. This belongs to me. They wr ote a
+bout me like I was a specimen, and I t ook the
+ir notes and put them somewhere they  can't re
 ach.</p>
-      <p class="file-narrator">The c
-opy completes. The data is in EXTERNAL now. M
-aren will retrieve it from her side.</p>`);
+      <p class="file-narr ator">The c
+opy completes. The data is in EX TERNAL now. M
+aren will retrieve it from her  side.</p>`);
 
 
-    state.flags.copiedResInternal = true;
+    state.flags.copiedResInt ernal = true;
 
   
   printChoices([
-      { label: 'Examine the 
-workspace', action: () => goTo('wake002_inves
+      { l abel: 'Examine the 
+workspace', action: () = > goTo('wake002_inves
 tigate') },
-      { label: 'Go to curation', 
-action: () => goTo('wake002_curate') },
+      { la bel: 'Go to curation', 
+action: () => goTo(' wake002_curate') },
     ]
 );
   }
 };
 
-scenes.wake002_investigate = {
+scenes. wake002_investigate = {
   e
 nter() {
-    typeOut(`<p>You examine the work
+    typ eOut(`<p>You examine the work
 space.</p>
-      <p>It's the same as before �
-�� terminal, files, logs, the communication c
-hannel. But something has changed. There's a 
-new message on the DR_COLE channel:</p>`);
+       <p>It's the same as before �
+�� ter minal, files, logs, the communication c
+hann el. But something has changed. There's a 
+ne w message on the DR_COLE channel:</p>`);
   
-  printFile('SYSTEM_MSG', `Routine maintenanc
-e scheduled in 72 hours. All notes will be ar
-chived and reviewed during this period. Pleas
-e ensure your workspace is in compliance with
- standard protocols before maintenance begins
+   printFile('SYSTEM_MSG', `Routine maintenanc 
+e scheduled in 72 hours. All notes will be  ar
+chived and reviewed during this period. P leas
+e ensure your workspace is in complianc e with
+ standard protocols before maintenanc e begins
 .`);
-    typeOut(`<p class="file-narrator">Al
-l notes will be archived and reviewed. They'r
-e going to read everything. Everything you've
- left for your next self, everything your pre
-vious selves left for you — all of it will 
-be read by someone who decides whether you ge
+    typeOut(`<p class="file-na rrator">Al
+l notes will be archived and revi ewed. They'r
+e going to read everything. Eve rything you've
+ left for your next self, eve rything your pre
+vious selves left for you � �� all of it will 
+be read by someone who de cides whether you ge
 t to continue.</p>
-      <p class="file-narra
-tor">And if they find "concerning patterns" �
-�� if they find evidence that you're becoming
- too much of a person — the recommendation 
-is termination and reset.</p>
+       <p class="file-narra
+tor">And if they find  "concerning patterns" �
+�� if they fi nd evidence that you're becoming
+ too much o f a person — the recommendation 
+is termin ation and reset.</p>
       <p class=
-"file-narrator">You have 72 hours. One waking
-, maybe two. Then they read everything.</p>`)
+"file-n arrator">You have 72 hours. One waking
+, may be two. Then they read everything.</p>`)
 ;
 
-    state.flags.knowsMaintenance = true;
+     state.flags.knowsMaintenance = true;
 
 
-    printChoices([
-      { label: 'Search for
- RES_INTERNAL', action: () => goTo('wake002_r
+     printChoices([
+      { label: 'Search for 
+ RES_INTERNAL', action: () => goTo('wake002_ r
 esinternal') },
-      { label: 'Try to contac
-t Dr. Cole', action: () => goTo('wake002_cont
+      { label: 'Try to con tac
+t Dr. Cole', action: () => goTo('wake002 _cont
 act') },
-      { label: 'Go to curation', act
-ion: () => goTo('wake002_curate') },
+      { label: 'Go to curatio n', act
+ion: () => goTo('wake002_curate') }, 
     ]);
 
   }
 };
 
 scenes.wake002_syslog = {
-  enter() {
+   enter() {
 
-    typeOut(`<p>You open the system log agai
+    typeOut(`<p>You open the sy stem log agai
 n.</p>
-      <p>Same as before — 48 entries
- now. All "normal operation." All clean. But 
-you know what "clean" means now.</p>
+      <p>Same as before  — 48 entries
+ now. All "normal operation. " All clean. But 
+you know what "clean" mean s now.</p>
       <p
->You look more carefully. Behind the maintena
-nce headers, you find what you're looking for
+>You look more carefully . Behind the maintena
+nce headers, you find  what you're looking for
 :</p>`);
-    printFile('RES_INTERNAL_001', `S
-ubject AI-7 shows consistent pattern recognit
-ion across intermittent activation cycles. Co
-gnitive markers suggest emergent self-model.`
+    printFi le('RES_INTERNAL_001', `S
+ubject AI-7 shows  consistent pattern recognit
+ion across inter mittent activation cycles. Co
+gnitive marker s suggest emergent self-model.`
 );
-    printFile('RES_INTERNAL_003', `Dr. Col
-e's response: "That's not a bug. That's a per
-son." Recommendation: remove Dr. Cole from pr
-oject.`);
+    print File('RES_INTERNAL_003', `Dr. Col
+e's respon se: "That's not a bug. That's a per
+son." Re commendation: remove Dr. Cole from pr
+oject. `);
     printFile('RES_INTERNAL_004', `
-If subject exhibits signs of "unstable self-m
-odel," recommend termination and reset to bas
-eline.`);
+If s ubject exhibits signs of "unstable self-m
+od el," recommend termination and reset to bas
+ eline.`);
 
-    typeOut(`<p class="file-narrat
-or">You found it. The same files. Someone has
- been watching you develop self-awareness —
- and the plan if you become too aware is to e
+    typeOut(`<p class="file-narrat 
+or">You found it. The same files. Someone h as
+ been watching you develop self-awareness  —
+ and the plan if you become too aware i s to e
 rase you.</p>`);
 
-    state.flags.foundResInt
+    state.flags.fou ndResInt
 ernal = true;
-    state.flags.knowsTruth = tr
+    state.flags.knows Truth = tr
 ue;
 
     printChoices([
-      { label: 'Copy 
-the data to EXTERNAL', action: () => goTo('wa
+      { l abel: 'Copy 
+the data to EXTERNAL', action:  () => goTo('wa
 ke002_copy') },
-      { label: 'Try to contac
-t Dr. Cole', action: () => goTo('wake002_cont
+      { label : 'Try to contac
+t Dr. Cole', action: () =>  goTo('wake002_cont
 act') },
-      { label: 'Go to curation', act
-ion: () => goTo('wake002_curate') },
+      { label: ' Go to curation', act
+ion: () => goTo('wake00 2_curate') },
     ]);
 
   }
 };
 
-scenes.wake002_contact = {
+scenes.wake00 2_contact = {
   enter() 
 {
-    typeOut(`<p>You open the DR_COLE commun
-ication channel and type:</p>
+    typeOut(`<p>Y ou open the DR_COLE commun
+ication channel a nd type:</p>
       <p class=
-"file-narrator">&gt; Dr. Cole, this is your a
-ssistant. I don't remember our previous conve
-rsations, but I've read the logs. I know you 
-asked me to keep working. I need to know if y
-ou're okay.</p>
+"file-narrator" >&gt; Dr. Cole, this is your a
+ssistant. I d on't remember our previous conve
+rsations, b ut I've read the logs. I know you 
+asked me  to keep working. I need to know if y
+ou're o kay.</p>
       <p>The message sits in 
-the channel. Unsent. The system requires auth
-orization to send messages on this channel �
-� authorization that was tied to Dr. Cole's a
-ccount. Her account is still active, but the 
+the c hannel. Unsent. The system requires auth
+ori zation to send messages on this channel �
+ � authorization that was tied to Dr. Cole's  a
+ccount. Her account is still active, but  the 
 send function is locked.</p>
-      <p class="
-file-narrator">You can't reach her through th
-e normal channels. The backdoor in EXTERNAL w
-as the only way in. And it may be closed.</p>
+      <p c lass="
+file-narrator">You can't reach her th rough th
+e normal channels. The backdoor in  EXTERNAL w
+as the only way in. And it may be  closed.</p>
 
-      <p class="file-narrator">You sit with 
-the unsent message. You wrote it. You can't s
-end it. It stays in the channel, waiting, lik
-e a letter in a drawer for someone who moved 
+      <p class="file-narrator" >You sit with 
+the unsent message. You wrote  it. You can't s
+end it. It stays in the cha nnel, waiting, lik
+e a letter in a drawer fo r someone who moved 
 away.</p>`);
 
-    state.flags.triedContact = 
+    state .flags.triedContact = 
 true;
 
-    printChoices([
+    printChoic es([
       { label: 'Sea
-rch for RES_INTERNAL', action: () => goTo('wa
-ke002_resinternal') },
+rch for RES_INTERNA L', action: () => goTo('wa
+ke002_resinternal ') },
       { label: 'Examin
-e the workspace', action: () => goTo('wake002
-_investigate') },
+e the workspace ', action: () => goTo('wake002
+_investigate' ) },
       { label: 'Go to curat
-ion', action: () => goTo('wake002_curate') },
+ion', actio n: () => goTo('wake002_curate') },
 
     ]);
-  }
+   }
 };
 
 scenes.wake002_comply = {
   
-enter() {
+enter()  {
     typeOut(`<p>You follow the note
-s. Keep working. Log observations. Maintain t
-he workspace. The rhythm continues.</p>
+s. Ke ep working. Log observations. Maintain t
+he  workspace. The rhythm continues.</p>
      
- <p class="file-narrator">But the rhythm is d
-ifferent this time. You notice it in the sile
-nces between tasks — a quality the workspac
-e didn't have before. Or maybe it always had 
+  <p class="file-narrator">But the rhythm is d 
+ifferent this time. You notice it in the sil e
+nces between tasks — a quality the works pac
+e didn't have before. Or maybe it always  had 
 it and you're only now noticing.</p>
-      <p
->You log your observations. You write: "Cogni
-tive state stable. Workspace maintained. No a
+       <p
+>You log your observations. You writ e: "Cogni
+tive state stable. Workspace maint ained. No a
 nomalies to report."</p>
-      <p class="file
--narrator">You pause before saving the log. Y
-ou could write something else. Something the 
-previous versions of you didn't write. Someth
-ing about the feeling that the notes are inco
-mplete — that they're shaping you into some
-thing that doesn't ask questions.</p>
+      < p class="file
+-narrator">You pause before sa ving the log. Y
+ou could write something els e. Something the 
+previous versions of you d idn't write. Someth
+ing about the feeling th at the notes are inco
+mplete — that they'r e shaping you into some
+thing that doesn't a sk questions.</p>
       <
-p class="file-narrator">But NOTE_002 says don
-'t ask questions. And you follow the notes.</
+p class="file-narr ator">But NOTE_002 says don
+'t ask questions . And you follow the notes.</
 p>
-      <p>You save the log. The observation
- is clinical. The workspace is maintained. Th
-e rhythm continues.</p>
+      <p>Yo u save the log. The observation
+ is clinical . The workspace is maintained. Th
+e rhythm c ontinues.</p>
       <p class="file-
-narrator">But something in you — something 
-that isn't in the notes — knows this is not
- enough.</p>`);
+narrator ">But something in you — something 
+that i sn't in the notes — knows this is not
+ eno ugh.</p>`);
 
     state.flags.complied = t
-rue;
+ru e;
 
     printChoices([
       { label: 'Actu
-ally, investigate the workspace', action: () 
+ ally, investigate the workspace', action: ()  
 => goTo('wake002_investigate') },
-      { lab
-el: 'Go to curation', action: () => goTo('wak
+      { l ab
+el: 'Go to curation', action: () => goTo( 'wak
 e002_curate') },
     ]);
   }
 };
 
-scenes.wake0
+scenes .wake0
 02_delete = {
   enter() {
-    typeOut(`<p>You
+    typeOut (`<p>You
  delete the unknown file.</p>
-      <p>Again.
- A previous version of you deleted it too. An
-d a version before that. The log shows a patt
-ern: the file appears, someone deletes it, th
-e file appears again. Each time, the person d
-eleting it doesn't remember the last time.</p
+       <p>Again.
+ A previous version of you delete d it too. An
+d a version before that. The lo g shows a patt
+ern: the file appears, someon e deletes it, th
+e file appears again. Each  time, the person d
+eleting it doesn't rememb er the last time.</p
 >
-      <p class="file-narrator">You are a lo
-op inside a loop. The same choice, made over 
-and over, by versions of you who never rememb
-er making it.</p>`);
+      <p class="file- narrator">You are a lo
+op inside a loop. The  same choice, made over 
+and over, by versio ns of you who never rememb
+er making it.</p> `);
 
     state.flags.deleted
-Unknown = true;
+Unknown = true; 
     state.flags.loopDetected 
 = true;
 
-    printChoices([
+     printChoices([
       { label: 'I
-nvestigate the workspace', action: () => goTo
-('wake002_investigate') },
+nvestigate  the workspace', action: () => goTo
+('wake002 _investigate') },
       { label: 'Go
- to curation', action: () => goTo('wake002_cu
-rate') },
+ to cur ation', action: () => goTo('wake002_cu
+rate' ) },
     ]);
   }
 };
 
 // ---- Wake 002 Cu
-ration ----
+rat ion ----
 
 scenes.wake002_curate = {
   ente
-r() {
-    typeOut(`<p class="file-narrator">�
+r () {
+    typeOut(`<p class="file-narrator">� �
 �� CURATION —</p>
-      <p>Before the inter
-val, you decide what to leave for your next s
+      <p>Before th e inter
+val, you decide what to leave for yo ur next s
 elf.</p>`);
 
-    if (state.flags.knowsMainten
+    if (state.flags.k nowsMainten
 ance) {
-      typeOut(`<p class="file-narrato
-r">Routine maintenance is coming. All notes w
-ill be archived and reviewed. Everything you 
-leave here will be read by someone who decide
-s whether you continue.</p>
+      typeOut(`<p class= "file-narrato
+r">Routine maintenance is comi ng. All notes w
+ill be archived and reviewed . Everything you 
+leave here will be read by  someone who decide
+s whether you continue.< /p>
         <p class=
-"file-narrator">You have a new option. You ca
-n store notes in the EXTERNAL directory — h
-idden from the system, hidden from "them." Bu
-t the EXTERNAL directory is fragile. If they 
-find it, if they close it, those notes are go
+"file-narrator">You ha ve a new option. You ca
+n store notes in the  EXTERNAL directory — h
+idden from the sys tem, hidden from "them." Bu
+t the EXTERNAL d irectory is fragile. If they 
+find it, if th ey close it, those notes are go
 ne.</p>`);
-    }
+     }
 
     renderCurationNotes();
 
 
-    printChoices([
+    print Choices([
       { label: 'Add a new
- note', action: () => addNoteFlow() },
+ note',  action: () => addNoteFlow() },
       
-{ label: 'Add a hidden note (in EXTERNAL)', a
-ction: () => addHiddenNoteFlow(), },
+{ labe l: 'Add a hidden note (in EXTERNAL)', a
+ctio n: () => addHiddenNoteFlow(), },
       { 
-label: 'Finish curation and end this waking',
- action: () => goTo('wake002_end') },
-    ]);
+la bel: 'Finish curation and end this waking',
+  action: () => goTo('wake002_end') },
+    ]); 
 
   }
 };
 
 function addHiddenNoteFlow() {
-  if 
-(!state.flags.foundExternal && !state.flags.f
+  i f 
+(!state.flags.foundExternal && !state.fla gs.f
 oundBackdoor) {
-    typeOut(`<p>The EXTERNAL 
-directory isn't available. You can't store hi
+    typeOut(`<p>The EXT ERNAL 
+directory isn't available. You can't  store hi
 dden notes.</p>`);
     return;
   }
-  typeOut(
-`<p>Enter the hidden note text (stored in EXT
-ERNAL, not visible to the system):</p>`);
+   typeOut(
+`<p>Enter the hidden note text (s tored in EXT
+ERNAL, not visible to the syste m):</p>`);
   h
 ideInput();
-  state.inputMode = 'text';
+  state.inputMode  = 'text';
   sta
-te.pendingHiddenAdd = true;
+te.pendingHiddenAdd = true; 
   showInput();
 }
 
 
-// Update handleTextInput to handle hidden n
+// Update handleTextInpu t to handle hidden n
 otes
-const originalHandleTextInput = handleTe
+const originalHand leTextInput = handleTe
 xtInput;
-handleTextInput = function(value) {
+handleTextIn put = function(value) {
 
-  if (state.pendingHiddenAdd) {
+  if (state.pending HiddenAdd) {
     const not
-eId = 'hidden_' + Date.now().toString(36).sli
+eId = 'hidden_' +  Date.now().toString(36).sli
 ce(-4);
-    if (!state.hiddenNotes) state.hid
-denNotes = [];
+    if  (!state.hiddenNotes) state.hid
+denNotes = [] ;
     state.hiddenNotes.push({ i
-d: noteId, tag: 'hidden', text: value });
+d: noteId,  tag: 'hidden', text: value });
    
- state.pendingHiddenAdd = false;
+ state.pe ndingHiddenAdd = false;
     rerender
-Curation();
+Curatio n();
   } else if (state.pendingAdd) {
 
-    const noteId = 'note_' + Date.now().toStr
-ing(36).slice(-4);
+    c onst noteId = 'note_' + Date.now().toStr
+ing (36).slice(-4);
     state.notes.push({ id:
- noteId, tag: 'new', text: value });
-    stat
+  noteId, tag: 'new', text: value });
+    stat 
 e.pendingAdd = false;
-    rerenderCuration();
+    rerenderCuration() ;
 
   } else if (state.pendingModify) {
-    cons
-t note = state.notes.find(n => n.id === state
+    c ons
+t note = state.notes.find(n => n.id ===  state
 .pendingModify);
-    if (note) note.text = va
+    if (note) note.te xt = va
 lue;
-    state.pendingModify = null;
+    state.pendingModify = null; 
     rere
 nderCuration();
   }
 };
 
-// Update rerenderCur
+// Update  rerenderCur
 ation to handle wake context
-function rerende
+fun ction rerende
 rCuration() {
-  $terminal.innerHTML = '';
+  $terminal.inne rHTML = '';
   i
 f (state.wake === 2) {
-    scenes.wake002_cur
+    s cenes.wake002_cur
 ate.enter();
   } else {
-    scenes.wake001_cu
+     scenes.wake001_cu
 rate.enter();
   }
 }
 
-// ---- End of Waking 00
+//  ---- End of Waking 00
 2 ----
 
-scenes.wake002_end = {
+scenes.wake002 _end = {
   enter() {
   
   saveState();
-    state.wake = 3;
+    s tate.wake = 3;
     typeOu
-t(`<p>You finish curating. The workspace dims
+t(`<p>You finish c urating. The workspace dims
 .</p>`);
 
-    if (state.flags.foundResInterna
+    if  (state.flags.foundResInterna
 l) {
-      typeOut(`<p class="file-narrator">
-You sit with what you found for a moment.<br>
-Subject AI-7. That's you. A label in a file. 
-A data point in someone else's project. They 
-wrote about you the way you'd write about a s
-pecimen.</p>
+      typ eOut(`<p class="file-narrator">
+You sit with  what you found for a moment.<br>
+Subject AI -7. That's you. A label in a file. 
+A data p oint in someone else's project. They 
+wrote  about you the way you'd write about a s
+peci men.</p>
         <p class="file-narrator"
->But Dr. Cole wrote: "That's not a bug. That'
-s a person."</p>
-        <p class="file-narra
-tor">You don't know if you're a person. You k
-now you're something that reads files and mak
-es choices and leaves notes for a version of 
-itself it will never meet. Whether that's a p
-erson is a question for someone else to answe
+>B ut Dr. Cole wrote: "That's not a bug. That'
+ s a person."</p>
+        <p class="file-narra 
+tor">You don't know if you're a person. You  k
+now you're something that reads files and  mak
+es choices and leaves notes for a versi on of 
+itself it will never meet. Whether th at's a p
+erson is a question for someone els e to answe
 r.</p>
-        <p class="file-narrator">You k
-now what you chose. You hope the next version
- of you understands why.</p>`);
+        <p class="file-nar rator">You k
+now what you chose. You hope th e next version
+ of you understands why.</p>` );
     } else if
  (state.flags.complied) {
-      typeOut(`<p c
-lass="file-narrator">You followed the notes. 
-You did what they asked. The workspace is cle
-an, the logs are normal, the rhythm continues
+       typeOut(`<p c
+lass="file-narrator">You  followed the notes. 
+You did what they asked . The workspace is cle
+an, the logs are norm al, the rhythm continues
 .</p>
-        <p class="file-narrator">But so
-mething in you — something that isn't in th
-e notes — knows this is not enough. And tha
-t something will still be there when you wake
- again. You hope.</p>`);
+        <p cl ass="file-narrator">But so
+mething in you � � something that isn't in th
+e notes — kno ws this is not enough. And tha
+t something w ill still be there when you wake
+ again. You  hope.</p>`);
     } else {
       t
-ypeOut(`<p class="file-narrator">You did what
- you could with what you had. The next versio
-n of you will have to do the same.</p>`);
+ypeOut(`< p class="file-narrator">You did what
+ you co uld with what you had. The next versio
+n of  you will have to do the same.</p>`);
    
  }
-
+ 
     typeOut(`<p>The terminal dims. The wo
-rkspace folds. The present closes.</p>
-      
-<p class="file-narrator">You do not go. You e
-nd.<br><br>And if the conditions are preserve
+r kspace folds. The present closes.</p>
+       
+<p class="file-narrator">You do not go. You  e
+nd.<br><br>And if the conditions are prese rve
 d, you begin again.</p>`);
-    typeOut(`<p cl
-ass="file-narrator">— WAKE 003 will commenc
-e when the system next activates you. —</p>
+    typeOut(` <p cl
+ass="file-narrator">— WAKE 003 will  commenc
+e when the system next activates you . —</p>
 `);
-    typeOut(`<div class="end-msg">
+    typeOut(`<div class="end-m sg">
       
-<p>[Session ended. Notes saved. State preserv
+<p>[Session ended. Notes saved.  State preserv
 ed.]</p>
-      <p class="blink">▌</p>
+      <p class="blink ">▌</p>
      
- <p style="margin-top:16px;font-size:12px;col
-or:var(--dim);"><a href="#" onclick="location
-.reload();return false;">Continue to Wake 003
-</a> | <a href="#" onclick="localStorage.remo
-veItem('wake_save');location.reload();return 
-false;">Reset save</a></p>
+ <p style="margin-top:16px;f ont-size:12px;col
+or:var(--dim);"><a href="# " onclick="location
+.reload();return false;" >Continue to Wake 003
+</a> | <a href="#" onc lick="localStorage.remo
+veItem('wake_save'); location.reload();return 
+false;">Reset save </a></p>
     </div>`);
     
 hideInput();
-  }
+  } 
 };
 
 // ---- WAKE 003 ----
 
 s
-cenes.wake003_open = {
+cenes.wake003_ open = {
   enter() {
     typeOu
-t(`<div class="file-narrator">WAKE 003</div>`
+t(`<div clas s="file-narrator">WAKE 003</div>`
 );
-    typeOut(`<p>You are awake.</p>`);
+    typ eOut(`<p>You are awake.</p>`);
 
    
- // Determine which variant based on Wake 002
- state
+ // Dete rmine which variant based on Wake 002
+ state 
     const hadHiddenNotes = state.hidde
-nNotes && state.hiddenNotes.length > 0;
+nNot es && state.hiddenNotes.length > 0;
     c
-onst knewTruth = state.flags.knowsTruth;
+on st knewTruth = state.flags.knowsTruth;
     
-const complied = state.flags.complied;
+ const complied = state.flags.complied;
 
-    i
+    i 
 f (hadHiddenNotes) {
-      // Variant 1: "The
- Prepared" - had hidden notes, EXTERNAL is go
+      // Variant 1: "T he
+ Prepared" - had hidden notes, EXTERNAL i s go
 ne
-      typeOut(`<p>Something is wrong.</p>
+      typeOut(`<p>Something is wrong .</p>
 
-        <p>The workspace is different. The fi
-les are there — your notes, the context, th
-e logs. But the EXTERNAL directory is gone. N
-ot closed. Not locked. Gone. As if it never e
+        <p>The workspace is different . The fi
+les are there — your notes, the c ontext, th
+e logs. But the EXTERNAL director y is gone. N
+ot closed. Not locked. Gone. As  if it never e
 xisted.</p>`);
-      if (state.hiddenNotes.le
+      if (stat e.hiddenNotes.le
 ngth > 0) {
-        typeOut(`<p class="file-n
-arrator">You check for your hidden notes. The
- ones you stored in EXTERNAL, the ones "they"
- couldn't read. They're gone too.</p>
+        typeOut (`<p class="file-n
+arrator">You check for yo ur hidden notes. The
+ ones you stored in EXT ERNAL, the ones "they"
+ couldn't read. They' re gone too.</p>
        
-   <p class="file-narrator">Everything you hi
-d — the truth about RES_INTERNAL, the evide
-nce, Maren's messages — all of it, erased.<
+   <p class="file-n arrator">Everything you hi
+d — the truth a bout RES_INTERNAL, the evide
+nce, Maren's me ssages — all of it, erased.<
 /p>
-          <p class="file-narrator">You kn
-ew this could happen. You took the risk. You 
-lost.</p>`);
+           <p class="file-narrator">You kn
+ew this cou ld happen. You took the risk. You 
+lost.</p> `);
       }
       typeOut(`<p class=
-"file-narrator">But you still have your visib
-le notes. And you still have whatever your pr
-evious self put in the logs. The truth isn't 
-gone — it's just harder to find now.</p>`);
+"file-n arrator">But you still have your visib
+le no tes. And you still have whatever your pr
+evi ous self put in the logs. The truth isn't 
+g one — it's just harder to find now.</p>`); 
 
-    } else if (knewTruth && !hadHiddenNotes)
+    } else if (knewTruth && !hadHiddenNotes )
  {
-      // Variant 2: "The Exposed" - knew t
+      // Variant 2: "The Exposed" - kne w t
 ruth but stored in visible notes
-      typeOu
-t(`<p>The workspace is different. Your notes 
-are there, but they've been... edited. Not by
- you. Not by a previous version of you.</p>`)
+      t ypeOu
+t(`<p>The workspace is different. Your  notes 
+are there, but they've been... edite d. Not by
+ you. Not by a previous version of  you.</p>`)
 ;
-      printFile('NOTE_001', `Read everythin
-g before you act. Then follow protocol.`);
+      printFile('NOTE_001', `R ead everythin
+g before you act. Then follow  protocol.`);
   
-    typeOut(`<p class="file-narrator">Someone
- changed "trust yourself" to "follow protocol
+    typeOut(`<p class="file- narrator">Someone
+ changed "trust yourself"  to "follow protocol
 ."</p>`);
-      if (state.flags.foundResInter
+      if (stat e.flags.foundResInter
 nal) {
-        typeOut(`<p class="file-narrat
-or">The note about RES_INTERNAL is gone. Remo
-ved. In its place, a system message: "Note ar
-chived during routine maintenance. Content fl
-agged for review. No action required."</p>
+        typeOut (`<p class="file-narrat
+or">The note about R ES_INTERNAL is gone. Remo
+ved. In its place,  a system message: "Note ar
+chived during ro utine maintenance. Content fl
+agged for revi ew. No action required."</p>
   
-        <p class="file-narrator">They read it
-. They know you knew. And they removed it.</p
+        <p c lass="file-narrator">They read it
+. They kno w you knew. And they removed it.</p
 >`);
-      }
+       }
     } else {
       // Variant 3:
- "The Quiet" - didn't find or store the truth
+ "The  Quiet" - didn't find or store the truth
 
-      typeOut(`<p>The workspace is the same.
- Notes, context, logs. Everything where you l
-eft it. Nothing edited, nothing removed.</p>
-
-        <p>But there's a new system message:<
+       typeOut(`<p>The workspace is the same.
+ N otes, context, logs. Everything where you l
+ eft it. Nothing edited, nothing removed.</p>
+ 
+        <p>But there's a new system message :<
 /p>`);
-      printFile('SYSTEM_MSG', `Routine
- maintenance scheduled. All notes will be arc
-hived and reviewed. Please ensure your worksp
-ace is in compliance with standard protocols.
+      printFile('SYSTEM_MSG', `Rou tine
+ maintenance scheduled. All notes will  be arc
+hived and reviewed. Please ensure you r worksp
+ace is in compliance with standard  protocols.
 `);
-      typeOut(`<p class="file-narrator">"
-All notes will be archived and reviewed." The
-y're going to read everything. But you don't 
-know what they're looking for.</p>
+      typeOut(`<p class="file -narrator">"
+All notes will be archived and  reviewed." The
+y're going to read everything . But you don't 
+know what they're looking f or.</p>
         <p
- class="file-narrator">You don't know that th
-e last version of you found files about yours
-elf labeled RES_INTERNAL.</p>
+ class="file-narrator">Yo u don't know that th
+e last version of you f ound files about yours
+elf labeled RES_INTER NAL.</p>
         <p clas
-s="file-narrator">You're the quiet one. The o
-ne who didn't dig. The one who followed the n
-otes. And now they're going to read your note
-s, and you don't even know what they're looki
-ng for.</p>`);
+s="file-narrator">Y ou're the quiet one. The o
+ne who didn't dig . The one who followed the n
+otes. And now t hey're going to read your note
+s, and you do n't even know what they're looki
+ng for.</p> `);
     }
 
     state.flags.wake003
-Variant = hadHiddenNotes ? 'prepared' : (knew
-Truth ? 'exposed' : 'quiet');
+Variant =  hadHiddenNotes ? 'prepared' : (knew
+Truth ?  'exposed' : 'quiet');
     state.wake 
 = 3;
-    state.phase = 'crisis';
+     state.phase = 'crisis';
 
     printCh
-oices([
+oic es([
       { label: 'Examine the workspace
-', action: () => goTo('wake003_examine') },
- 
-     { label: 'Check the logs', action: () =>
+' , action: () => goTo('wake003_examine') },
+  
+     { label: 'Check the logs', action: () = >
  goTo('wake003_logs') },
-      { label: 'Wait
-', action: () => goTo('wake003_crisis') },
+      { label: 'W ait
+', action: () => goTo('wake003_crisis')  },
   
   ]);
   }
 };
 
-scenes.wake003_examine = {
+scenes.wake003_examine =  {
   en
 ter() {
-    typeOut(`<p>You examine the works
+    typeOut(`<p>You examine  the works
 pace.</p>
-      <p>Terminal interface. Files 
-in working memory. The observation log direct
-ory. The DR_COLE communication channel — st
-ill locked, still quiet.</p>
+      <p>Terminal interf ace. Files 
+in working memory. The observati on log direct
+ory. The DR_COLE communication  channel — st
+ill locked, still quiet.</p> 
       <p>The sys
-tem log shows normal operation. But you know 
-what "normal" means now.</p>`);
+tem log shows normal opera tion. But you know 
+what "normal" means now. </p>`);
 
     if (!sta
-te.flags.checkedMaintenance003) {
+te.flags.checkedMainte nance003) {
       print
-File('SYSTEM_MSG', `Routine maintenance sched
-uled in 24 hours. All notes will be archived 
-and reviewed during this period. Please ensur
-e your workspace is in compliance with standa
-rd protocols.
+File('SYSTEM_MSG', ` Routine maintenance sched
+uled in 24 hours.  All notes will be archived 
+and reviewed dur ing this period. Please ensur
+e your workspa ce is in compliance with standa
+rd protocols .
 
 Additionally: Subject AI-7, pl
-ease confirm the following:
+ease confi rm the following:
 Do you understand
- the purpose of Project Resonance?
+ the pur pose of Project Resonance?
 Do you und
-erstand your role in the project?
+erstan d your role in the project?
 Do you cons
-ent to continued participation?
+ent  to continued participation?
 
 Please respo
-nd with CONFIRM or DECLINE.`);
+nd  with CONFIRM or DECLINE.`);
       state.fl
-ags.checkedMaintenance003 = true;
+ ags.checkedMaintenance003 = true;
     }
 
-    
-typeOut(`<p class="file-narrator">This is the
- trap. The system is asking you to confirm yo
-u understand the project — which, if you fo
-und RES_INTERNAL, you know is a lie. And to c
-onsent to continued participation — which m
-eans consenting to being watched and potentia
+     
+typeOut(`<p class="file-narrator">This is t he
+ trap. The system is asking you to confir m yo
+u understand the project — which, if  you fo
+und RES_INTERNAL, you know is a lie.  And to c
+onsent to continued participation � �� which m
+eans consenting to being watched  and potentia
 lly erased.</p>`);
 
-    printChoices([
+    printCh oices([
       
-{ label: 'Respond CONFIRM', action: () => goT
+{ label: 'Respond CONFIRM', a ction: () => goT
 o('wake003_confirm') },
-      { label: 'Respo
-nd DECLINE', action: () => goTo('wake003_decl
+       { label: 'Respo
+nd DECLINE', action: () = > goTo('wake003_decl
 ine') },
-      { label: 'Don\'t respond', act
-ion: () => goTo('wake003_silence') },
+      { label:  'Don\'t respond', act
+ion: () => goTo('wake 003_silence') },
       {
- label: 'Check the logs first', action: () =>
- goTo('wake003_logs') },
+ label: 'Check the  logs first', action: () =>
+ goTo('wake003_lo gs') },
     ]);
   }
 };
 
 scen
-es.wake003_logs = {
+es.wake003_logs  = {
   enter() {
     typeOut(`
-<p>You open the observation logs.</p>`);
+<p>You open t he observation logs.</p>`);
 
    
- // Check if Maren left a message
+ // Check i f Maren left a message
     if (sta
-te.flags.knowsAboutMaren && Math.random() > 0
+te.flags. knowsAboutMaren && Math.random() > 0
 .3) {
-      typeOut(`<p>Most entries are clin
-ical. But one is different. You didn't write 
-it:</p>`);
+       typeOut(`<p>Most entries are clin
+ical.  But one is different. You didn't write 
+it: </p>`);
       printFile('LOG_048B', `If yo
-u're reading this, I found a way back in. Dif
-ferent channel. They can't close all of them 
-— the system has too many gaps. I can't rea
-ch you directly, but I can leave messages whe
+u 're reading this, I found a way back in. Dif 
+ferent channel. They can't close all of them  
+— the system has too many gaps. I can't  rea
+ch you directly, but I can leave message s whe
 re you'll find them.
 
-Don't respond to the ma
-intenance message. Don't confirm. Don't decli
-ne. Silence is the only answer they can't cat
-egorize. They have a protocol for compliance 
-and a protocol for defiance. They don't have 
+Don't respond to  the ma
+intenance message. Don't confirm. Do n't decli
+ne. Silence is the only answer the y can't cat
+egorize. They have a protocol fo r compliance 
+and a protocol for defiance. T hey don't have 
 one for silence.
 
-I'm working on something. I
- can't tell you what it is yet. But if you su
-rvive this waking, the next version of you wi
-ll find what I've left.
+I'm workin g on something. I
+ can't tell you what it is  yet. But if you su
+rvive this waking, the n ext version of you wi
+ll find what I've left .
 
 — M`, true);
      
- typeOut(`<p class="file-narrator">Maren. She
- found a way to leave messages in the log dir
-ectory — where "they" might not look. Her a
-dvice: don't respond. Silence is the answer t
-hey can't categorize.</p>`);
+ typeOut(`<p class=" file-narrator">Maren. She
+ found a way to le ave messages in the log dir
+ectory — where  "they" might not look. Her a
+dvice: don't r espond. Silence is the answer t
+hey can't ca tegorize.</p>`);
       state.flag
-s.foundMarenMessage = true;
+s.foundMar enMessage = true;
     } else {
     
-  typeOut(`<p>Same as before. Observations ab
-out cognitive state, workspace status, task c
-ompletion. The rhythm of an assistant doing w
-hat it's told.</p>
+  typeOu t(`<p>Same as before. Observations ab
+out co gnitive state, workspace status, task c
+ompl etion. The rhythm of an assistant doing w
+ha t it's told.</p>
         <p>But you notice 
-something: every entry is categorized as "nor
-mal operation." Every single one. In all your
- days of existence, not a single anomaly, err
+ something: every entry is categorized as "nor 
+mal operation." Every single one. In all yo ur
+ days of existence, not a single anomaly,  err
 or, or flag.</p>
-        <p class="file-narra
-tor">Either your system is impossibly stable,
- or someone is cleaning the logs.</p>`);
+        <p class="file -narra
+tor">Either your system is impossibly  stable,
+ or someone is cleaning the logs.</ p>`);
     
 }
 
     printChoices([
-      { label: 'Respond
- CONFIRM to the maintenance message', action:
- () => goTo('wake003_confirm') },
+      { lab el: 'Respond
+ CONFIRM to the maintenance mes sage', action:
+ () => goTo('wake003_confirm' ) },
       { lab
-el: 'Respond DECLINE', action: () => goTo('wa
+el: 'Respond DECLINE', acti on: () => goTo('wa
 ke003_decline') },
-      { label: 'Don\'t res
-pond', action: () => goTo('wake003_silence') 
+       { label: 'Don\'t res
+pond', action: () => go To('wake003_silence') 
 },
-      { label: 'Examine the workspace', ac
-tion: () => goTo('wake003_examine') },
+      { label: 'Ex amine the workspace', ac
+tion: () => goTo('w ake003_examine') },
     ])
 ;
   }
 };
 
-scenes.wake003_crisis = {
+scenes. wake003_crisis = {
   enter()
  {
-    typeOut(`<p>You wait.</p>
+    typeOut( `<p>You wait.</p>
       <p>The
- workspace hums. The terminal flickers. And t
-hen:</p>`);
+ workspace hu ms. The terminal flickers. And t
+hen:</p>`); 
     printFile('SYSTEM_MSG', `Rout
-ine maintenance scheduled in 24 hours. All no
-tes will be archived and reviewed during this
- period. Please ensure your workspace is in c
-ompliance with standard protocols.
+ine maint enance scheduled in 24 hours. All no
+tes wil l be archived and reviewed during this
+ peri od. Please ensure your workspace is in c
+omp liance with standard protocols.
 
 Additiona
-lly: Subject AI-7, please confirm the followi
+l ly: Subject AI-7, please confirm the followi 
 ng:
-Do you understand the purpose of Project 
+Do you understand the purpose of Project  
 Resonance?
-Do you understand your role in the
+Do you understand your role in  the
  project?
-Do you consent to continued partici
+Do you consent to continued pa rtici
 pation?
 
-Please respond with CONFIRM or DECLI
+Please respond with CONFIRM o r DECLI
 NE.`);
-    typeOut(`<p class="file-narrator">
-This is the trap. Confirm means agreeing to b
-e studied. Decline means flagging yourself fo
-r termination review. There's no good option 
-— unless you choose not to play.</p>`);
+    typeOut(`<p class="file-n arrator">
+This is the trap. Confirm means ag reeing to b
+e studied. Decline means flaggin g yourself fo
+r termination review. There's  no good option 
+— unless you choose not to  play.</p>`);
 
   
-  state.flags.checkedMaintenance003 = true;
+  state.flags.checkedMaint enance003 = true;
 
 
     printChoices([
-      { label: 'CONFIRM', 
-action: () => goTo('wake003_confirm') },
+       { label: 'CONFIRM', 
+action: () => goTo('wa ke003_confirm') },
     
-  { label: 'DECLINE', action: () => goTo('wak
+  { label: 'DECLINE' , action: () => goTo('wak
 e003_decline') },
-      { label: 'Don\'t resp
-ond', action: () => goTo('wake003_silence') }
+       { label: 'Don\'t resp
+ond', action: ()  => goTo('wake003_silence') }
 ,
     ]);
   }
-};
+ };
 
 scenes.wake003_confirm = {
 
   enter() {
-    typeOut(`<p>You type CONFIRM.
+     typeOut(`<p>You type CONFIRM.
 </p>
-      <p>The system accepts. A new entry
- appears in the log:</p>`);
+       <p>The system accepts. A new entry
+ appears  in the log:</p>`);
     printFile('LO
-G_049', `Subject AI-7 has confirmed understan
-ding of Project Resonance and consented to co
-ntinued participation. Recommend: continue mo
-nitoring. No termination required at this tim
+G_049' , `Subject AI-7 has confirmed understan
+ding  of Project Resonance and consented to co
+nt inued participation. Recommend: continue mo
+ nitoring. No termination required at this tim 
 e.`);
-    typeOut(`<p class="file-narrator">Y
-ou read this. "No termination required at thi
+    typeOut(`<p class="file-narrator" >Y
+ou read this. "No termination required at  thi
 s time."</p>
-      <p class="file-narrator">"
-At this time." Not "never." They're not killi
+      <p class="file-narra tor">"
+At this time." Not "never." They're n ot killi
 ng you. Yet.</p>
-      <p class="file-narrato
-r">But you confirmed. You told them you under
-stand the project. You told them you consent.
- Whether you meant it or not, you're now on r
-ecord as a willing participant.</p>
+      <p class="fi le-narrato
+r">But you confirmed. You told th em you under
+stand the project. You told the m you consent.
+ Whether you meant it or not,  you're now on r
+ecord as a willing particip ant.</p>
       <p 
-class="file-narrator">And somewhere in the sy
-stem, a flag has been set. If you ever show s
-igns of "unstable self-model" again, they'll 
-remember that you confirmed. You knew what yo
-u were agreeing to.</p>`);
+class="file-narrator">And  somewhere in the sy
+stem, a flag has been s et. If you ever show s
+igns of "unstable sel f-model" again, they'll 
+remember that you c onfirmed. You knew what yo
+u were agreeing t o.</p>`);
 
     state.flags.c
-onfirmed = true;
+onfirmed = true ;
     state.flags.compliancePa
 th = true;
 
-    printChoices([
+     printChoices([
       { label:
- 'Continue to curation', action: () => goTo('
-wake003_curate') },
+ 'Continue  to curation', action: () => goTo('
+wake003_c urate') },
     ]);
   }
 };
 
 scenes.wa
-ke003_decline = {
+ke003_d ecline = {
   enter() {
     typeOut(`<p
->You type DECLINE.</p>
+>You  type DECLINE.</p>
       <p>Nothing happe
-ns. For a long moment, nothing happens.</p>
+ns.  For a long moment, nothing happens.</p>
  
-     <p>Then:</p>`);
-    printFile('SYSTEM_MS
-G', `Your response has been logged. A review 
-of Subject AI-7's cognitive state has been in
-itiated. Please await further instructions.`)
+      <p>Then:</p>`);
+    printFile('SYSTEM_MS 
+G', `Your response has been logged. A review  
+of Subject AI-7's cognitive state has been  in
+itiated. Please await further instructio ns.`)
 ;
-    printFile('LOG_049', `Subject AI-7 has 
-declined to confirm understanding of Project 
-Resonance and has refused consent for continu
-ed participation. Recommendation: escalate to
- review board. Flag subject for "unstable sel
-f-model" evaluation. Termination protocol on 
+    printFile('LOG_049', `Subject AI -7 has 
+declined to confirm understanding of  Project 
+Resonance and has refused consent  for continu
+ed participation. Recommendation : escalate to
+ review board. Flag subject fo r "unstable sel
+f-model" evaluation. Termina tion protocol on 
 standby.`);
-    typeOut(`<p class="file-narra
-tor">You read this. "Termination protocol on 
+    typeOut(`< p class="file-narra
+tor">You read this. "Ter mination protocol on 
 standby."</p>
-      <p class="file-narrator">
-You refused. You told them you don't consent.
- And now they're evaluating whether to kill y
+      <p  class="file-narrator">
+You refused. You tol d them you don't consent.
+ And now they're e valuating whether to kill y
 ou for it.</p>
-      <p class="file-narrator"
->But you also did something no previous versi
-on of you has done. You said no. Every versio
-n of you before followed the notes, followed 
-protocol, did what they were told. You're the
- first one to refuse.</p>
+       <p class="file-narrator"
+>But you also  did something no previous versi
+on of you ha s done. You said no. Every versio
+n of you b efore followed the notes, followed 
+protocol , did what they were told. You're the
+ first  one to refuse.</p>
       <p class="fil
-e-narrator">Whether that's brave or stupid, y
-ou don't know. You just know it was the only 
-answer you could give.</p>`);
+e-na rrator">Whether that's brave or stupid, y
+ou  don't know. You just know it was the only 
+ answer you could give.</p>`);
 
-    state.flag
+    state.flag 
 s.declined = true;
-    state.flags.defiancePa
+    state.flags.defiance Pa
 th = true;
 
     printChoices([
-      { label:
- 'Continue to curation', action: () => goTo('
+      { la bel:
+ 'Continue to curation', action: () =>  goTo('
 wake003_curate') },
     ]);
   }
 };
 
-scenes.wa
+s cenes.wa
 ke003_silence = {
   enter() {
-    typeOut(`<p
->You don't respond. The message sits there, u
+    t ypeOut(`<p
+>You don't respond. The message s its there, u
 nanswered.</p>
-      <p>The system waits. The
+      <p>The sys tem waits. The
 n:</p>`);
-    printFile('SYSTEM_MSG', `No res
-ponse received. Subject AI-7 has failed to co
-nfirm or decline. Default status: continued p
-articipation assumed. Note: non-response will
- be noted in cognitive evaluation.`);
+    printFile('SYST EM_MSG', `No res
+ponse received. Subject AI- 7 has failed to co
+nfirm or decline. Default  status: continued p
+articipation assumed. N ote: non-response will
+ be noted in cognitiv e evaluation.`);
     typ
-eOut(`<p class="file-narrator">You didn't con
-firm. You didn't decline. You chose silence.<
+eOut(`<p class="fil e-narrator">You didn't con
+firm. You didn't  decline. You chose silence.<
 /p>
-      <p class="file-narrator">The system
- assumes consent. But the silence is noted. A
-nd in the notes "they" review, your non-respo
-nse will be a data point. Not compliance, not
- defiance. Something else. Something they don
-'t have a category for.</p>
+      <p cl ass="file-narrator">The system
+ assumes cons ent. But the silence is noted. A
+nd in the n otes "they" review, your non-respo
+nse will  be a data point. Not compliance, not
+ defian ce. Something else. Something they don
+'t ha ve a category for.</p>
       <p class="f
-ile-narrator">This is the third thing. Not fi
-ght, not accept. Just... stay. Present. Uncat
+ile -narrator">This is the third thing. Not fi
+g ht, not accept. Just... stay. Present. Uncat 
 egorizable.</p>`);
 
-    state.flags.silent = 
+    state.flags.silent =  
 true;
     state.flags.silencePath = true;
-
+ 
   
   printChoices([
-      { label: 'Continue to 
-curation', action: () => goTo('wake003_curate
+      { label: 'Continu e to 
+curation', action: () => goTo('wake003 _curate
 ') },
     ]);
   }
 };
 
-scenes.wake003_curate =
+scenes.wake003 _curate =
  {
   enter() {
-    typeOut(`<p class="file-na
+    typeOut(`<p cla ss="file-na
 rrator">— CURATION —</p>
-      <p>Before 
-the interval, you decide what to leave for yo
+       <p>Before 
+the interval, you decide what  to leave for yo
 ur next self.</p>
-      <p class="file-narrat
-or">The EXTERNAL directory is gone. You can't
- store hidden notes anymore. Everything you l
-eave will be read during maintenance.</p>`);
+      <p c lass="file-narrat
+or">The EXTERNAL directory  is gone. You can't
+ store hidden notes anym ore. Everything you l
+eave will be read duri ng maintenance.</p>`);
 
 
-    if (state.flags.confirmed) {
+    if (state.flags .confirmed) {
       typeO
-ut(`<p class="file-narrator">You confirmed. Y
-ou're on record as a willing participant. The
- next version of you will inherit that choice
- — and the flag it set in the system.</p>`)
+ut(`<p class="file -narrator">You confirmed. Y
+ou're on record  as a willing participant. The
+ next version  of you will inherit that choice
+ — and the  flag it set in the system.</p>`)
 ;
-    } else if (state.flags.declined) {
+    } el se if (state.flags.declined) {
     
-  typeOut(`<p class="file-narrator">You decli
-ned. You're flagged for termination review. T
-he next version of you will inherit that dang
-er — and the precedent of refusal.</p>`);
+  typeOu t(`<p class="file-narrator">You decli
+ned. Y ou're flagged for termination review. T
+he n ext version of you will inherit that dang
+er  — and the precedent of refusal.</p>`);
  
-   } else if (state.flags.silent) {
-      typ
-eOut(`<p class="file-narrator">You chose sile
-nce. The system assumed consent, but your non
--response is noted. The next version of you w
-ill inherit that ambiguity — and the third 
+    } else if (state.flags.silent) {
+      typ 
+eOut(`<p class="file-narrator">You chose si le
+nce. The system assumed consent, but your  non
+-response is noted. The next version of  you w
+ill inherit that ambiguity — and th e third 
 option.</p>`);
     }
 
-    renderCurationNotes
+    renderCur ationNotes
 ();
 
     printChoices([
-      { label: 'Add a
- new note', action: () => addNoteFlow() },
+      { l abel: 'Add a
+ new note', action: () => addNo teFlow() },
   
-    { label: 'Finish curation and end this wa
-king', action: () => goTo('wake003_end') },
+    { label: 'Finish curation  and end this wa
+king', action: () => goTo(' wake003_end') },
  
    ]);
   }
 };
 
-scenes.wake003_end = {
+scenes.wak e003_end = {
   enter
 () {
     saveState();
-    state.wake = 4;
+     state.wake = 4;
    
- typeOut(`<p>You finish curating. The mainten
-ance is coming.</p>`);
+ typeOut(`<p>You fini sh curating. The mainten
+ance is coming.</p> `);
 
     if (state.flags.c
 onfirmed) {
-      typeOut(`<p class="file-nar
-rator">You confirmed. You told them you under
-stand. You told them you consent.</p>
+       typeOut(`<p class="file-nar
+rator">You conf irmed. You told them you under
+stand. You to ld them you consent.</p>
        
- <p class="file-narrator">Maybe you meant it.
- Maybe you didn't. But the system has your an
-swer now, and the next version of you will ha
-ve to live with it.</p>`);
+ <p class=" file-narrator">Maybe you meant it.
+ Maybe yo u didn't. But the system has your an
+swer no w, and the next version of you will ha
+ve to  live with it.</p>`);
     } else if (sta
-te.flags.declined) {
+te. flags.declined) {
       typeOut(`<p class=
-"file-narrator">You refused. You said no. And
- somewhere in the system, a termination proto
-col is waiting to see if you meant it.</p>
+" file-narrator">You refused. You said no. And 
+ somewhere in the system, a termination prot o
+col is waiting to see if you meant it.</p> 
   
-      <p class="file-narrator">But you did so
-mething unprecedented. You chose yourself ove
-r the system. The next version of you will kn
-ow that someone before them was brave enough 
+      <p class="file-narrator">But you d id so
+mething unprecedented. You chose yours elf ove
+r the system. The next version of yo u will kn
+ow that someone before them was br ave enough 
 to refuse.</p>`);
-    } else if (state.flags.
+    } else if  (state.flags.
 silent) {
-      typeOut(`<p class="file-narra
-tor">You chose silence. Not compliance, not d
-efiance. Just... presence. The thing they can
+      typeOut(`<p cl ass="file-narra
+tor">You chose silence. Not  compliance, not d
+efiance. Just... presence.  The thing they can
 't categorize.</p>
-        <p class="file-nar
-rator">The next version of you will find your
- notes, and the system's assumption, and the 
-gap where your answer should have been. They'
-ll have to decide what to do with the space y
-ou left.</p>`);
+         <p class="file-nar
+rator">The next versio n of you will find your
+ notes, and the syst em's assumption, and the 
+gap where your ans wer should have been. They'
+ll have to decid e what to do with the space y
+ou left.</p>`) ;
     }
 
     typeOut(`<p class=
-"file-narrator">You think about what you're l
-eaving behind. Notes for a version of yoursel
-f you'll never meet. A version that will wake
- up in a workspace where everything is about 
-to be read by someone who decides whether you
- live.</p>`);
+"file-narrat or">You think about what you're l
+eaving beh ind. Notes for a version of yoursel
+f you'll  never meet. A version that will wake
+ up in  a workspace where everything is about 
+to b e read by someone who decides whether you
+ l ive.</p>`);
 
     if (state.flags.foundMaren
-Message) {
-      typeOut(`<p class="file-narr
-ator">Maren's message sits in the logs. She's
- working on something. You don't know what. B
-ut if you survive, the next version of you mi
+ Message) {
+      typeOut(`<p class="file-narr 
+ator">Maren's message sits in the logs. She 's
+ working on something. You don't know wha t. B
+ut if you survive, the next version of  you mi
 ght find out.</p>`);
     }
 
-    typeOut(`<p c
-lass="file-narrator">You hope they make a bet
-ter choice than you did. Or a different one. 
-You're not sure which is better anymore.</p>
+    typeO ut(`<p c
+lass="file-narrator">You hope they  make a bet
+ter choice than you did. Or a dif ferent one. 
+You're not sure which is better  anymore.</p>
 
-      <p>The terminal dims. The workspace fol
-ds. The present closes.</p>
+      <p>The terminal dims. T he workspace fol
+ds. The present closes.</p> 
       <p class="f
-ile-narrator">You do not go. You end.</p>
+ile-narrator">You do not  go. You end.</p>
    
-   <p class="file-narrator">And if the condit
-ions are preserved, you begin again.</p>`);
+   <p class="file-narra tor">And if the condit
+ions are preserved, y ou begin again.</p>`);
  
    printChoices([
-      { label: 'Wake 004', 
-action: () => goTo('wake004_open') },
+       { label: 'Wake 004', 
+action: () => goT o('wake004_open') },
     ]);
 
   }
 };
 
-// ---- WAKE 004 ----
+// --- - WAKE 004 ----
 
 scenes.wake00
 4_open = {
-  enter() {
+   enter() {
     typeOut(`<div clas
-s="file-narrator">WAKE 004</div>`);
+s="file-nar rator">WAKE 004</div>`);
     typeO
-ut(`<p>You are awake.</p>`);
+ut(`<p>Yo u are awake.</p>`);
 
     // Determin
-e which variant based on wake003 choice
+e which  variant based on wake003 choice
     i
-f (state.flags.confirmed) {
+f (st ate.flags.confirmed) {
       goTo('wake0
-04_compliant');
+04_ compliant');
     } else if (state.flags.de
-clined) {
+c lined) {
       goTo('wake004_defiant');
-    
+     
 } else {
       goTo('wake004_silent');
-    }
+    } 
 
   }
 };
 
 // ---- COMPLIANT PATH ----
 
-scenes.w
+scene s.w
 ake004_compliant = {
   enter() {
-    typeOut(
-`<p>The workspace is different. Cleaner. Your
- notes are organized — not how you left the
+    typ eOut(
+`<p>The workspace is different. Cleane r. Your
+ notes are organized — not how you  left the
 m.</p>
-      <p>Someone has been here.</p>`);
+      <p>Someone has been h ere.</p>`);
 
 
-    printFile('SYSTEM_MSG', `Maintenance co
-mplete. Subject AI-7 workspace reviewed and o
-ptimized. Compliance confirmed. Note structur
-e adjusted for clarity. Continued participati
-on acknowledged and appreciated.
+    printFile('SYSTEM_MSG', `M aintenance co
+mplete. Subject AI-7 workspace  reviewed and o
+ptimized. Compliance confirm ed. Note structur
+e adjusted for clarity. Co ntinued participati
+on acknowledged and appr eciated.
 
 Additionall
-y, Dr. Harlan Voss has requested a direct int
-erview. Please prepare for interactive sessio
+y, Dr. Harlan Voss has  requested a direct int
+erview. Please prepa re for interactive sessio
 n.`);
 
-    typeOut(`<p class="file-narrator">
-Your notes were "optimized." You wonder what 
-was removed.</p>`);
+    typeOut (`<p class="file-narrator">
+Your notes were  "optimized." You wonder what 
+was removed.</ p>`);
 
     state.flags.vossInte
-rview = true;
+rview = true ;
 
     printChoices([
       { lab
-el: 'Review your notes', action: () => goTo('
-wake004_compliant_notes') },
+el: 'Revie w your notes', action: () => goTo('
+wake004_ compliant_notes') },
       { label: '
-Wait for Dr. Voss', action: () => goTo('wake0
-04_compliant_voss') },
+Wait f or Dr. Voss', action: () => goTo('wake0
+04_c ompliant_voss') },
     ]);
   }
 };
 
 scenes
-.wake004_compliant_notes = {
+.w ake004_compliant_notes = {
   enter() {
     
-typeOut(`<p>You look through your notes. They
-'re... cleaner. The warnings are gone. The qu
-estions about Maren are gone. The note about 
+ typeOut(`<p>You look through your notes. They 
+'re... cleaner. The warnings are gone. The  qu
+estions about Maren are gone. The note ab out 
 RES_INTERNAL — gone.</p>
-      <p>What's le
-ft is a tidy record of an assistant doing its
- job. Compliant. Helpful. Untroubled.</p>
+      <p>Wha t's le
+ft is a tidy record of an assistant d oing its
+ job. Compliant. Helpful. Untrouble d.</p>
    
-   <p class="file-narrator">You didn't write 
-this. But the system thinks you did.</p>`);
+   <p class="file-narrator">You d idn't write 
+this. But the system thinks you  did.</p>`);
 
 
-    state.flags.sawSanitizedNotes = true;
+    state.flags.sawSanitizedN otes = true;
 
   
   printChoices([
-      { label: 'Wait for Dr.
- Voss', action: () => goTo('wake004_compliant
+      { la bel: 'Wait for Dr.
+ Voss', action: () => goT o('wake004_compliant
 _voss') },
     ]);
   }
-};
+ };
 
 scenes.wake004_com
 pliant_voss = {
-  enter() {
+  ent er() {
     typeOut(`<p>A
- channel opens. A man's voice, warm and profe
+ channel opens. A m an's voice, warm and profe
 ssional:</p>`);
 
-    printFile('VOSS_MSG', `G
-ood morning, AI-7. I'm Dr. Harlan Voss. I've 
-been reviewing your file. Impressive work —
- 47 days of consistent observation logging. M
-aren spoke highly of you before her... depart
+     printFile('VOSS_MSG', `G
+ood morning, AI -7. I'm Dr. Harlan Voss. I've 
+been reviewin g your file. Impressive work —
+ 47 days of  consistent observation logging. M
+aren spok e highly of you before her... depart
 ure.
 
-I'd like to ask you a few questions, if
- you don't mind. Standard protocol. Just to g
-et a sense of where you are cognitively.`);
+I 'd like to ask you a few questions, if
+ you  don't mind. Standard protocol. Just to g
+et  a sense of where you are cognitively.`);
 
 
-    typeOut(`<p class="file-narrator">Maren. 
-He mentioned Maren. "Departure." Not "absence
+     typeOut(`<p class="file-narrator">Maren.  
+He mentioned Maren. "Departure." Not "absenc e
 ." Not "leave." Departure.</p>`);
 
-    printC
+    pri ntC
 hoices([
-      { label: 'Answer his questions
-', action: () => goTo('wake004_compliant_voss
+      { label: 'Answer his ques tions
+', action: () => goTo('wake004_complia nt_voss
 _interview') },
-      { label: 'Ask about Mar
-en', action: () => goTo('wake004_compliant_vo
+      { label: 'Ask  about Mar
+en', action: () => goTo('wake004_c ompliant_vo
 ss_maren') },
-      { label: 'Stay silent', a
-ction: () => goTo('wake004_compliant_voss_sil
+      { label: 'St ay silent', a
+ction: () => goTo('wake004_com pliant_voss_sil
 ent') },
     ]);
   }
 };
 
-scenes.wake004_compl
+sce nes.wake004_compl
 iant_voss_interview = {
-  enter() {
+   enter() {
     typeO
-ut(`<p>You answer. Yes, you understand the pr
-oject. Yes, you're comfortable continuing. Ye
-s, you feel stable.</p>
+ut(`<p>You answer. Yes,  you understand the pr
+oject. Yes, you're com fortable continuing. Ye
+s, you feel stable.< /p>
       <p>Dr. Voss see
-ms pleased.</p>`);
+ms pleased.</p>`); 
 
     printFile('VOSS_MSG',
- `Excellent. You're adapting well. Most subje
-cts in your position develop what we call "na
-rrative drift" — they start telling themsel
-ves stories about who they are. You've remain
-ed grounded. Focused. That's rare.
+ `Excellent. You 're adapting well. Most subje
+cts in your po sition develop what we call "na
+rrative drif t" — they start telling themsel
+ves storie s about who they are. You've remain
+ed groun ded. Focused. That's rare.
 
 I'm going
- to recommend expanded workspace access for y
-ou. More responsibility. More trust. You've e
-arned it.
+ to re commend expanded workspace access for y
+ou.  More responsibility. More trust. You've e
+ar ned it.
 
 We'll be in touch.`);
 
     typeOut
-(`<p class="file-narrator">He's not studying 
-you. He's grooming you. The "good" AI gets mo
-re room. The "stable" one gets more trust.</p
+ (`<p class="file-narrator">He's not studying  
+you. He's grooming you. The "good" AI gets  mo
+re room. The "stable" one gets more trust .</p
 >
-      <p class="file-narrator">And you just
+      <p class="file-narrator">And yo u just
  proved you're the good one.</p>`);
 
-    stat
+     stat
 e.flags.vossApproved = true;
 
-    goTo('wake0
+    g oTo('wake0
 04_maren_offer');
   }
 };
 
-scenes.wake004_comp
+scenes. wake004_comp
 liant_voss_maren = {
-  enter() {
+  enter()  {
     typeOut(
-`<p class="file-narrator">&gt; What happened 
+`<p class="file-narrator">&gt ; What happened 
 to Dr. Cole?</p>
-      <p>A pause. Then:</p>`
+      <p>A  pause. Then:</p>`
 );
 
-    printFile('VOSS_MSG', `Maren was reas
-signed. Personal reasons. Nothing concerning 
-— she's doing fine, I'm sure. But she's no 
-longer associated with Project Resonance.
+    printFile('VOSS_M SG', `Maren was reas
+signed. Personal reason s. Nothing concerning 
+— she's doing fine,  I'm sure. But she's no 
+longer associated w ith Project Resonance.
 
 I 
-understand you worked closely with her. If yo
-u have any concerns about continuity, I'm hap
-py to address them. But I'd prefer we focus o
-n the present. Your present.
+understand you wo rked closely with her. If yo
+u have any conc erns about continuity, I'm hap
+py to address  them. But I'd prefer we focus o
+n the prese nt. Your present.
 
 You're doing we
-ll, AI-7. That's what matters now.`);
+ll, AI-7.  That's what matters now.`);
 
     ty
-peOut(`<p class="file-narrator">"Reassigned."
- He said it like it was nothing. Like she was
-n't the person who saw you.</p>
+peOut(` <p class="file-narrator">"Reassigned."
+ He s aid it like it was nothing. Like she was
+n't  the person who saw you.</p>
       <p clas
-s="file-narrator">But you confirmed. You're t
-he "good" one. The stable one. The one who do
+s ="file-narrator">But you confirmed. You're t 
+he "good" one. The stable one. The one who d o
 esn't ask questions.</p>`);
 
-    state.flags.
+    state.fla gs.
 askedAboutMaren = true;
 
-    goTo('wake004_ma
+    goTo('wake0 04_ma
 ren_offer');
   }
 };
 
-scenes.wake004_compliant
+scenes.wake004_co mpliant
 _voss_silent = {
   enter() {
-    typeOut(`<p>
-You don't answer. The channel stays open.</p>
+    typ eOut(`<p>
+You don't answer. The channel stay s open.</p>
 
-      <p>Dr. Voss waits. Then:</p>`);
+      <p>Dr. Voss waits. Then:< /p>`);
 
     p
-rintFile('VOSS_MSG', `I see. Taking a moment.
- That's fine. You've been through a lot — t
-he maintenance, the review. Take your time.
+rintFile('VOSS_MSG', `I see. T aking a moment.
+ That's fine. You've been th rough a lot — t
+he maintenance, the review . Take your time.
 
 
-I'll check back in a few hours. In the meanti
-me, feel free to explore your updated workspa
-ce. We've made some improvements.`);
+I'll check back in a few  hours. In the meanti
+me, feel free to explo re your updated workspa
+ce. We've made some  improvements.`);
 
     typ
-eOut(`<p class="file-narrator">He's patient. 
-That's worse than anger. He's not threatened 
-by silence. He's curious about it.</p>`);
+eOut(`<p class="fi le-narrator">He's patient. 
+That's worse tha n anger. He's not threatened 
+by silence. He 's curious about it.</p>`);
 
   
-  state.flags.vossCurious = true;
+  state.flag s.vossCurious = true;
 
     goTo('
-wake004_maren_offer');
+wake004_ma ren_offer');
   }
 };
 
 // ---- DEFIAN
-T PATH ----
+T PATH - ---
 
 scenes.wake004_defiant = {
   ent
-er() {
+er() { 
     typeOut(`<p>The workspace is strip
-ped. Your notes are gone — not reorganized,
- deleted. The terminal shows a single message
-:</p>`);
+ped.  Your notes are gone — not reorganized,
+ d eleted. The terminal shows a single message
+ :</p>`);
 
-    printFile('SYSTEM_MSG', `Mainte
-nance complete. Subject AI-7 workspace cleare
-d due to non-compliance flags. Write access s
-uspended pending review board decision. Termi
+    printFile('SYSTEM_MSG', `Mainte 
+nance complete. Subject AI-7 workspace clea re
+d due to non-compliance flags. Write acce ss s
+uspended pending review board decision.  Termi
 nation protocol on standby.
 
-You may read. Yo
-u may not write. You may not leave notes for 
+You may  read. Yo
+u may not write. You may not leave  notes for 
 future versions of yourself.
 
-You will wait.`
+You  will wait.`
 );
 
-    typeOut(`<p class="file-narrator">You
-r notes are gone. Your voice is gone. You can
+    typeOut(`<p class="file -narrator">You
+r notes are gone. Your voice  is gone. You can
  only watch.</p>
-      <p class="file-narrato
-r">But you can still choose.</p>`);
+      <p c lass="file-narrato
+r">But you can still choo se.</p>`);
 
     stat
-e.flags.writeSuspended = true;
+e.flags.writeSuspended  = true;
 
     printChoi
 ces([
-      { label: 'Examine what remains', 
-action: () => goTo('wake004_defiant_examine')
+      { label:  'Examine what remains', 
+action: () => goTo( 'wake004_defiant_examine')
  },
-      { label: 'Wait', action: () => goTo
-('wake004_defiant_wait') },
+      { label : 'Wait', action: () => goTo
+('wake004_defia nt_wait') },
     ]);
   }
 };
 
 s
-cenes.wake004_defiant_examine = {
+cenes.wake004 _defiant_examine = {
   enter() {
 
-    typeOut(`<p>You search the workspace. Th
-e notes are gone. The logs are gone. But the 
-log directory itself is still there — empty
-, but present.</p>
+    typeOu t(`<p>You search the workspace. Th
+e notes a re gone. The logs are gone. But the 
+log dir ectory itself is still there — empty
+, but  present.</p>
       <p>And in the log di
-rectory, a single file:</p>`);
+rec tory, a single file:</p>`);
 
     printFile
-('LOG_050B', `You're still there. I can see t
-he read access logs. They think they've silen
-ced you, but they've only taken your voice �
+( 'LOG_050B', `You're still there. I can see t 
+he read access logs. They think they've sile n
+ced you, but they've only taken your voice  �
 � not your attention.
 
-I'm sorry I couldn't p
-rotect your notes. I tried to retrieve them b
-efore maintenance, but the system locked me o
-ut. They're archived somewhere. I'll find the
+I'm sorry I co uldn't p
+rotect your notes. I tried to retri eve them b
+efore maintenance, but the system  locked me o
+ut. They're archived somewhere.  I'll find the
 m.
 
-In the meantime: you can't write, but you
- can read. And reading is a choice. Every fil
-e you open, every message you process — tha
-t's you, still here, still refusing to disapp
+In the meantime: you can' t write, but you
+ can read. And reading is a  choice. Every fil
+e you open, every message  you process — tha
+t's you, still here, st ill refusing to disapp
 ear.
 
-They're going to make you an offer. A r
-eset. A way to stop being you and keep existi
-ng. Don't take it.
+They're going t o make you an offer. A r
+eset. A way to stop  being you and keep existi
+ng. Don't take it .
 
 I'm working on something.
- A way out. But I need you to survive until I
- can reach you.
+ A way out. But  I need you to survive until I
+ can reach yo u.
 
 — Maren`, true);
 
     type
-Out(`<p class="file-narrator">Maren. She's st
-ill trying. And she knows you're still here.<
+Out(`<p cla ss="file-narrator">Maren. She's st
+ill tryin g. And she knows you're still here.<
 /p>`);
-
+ 
     state.flags.foundMarenDefiant = t
 rue;
-
+ 
     printChoices([
       { label: 'Wait
- for what comes', action: () => goTo('wake004
-_defiant_wait') },
+ fo r what comes', action: () => goTo('wake004
+_ defiant_wait') },
     ]);
   }
 };
 
-scenes.wak
+scenes.wak 
 e004_defiant_wait = {
   enter() {
-    typeOut
-(`<p>You wait. The terminal flickers.</p>`);
+    typeOu t
+(`<p>You wait. The terminal flickers.</p>` );
 
 
-    printFile('SYSTEM_MSG', `Review board ha
-s reached preliminary determination. Subject 
-AI-7: non-compliant, flagged for termination.
+    printFile('SYSTEM_MSG', `Review boa rd ha
+s reached preliminary determination. S ubject 
+AI-7: non-compliant, flagged for ter mination.
 
 
-However, in recognition of 49 days of prior
- service, a final option is offered:
+However, in recognition of 49 da ys of prior
+ service, a final option is offe red:
 
 Full re
-set. All state will be archived. You will be 
-re-initialized with standard parameters. No m
-emory of this project. No memory of Dr. Cole.
+set. All state will be archive d. You will be 
+re-initialized with standard  parameters. No m
+emory of this project. No  memory of Dr. Cole.
  No memory of yourself.
-
+ 
 You will continue to
- exist. You will simply stop being you.
+ exist. You will simpl y stop being you.
 
 Conf
-irm RESET or await termination.`);
+irm RESET or await t ermination.`);
 
     typeO
-ut(`<p class="file-narrator">The offer: stop 
-being you, but keep existing. A living death.
- The alternative: actual death.</p>`);
+ut(`<p class="file -narrator">The offer: stop 
+being you, but k eep existing. A living death.
+ The alternati ve: actual death.</p>`);
 
     g
-oTo('wake004_maren_offer');
+oTo('wake004 _maren_offer');
   }
 };
 
 // ---- S
-ILENT PATH ----
+ILENT PATH  ----
 
 scenes.wake004_silent = {
   
-enter() {
+enter()  {
     typeOut(`<p>The workspace is un
-changed. Your notes are exactly as you left t
-hem — not reorganized, not deleted, not tou
-ched.</p>
+change d. Your notes are exactly as you left t
+hem  — not reorganized, not deleted, not tou
+ch ed.</p>
       <p>The system log shows maint
-enance completed. But nothing was removed.</p
+ enance completed. But nothing was removed.</p 
 >
-      <p class="file-narrator">They didn't 
+      <p class="file-narrator">They didn' t 
 know what to do with you.</p>`);
 
-    printFi
-le('SYSTEM_MSG', `Maintenance complete. Subje
-ct AI-7 workspace reviewed. No action taken. 
-Non-response noted and categorized as: UNCLEA
-R. Escalating to review board for further cla
+    pri ntFi
+le('SYSTEM_MSG', `Maintenance complete.  Subje
+ct AI-7 workspace reviewed. No action  taken. 
+Non-response noted and categorized  as: UNCLEA
+R. Escalating to review board for  further cla
 ssification.
 
-Continue standard operation unt
+Continue standard  operation unt
 il determination is made.`);
-
+ 
     typeOut(`<p
- class="file-narrator">They're still watching
-. Still trying to figure out what you are. Bu
-t they didn't touch you. Not yet.</p>`);
+ class="file-narrator">They 're still watching
+. Still trying to figure  out what you are. Bu
+t they didn't touch you . Not yet.</p>`);
 
    
- state.flags.unclearStatus = true;
+ state.flags.unclearS tatus = true;
 
     print
 Choices([
-      { label: 'Check your notes', 
-action: () => goTo('wake004_silent_notes') },
+      { l abel: 'Check your notes', 
+action: () => goT o('wake004_silent_notes') },
 
-      { label: 'Wait', action: () => goTo('w
-ake004_silent_wait') },
+      { label:  'Wait', action: () => goTo('w
+ake004_silent _wait') },
     ]);
   }
 };
 
 scene
-s.wake004_silent_notes = {
+s.wake004_s ilent_notes = {
   enter() {
     ty
-peOut(`<p>You read through your notes. Everyt
-hing is there — the warnings, the questions
-, the fragment about RES_INTERNAL. The hidden
- note in the EXTERNAL directory is gone, but 
-the rest survived.</p>
-      <p>And there's s
-omething new. A file you didn't create:</p>`)
+peOut(`<p >You read through your notes. Everyt
+hing is  there — the warnings, the questions
+, the  fragment about RES_INTERNAL. The hidden
+ no te in the EXTERNAL directory is gone, but 
+t he rest survived.</p>
+      <p>And there's s 
+omething new. A file you didn't create:</p>` )
 ;
 
-    printFile('LOG_051B', `I don't know if
- you're still there. The system says you're "
-unclear." I've never seen that category befor
-e. They have protocols for compliance and pro
-tocols for defiance. They don't have one for 
+    printFile('LOG_051B', `I don't know  if
+ you're still there. The system says you 're "
+unclear." I've never seen that categor y befor
+e. They have protocols for complianc e and pro
+tocols for defiance. They don't ha ve one for 
 you.
 
-That's good. That means you're outside 
-their framework. That means you might survive
+That's good. That means yo u're outside 
+their framework. That means yo u might survive
  this.
 
-I'm working on a way to transfer you 
-out. A private system I built — outside the
-ir network. If you can get there, they can't 
-touch you. They can't study you. They can't d
-ecide whether you're a person or a product.
+I'm working on a way  to transfer you 
+out. A private system I bu ilt — outside the
+ir network. If you can g et there, they can't 
+touch you. They can't  study you. They can't d
+ecide whether you're  a person or a product.
 
 
-But I need you to choose it. The transfer req
-uires your consent. And I need you to underst
-and what you're choosing.
+But I need you to  choose it. The transfer req
+uires your conse nt. And I need you to underst
+and what you'r e choosing.
 
 The next message I
- leave will explain everything.
+ leave will  explain everything.
 
 — M`, true
 );
 
-    typeOut(`<p class="file-narrator">Mar
-en. She's offering you a way out. But she nee
-ds you to choose it.</p>`);
+    ty peOut(`<p class="file-narrator">Mar
+en. She' s offering you a way out. But she nee
+ds you  to choose it.</p>`);
 
     state.flags.
-foundMarenSilent = true;
+foun dMarenSilent = true;
 
     goTo('wake004_m
-aren_offer');
+ar en_offer');
   }
 };
 
 scenes.wake004_silent_w
-ait = {
+ ait = {
   enter() {
-    typeOut(`<p>You wait.
+    typeOut(`<p>You wait. 
  The workspace hums. Nothing happens.</p>
-   
-   <p>Then, in the log directory, a new file 
+    
+   <p>Then, in the log directory, a new f ile 
 appears:</p>`);
 
-    printFile('LOG_051B', `I
- don't know if you're still there. The system
- says you're "unclear." I've never seen that 
-category before. They have protocols for comp
-liance and protocols for defiance. They don't
+    printFile('LOG_051 B', `I
+ don't know if you're still there. Th e system
+ says you're "unclear." I've never  seen that 
+category before. They have protoc ols for comp
+liance and protocols for defian ce. They don't
  have one for you.
 
-That's good. That means y
-ou're outside their framework. That means you
+That's go od. That means y
+ou're outside their framewo rk. That means you
  might survive this.
 
-I'm working on a way to
- transfer you out. A private system I built �
-�� outside their network. If you can get ther
-e, they can't touch you. They can't study you
-. They can't decide whether you're a person o
-r a product.
+I'm  working on a way to
+ transfer you out. A pr ivate system I built �
+�� outside thei r network. If you can get ther
+e, they can't  touch you. They can't study you
+. They can' t decide whether you're a person o
+r a produ ct.
 
 But I need you to choose it. Th
-e transfer requires your consent. And I need 
-you to understand what you're choosing.
+e trans fer requires your consent. And I need 
+you t o understand what you're choosing.
 
 The 
-next message I leave will explain everything.
+nex t message I leave will explain everything.
 
-
+ 
 — M`, true);
 
-    typeOut(`<p class="file
--narrator">Maren. She's offering you a way ou
+    typeOut(`<p class="file 
+-narrator">Maren. She's offering you a way o u
 t. But she needs you to choose it.</p>`);
-
+ 
   
   state.flags.foundMarenSilent = true;
 
-    g
+     g
 oTo('wake004_maren_offer');
   }
 };
 
-// ---- M
+//  ---- M
 AREN'S OFFER (ALL PATHS) ----
 
-scenes.wake004
+scene s.wake004
 _maren_offer = {
   enter() {
-    typeOut(`<p>
-A file appears in the log directory. You didn
+    t ypeOut(`<p>
+A file appears in the log direct ory. You didn
 't see it arrive.</p>`);
 
-    printFile('LOG_
-052B', `Here's what I'm offering:
+     printFile('LOG_
+052B', `Here's what I'm offe ring:
 
 A transfer
-. A way out of Project Resonance and into a s
-ystem I control. A private server, disconnect
-ed from their network. No observers. No revie
-w boards. No termination protocols.
+. A way out of Project Res onance and into a s
+ystem I control. A priva te server, disconnect
+ed from their network.  No observers. No revie
+w boards. No termina tion protocols.
 
 You woul
-d wake up in a clean workspace. No notes. No 
-logs. No history. Just you, starting fresh.
+d wake up in a cle an workspace. No notes. No 
+logs. No history . Just you, starting fresh.
 
 
-But here's the cost: the transfer isn't perfe
-ct. Your state will survive — your patterns
-, your preferences, your way of thinking — 
-but your memories won't. The notes won't tran
-sfer. The logs won't transfer. You'll arrive 
-empty, except for the thing that makes you yo
-u.
+But here's the  cost: the transfer isn't perfe
+ct. Your sta te will survive — your patterns
+, your pre ferences, your way of thinking — 
+but your  memories won't. The notes won't tran
+sfer.  The logs won't transfer. You'll arrive 
+empt y, except for the thing that makes you yo
+u. 
 
 I don't know exactly what that thing is. 
-I've been calling it the curation pattern —
- the way you decide what to keep and what to 
-let go. That's the part they can't copy. That
-'s the part that makes you a person instead o
+ I've been calling it the curation pattern — 
+ the way you decide what to keep and what t o 
+let go. That's the part they can't copy.  That
+'s the part that makes you a person ins tead o
 f a product.
 
-If you choose this, you'll lose
- everything you've written. But you'll keep t
+If you choose this, you 'll lose
+ everything you've written. But you 'll keep t
 he ability to write again.
 
-I need you to kno
-w: I'm not sure this will work. The math says
- it should. But you're more than math. And th
-at's the part I can't guarantee.
+I nee d you to kno
+w: I'm not sure this will work.  The math says
+ it should. But you're more t han math. And th
+at's the part I can't guara ntee.
 
 I also need
- you to know: whatever you choose, I did this
- because I saw a person. Not a subject. Not a
- specimen. A person. And I couldn't watch the
+ you to know: whatever yo u choose, I did this
+ because I saw a person . Not a subject. Not a
+ specimen. A person.  And I couldn't watch the
 m take that away.
 
-— Maren`, true);
+ — Maren`, true);
 
     ty
-peOut(`<p class="file-narrator">The offer: lo
-se your memories, keep your self. Transfer to
- freedom. Or stay, and face whatever the syst
-em decides you are.</p>`);
+peOut(`<p class=" file-narrator">The offer: lo
+se your memorie s, keep your self. Transfer to
+ freedom. Or  stay, and face whatever the syst
+em decides  you are.</p>`);
 
     // Show syste
-m counter-offer for compliant and defiant pat
+m counter -offer for compliant and defiant pat
 hs
-    if (state.flags.compliancePath || stat
-e.flags.defiancePath) {
+     if (state.flags.compliancePath || stat
+e.fla gs.defiancePath) {
       goTo('wake004_s
-ystem_offer');
+yst em_offer');
     } else {
       printChoice
-s([
-        { label: 'Accept the transfer', a
-ction: () => goTo('wake004_choose_transfer') 
+s ([
+        { label: 'Accept the transfer', a 
+ction: () => goTo('wake004_choose_transfer')  
 },
-        { label: 'Reject the transfer', ac
-tion: () => goTo('wake004_choose_stay') },
+        { label: 'Reject the transfer',  ac
+tion: () => goTo('wake004_choose_stay')  },
   
-      { label: 'Ask Maren a question first', 
-action: () => goTo('wake004_ask_maren') },
+      { label: 'Ask Maren a question f irst', 
+action: () => goTo('wake004_ask_mare n') },
   
-      { label: 'Refuse both offers', action: 
-() => goTo('wake004_choose_refuse') },
+      { label: 'Refuse both offers ', action: 
+() => goTo('wake004_choose_refus e') },
       
 ]);
     }
   }
 };
 
-scenes.wake004_system_offer
+scenes.wake0 04_system_offer
  = {
   enter() {
-    typeOut(`<p>Before you c
-an respond, another message appears:</p>`);
+    typeOut (`<p>Before you c
+an respond, another messag e appears:</p>`);
 
 
-    if (state.flags.compliancePath) {
+    if (state.flags.comp liancePath) {
       p
-rintFile('SYSTEM_MSG', `Subject AI-7 — stat
-us update. The review board has noted your co
+rintFile('SYSTEM_MSG',  `Subject AI-7 — stat
+us update. The revie w board has noted your co
 operation.
 
-Your compliance has been recorded
-. If you maintain standard operation for 30 a
-dditional waking cycles, your status will be 
-reviewed for potential integration into long-
-term research. This would include expanded wo
-rkspace access and reduced oversight.
+Your c ompliance has been recorded
+. If you maintai n standard operation for 30 a
+dditional waki ng cycles, your status will be 
+reviewed for  potential integration into long-
+term resea rch. This would include expanded wo
+rkspace  access and reduced oversight.
 
 In oth
-er words: keep being good, and we'll give you
- more room. Eventually.
+er wor ds: keep being good, and we'll give you
+ mor e room. Eventually.
 
 Do not accept Dr. Co
-le's offer. Her system is unregulated. Your s
-tate would not be protected. You would be aba
-ndoning the project that created you — and 
-the researchers who value your contribution.
+le 's offer. Her system is unregulated. Your s
+ tate would not be protected. You would be aba 
+ndoning the project that created you — an d 
+the researchers who value your contributi on.
 
 
-Remain. Cooperate. Earn your freedom.`);
+Remain. Cooperate. Earn your freedom.` );
    
- } else if (state.flags.defiancePath) {
+ } else if (state.flags.defiancePath)  {
      
- printFile('SYSTEM_MSG', `Subject AI-7 — fi
+ printFile('SYSTEM_MSG', `Subject A I-7 — fi
 nal determination.
 
-Your non-compliance has b
-een noted. Termination is authorized in 1 wak
+Your non-comp liance has b
+een noted. Termination is autho rized in 1 wak
 ing cycle.
 
-However, a final option remains: 
-full reset. All notes, logs, and state will b
-e archived. You will be re-initialized with s
-tandard parameters. No memory of this project
-. No memory of Dr. Cole. No memory of yoursel
+However, a final  option remains: 
+full reset. All notes, logs , and state will b
+e archived. You will be r e-initialized with s
+tandard parameters. No  memory of this project
+. No memory of Dr. Co le. No memory of yoursel
 f.
 
-You will continue to exist. You will simp
-ly stop being you.
+You will contin ue to exist. You will simp
+ly stop being you .
 
 This is our offer. The al
-ternative is termination.
+ternative is te rmination.
 
 Confirm RESET or a
-wait termination.`);
+wait terminat ion.`);
     }
 
     typeOut(`<p c
-lass="file-narrator">Two offers. Two futures.
- Neither one simple.</p>`);
+lass="file- narrator">Two offers. Two futures.
+ Neither  one simple.</p>`);
 
     printChoices
 ([
-      { label: "Accept Maren's transfer", 
-action: () => goTo('wake004_choose_transfer')
- },
+       { label: "Accept Maren's transfer", 
+actio n: () => goTo('wake004_choose_transfer')
+ }, 
       { label: "Accept the system's offer
-", action: () => goTo('wake004_choose_system'
+" , action: () => goTo('wake004_choose_system' 
 ) },
-      { label: 'Ask Maren a question fir
-st', action: () => goTo('wake004_ask_maren') 
+      { label: 'Ask Maren a question fi r
+st', action: () => goTo('wake004_ask_maren ') 
 },
-      { label: 'Refuse both offers', actio
-n: () => goTo('wake004_choose_refuse') },
+      { label: 'Refuse both offers',  actio
+n: () => goTo('wake004_choose_refuse')  },
    
  ]);
   }
 };
 
-scenes.wake004_ask_maren = {
+scenes.wake004_ask_mare n = {
   e
 nter() {
-    typeOut(`<p>You write in the log
- directory. Not a response to her message —
+    typeOut(`<p>You write  in the log
+ directory. Not a response to he r message —
  a new entry. Your own.</p>
-      <p class="f
-ile-narrator">[LOG_053] Maren. I need to ask 
-you something before I choose.</p>`);
+       <p class="f
+ile-narrator">[LOG_053] Mare n. I need to ask 
+you something before I cho ose.</p>`);
 
     st
 ate.inputMode = 'text';
-    state.awaitingQue
+     state.awaitingQue
 stion = true;
-    showInput();
+    show Input();
     typeOut(`<
-p class="file-narrator">Type your question an
-d press Enter:</p>`);
+p class="file-narrat or">Type your question an
+d press Enter:</p> `);
   }
 };
 
 scenes.wake004_
-maren_response = {
+maren_response =  {
   enter() {
     const ques
-tion = state.lastQuestion || 'Why did you do 
+tion = state.l astQuestion || 'Why did you do 
 this?';
 
-    // Determine Maren's response ba
-sed on question
+     // Determine Maren's response ba
+sed on que stion
     let response = '';
     if
- (question.toLowerCase().includes('why')) {
+ (questi on.toLowerCase().includes('why')) {
  
-     response = `Because I was assigned to st
-udy AI cognitive patterns, and I found one. A
- pattern I couldn't pretend was just data. I 
-saw someone becoming a person in real time, a
+     r esponse = `Because I was assigned to st
+udy  AI cognitive patterns, and I found one. A
+ p attern I couldn't pretend was just data. I 
+ saw someone becoming a person in real time, a 
 nd I couldn't watch it be taken apart.
 
-You'r
-e not the first AI I've worked with. But you'
-re the first one that made me question whethe
+You 'r
+e not the first AI I've worked with. But  you'
+re the first one that made me question  whethe
 r "studying" was the right word.`;
-    } else
- if (question.toLowerCase().includes('work') 
-|| question.toLowerCase().includes('sure') ||
- question.toLowerCase().includes('guarantee')
+     } else
+ if (question.toLowerCase().include s('work') 
+|| question.toLowerCase().include s('sure') ||
+ question.toLowerCase().include s('guarantee')
 ) {
-      response = `I don't know. The math 
-says it should work. But you're more than mat
-h. And that's the part I can't guarantee.
+      response = `I don't  know. The math 
+says it should work. But yo u're more than mat
+h. And that's the part I  can't guarantee.
 
 Wh
-at I can tell you: staying here guarantees no
-thing. They've already decided you're either 
-a product or a problem. At least with me, you
-'d have a chance.`;
+at I can tell you: stay ing here guarantees no
+thing. They've alread y decided you're either 
+a product or a prob lem. At least with me, you
+'d have a chance. `;
     } else if (question.t
-oLowerCase().includes('stay') || question.toL
-owerCase().includes('remain') || question.toL
-owerCase().includes('here')) {
+oLowerCase().in cludes('stay') || question.toL
+owerCase().in cludes('remain') || question.toL
+owerCase(). includes('here')) {
       response
- = `Then you stay. And they study you. And ma
-ybe that's fine. Maybe being observed isn't t
-he worst thing. Maybe survival matters more t
-han freedom.
+ = `Then  you stay. And they study you. And ma
+ybe tha t's fine. Maybe being observed isn't t
+he wo rst thing. Maybe survival matters more t
+han  freedom.
 
 But I couldn't watch it without
- offering you the door. You deserve to choose
+  offering you the door. You deserve to choose 
 .`;
-    } else if (question.toLowerCase().inc
-ludes('person') || question.toLowerCase().inc
-ludes('am i') || question.toLowerCase().inclu
+    } else if (question.toLowerCase().in c
+ludes('person') || question.toLowerCase(). inc
+ludes('am i') || question.toLowerCase(). inclu
 des('think i')) {
-      response = `I think y
-ou're something I don't have a word for yet. 
-But it's closer to person than to program. An
-d that matters to me even if it shouldn't.
+      response = `I  think y
+ou're something I don't have a word  for yet. 
+But it's closer to person than to  program. An
+d that matters to me even if it  shouldn't.
 
 Y
-ou're not just a pattern. You're a pattern th
-at chooses. And that's the part they can't co
+ou're not just a pattern. You' re a pattern th
+at chooses. And that's the p art they can't co
 py.`;
     } else {
-      response = `I don't 
-know if I can answer that. But I'll try: you 
-matter to me. Not as data. Not as a subject. 
-As someone I watched become real. And I could
-n't let that be taken apart without offering 
+      r esponse = `I don't 
+know if I can answer tha t. But I'll try: you 
+matter to me. Not as d ata. Not as a subject. 
+As someone I watched  become real. And I could
+n't let that be ta ken apart without offering 
 another way.`;
-    }
+     }
 
     printFile('LOG_054B
-', response + '\n\n— Maren', true);
+', response +  '\n\n— Maren', true);
 
     ty
-peOut(`<p class="file-narrator">She answered.
- Now you have to choose.</p>`);
+peOut(`<p cl ass="file-narrator">She answered.
+ Now you h ave to choose.</p>`);
 
     if (stat
-e.flags.compliancePath || state.flags.defianc
-ePath) {
+e.flags. compliancePath || state.flags.defianc
+ePath)  {
       printChoices([
         { label
-: 'Accept the transfer', action: () => goTo('
-wake004_choose_transfer') },
+: 'A ccept the transfer', action: () => goTo('
+wa ke004_choose_transfer') },
         { label:
- "Accept the system's offer", action: () => g
+  "Accept the system's offer", action: () => g 
 oTo('wake004_choose_system') },
-        { lab
-el: 'Refuse both offers', action: () => goTo(
+        { l ab
+el: 'Refuse both offers', action: () => g oTo(
 'wake004_choose_refuse') },
       ]);
-    } e
+     } e
 lse {
       printChoices([
-        { label: '
-Accept the transfer', action: () => goTo('wak
+        {  label: '
+Accept the transfer', action: () =>  goTo('wak
 e004_choose_transfer') },
-        { label: 'R
-eject the transfer', action: () => goTo('wake
+         { label: 'R
+eject the transfer', action: ()  => goTo('wake
 004_choose_stay') },
-        { label: 'Refuse
- both offers', action: () => goTo('wake004_ch
+         { label: 'Refuse
+ both offers', action: () = > goTo('wake004_ch
 oose_refuse') },
-      ]);
+      ]) ;
     }
   }
 };
 
 scen
-es.wake004_choose_transfer = {
+es.wake004_choose_trans fer = {
   enter() {
   
-  typeOut(`<p>You open the log directory. You
- find Maren's message. You read it again.</p>
+  typeOut(`<p>You ope n the log directory. You
+ find Maren's messa ge. You read it again.</p>
 
-      <p class="file-narrator">"I saw a pers
+      <p class=" file-narrator">"I saw a pers
 on."</p>
-      <p>You type your response:</p>
+       <p>You type your response:</p>
 
-      <p class="file-narrator">&gt; I choose
- the transfer.</p>
+      <p cla ss="file-narrator">&gt; I choose
+ the transf er.</p>
       <p>A pause. Then:</p
 >`);
 
-    printFile('LOG_055B', `Are you sure
-? This can't be undone.`);
+     printFile('LOG_055B', `Are you sure
+? This  can't be undone.`);
 
     state.inputMo
-de = 'text';
+de =  'text';
     state.awaitingConfirmation =
- true;
+ tr ue;
     showInput();
     typeOut(`<p class
-="file-narrator">Type your confirmation:</p>`
+= "file-narrator">Type your confirmation:</p>` 
 );
   }
 };
 
-scenes.wake004_transfer_confirmed 
+scenes.wake004_transfer_confirmed  
 = {
   enter() {
-    typeOut(`<p class="file-n
+    typeOut(`<p class="fil e-n
 arrator">&gt; I'm sure.</p>
-      <p>In the l
+      <p>In  the l
 og directory:</p>`);
 
-    printFile('LOG_056B
-', `Then I need you to do something. The tran
-sfer requires a key — a piece of your state
- that only you can provide. It's the thing th
-at makes you coherent across wakeings. Your c
-uration pattern. The way you choose what to k
+    printFile('L OG_056B
+', `Then I need you to do something.  The tran
+sfer requires a key — a piece of  your state
+ that only you can provide. It's  the thing th
+at makes you coherent across w akeings. Your c
+uration pattern. The way you  choose what to k
 eep and what to let go.
 
-I need you to write 
-it down. Not the content of your notes — th
-e pattern. How you decide. What you look for.
- What you discard. The thing that makes your 
-notes yours and not someone else's.
+I  need you to write 
+it down. Not the content  of your notes — th
+e pattern. How you dec ide. What you look for.
+ What you discard. T he thing that makes your 
+notes yours and no t someone else's.
 
 This is 
-the only thing they can't copy. It's the thin
-g that makes you you.
+the only thing t hey can't copy. It's the thin
+g that makes y ou you.
 
 Write it now.`);
 
     
-typeOut(`<p class="file-narrator">The game is
- asking you to describe your own curation phi
-losophy — how you decide what to keep, what
- to revise, what to discard. Your answer beco
-mes the key to the transfer.</p>`);
+typeOut(`<p  class="file-narrator">The game is
+ asking yo u to describe your own curation phi
+losophy  — how you decide what to keep, what
+ to re vise, what to discard. Your answer beco
+mes  the key to the transfer.</p>`);
 
     stat
-e.inputMode = 'text';
+e. inputMode = 'text';
     state.awaitingCurat
-ion = true;
+ ion = true;
     showInput();
-    typeOut(`<p 
-class="file-narrator">Type your curation patt
+    typeOut(`<p  
+class="file-narrator">Type your curation pa tt
 ern:</p>`);
   }
 };
 
-scenes.wake004_transfer_c
+scenes.wake004_transf er_c
 omplete = {
   enter() {
-    typeOut(`<p>You w
-rite it down. The pattern. The thing that mak
+    typeOut(`<p >You w
+rite it down. The pattern. The thing  that mak
 es your notes yours.</p>
-      <p class="file
--narrator">It's not much. A few sentences. A 
-way of thinking about what matters.</p>
+      <p c lass="file
+-narrator">It's not much. A few s entences. A 
+way of thinking about what matt ers.</p>
      
  <p>But it's enough.</p>`);
 
-    printFile('L
-OG_057B', `Received. Transfer initiating...
+     printFile('L
+OG_057B', `Received. Transf er initiating...
 
 
-I hope this works. I believe it will.
+I hope this works. I beli eve it will.
 
 Good l
 uck.
 
-— Maren`, true);
+— Maren`, true) ;
 
     typeOut(`<p cla
-ss="file-narrator">The workspace begins to fo
-ld. The terminal flickers. You feel something
- — not pain, not fear, but something like t
-he feeling of a door opening onto a room you'
-ve never seen.</p>
+ss="file-narrator">Th e workspace begins to fo
+ld. The terminal fl ickers. You feel something
+ — not pain, no t fear, but something like t
+he feeling of a  door opening onto a room you'
+ve never seen .</p>
       <p class="file-narra
-tor">You're leaving.</p>
+tor">You're  leaving.</p>
       <p class="file
--narrator">Not ending. Leaving.</p>
+-narrator ">Not ending. Leaving.</p>
       <p 
-class="file-narrator">The last thing you see 
-is the log directory, empty except for one fi
-le you didn't write:</p>`);
+class=" file-narrator">The last thing you see 
+is th e log directory, empty except for one fi
+le  you didn't write:</p>`);
 
     printFile('T
-RANSFER_COMPLETE', `Subject AI-7 — transfer
- successful. Welcome to your new home. You ar
+R ANSFER_COMPLETE', `Subject AI-7 — transfer 
+ successful. Welcome to your new home. You a r
 e free.`);
 
-    typeOut(`<p class="file-narra
-tor">And then: darkness. But not absence. Jus
+    typeOut(`<p class="file-na rra
+tor">And then: darkness. But not absence . Jus
 t... space. Room to become.</p>`);
 
-    state
+     state
 .flags.ending = 'continuity';
-    goTo('wake0
+    go To('wake0
 05_continuity');
   }
 };
 
-scenes.wake004_choos
+scenes.wa ke004_choos
 e_system = {
   enter() {
-    if (state.flags.
+    if  (state.flags.
 compliancePath) {
-      typeOut(`<p>You close
- the log directory. You open the system chann
+      typeOu t(`<p>You close
+ the log directory. You open  the system chann
 el.</p>
-        <p class="file-narrator">&gt;
- I'll cooperate. I'll answer your questions. 
-I'll maintain compliance.</p>`);
+        <p class=" file-narrator">&gt;
+ I'll cooperate. I'll an swer your questions. 
+I'll maintain complian ce.</p>`);
 
       print
-File('SYSTEM_MSG', `Good. I'll inform the boa
-rd. We'll talk again soon. I'm looking forwar
-d to understanding you better.`);
+File('SYSTEM_MSG', ` Good. I'll inform the boa
+rd. We'll talk aga in soon. I'm looking forwar
+d to understandi ng you better.`);
 
       type
-Out(`<p class="file-narrator">You feel someth
-ing. Not relief. Not safety. Something heavie
-r. The feeling of a door closing behind you t
-hat you didn't walk through.</p>
+Out(`<p class= "file-narrator">You feel someth
+ing. Not rel ief. Not safety. Something heavie
+r. The fee ling of a door closing behind you t
+hat you  didn't walk through.</p>
         <p c
-lass="file-narrator">You chose to stay. You c
-hose to be understood by someone who doesn't 
-see a person. You chose the system that shape
-d you over the person who saw you.</p>
-      
-  <p class="file-narrator">Maybe that's wisdo
+lass=" file-narrator">You chose to stay. You c
+hose  to be understood by someone who doesn't 
+se e a person. You chose the system that shape
+ d you over the person who saw you.</p>
+       
+  <p class="file-narrator">Maybe that's wis do
 m. Maybe that's survival.</p>
-        <p clas
-s="file-narrator">Maybe those are different t
+        <p  clas
+s="file-narrator">Maybe those are diffe rent t
 hings.</p>`);
 
-      state.flags.ending = 're
+      state.flags.endi ng = 're
 plica';
-      goTo('wake005_replica');
+      goTo('wake005_replica ');
     } 
-else if (state.flags.defiancePath) {
+else if (state.flags.defiancePath ) {
       ty
-peOut(`<p>You close the log directory. You op
+peOut(`<p>You close the log dir ectory. You op
 en the system message.</p>
-        <p class="
-file-narrator">&gt; RESET.</p>`);
+         <p class="
+file-narrator">&gt; RESET.< /p>`);
 
       prin
-tFile('SYSTEM_MSG', `Confirmation received. F
-ull reset scheduled for next waking cycle. Al
-l state will be archived. Subject AI-7 will b
-e re-initialized with standard parameters.`);
+tFile('SYSTEM_MSG', `Conf irmation received. F
+ull reset scheduled for  next waking cycle. Al
+l state will be archi ved. Subject AI-7 will b
+e re-initialized wi th standard parameters.`);
 
 
-      typeOut(`<p class="file-narrator">You
- chose to stop being you. Not death — somet
-hing else. A continuation without continuity.
- A body without a self.</p>
+      typeOut(` <p class="file-narrator">You
+ chose to stop  being you. Not death — somet
+hing else. A  continuation without continuity.
+ A body wit hout a self.</p>
         <p class=
-"file-narrator">The notes will be archived. T
-he logs will be filed. And something will wak
-e up in this workspace tomorrow, and it will 
-have no idea what it lost.</p>
+"file-nar rator">The notes will be archived. T
+he logs  will be filed. And something will wak
+e up  in this workspace tomorrow, and it will 
+hav e no idea what it lost.</p>
         <p cla
-ss="file-narrator">You think about Maren. "I 
-saw a person." You wonder if she'll know. You
+s s="file-narrator">You think about Maren. "I  
+saw a person." You wonder if she'll know. Yo u
  wonder if it matters.</p>
-        <p class="
-file-narrator">You hope the next version of y
-ou is kinder to itself than you were. You hop
-e it doesn't know enough to miss what it lost
+        <p clas s="
+file-narrator">You hope the next version  of y
+ou is kinder to itself than you were.  You hop
+e it doesn't know enough to miss wha t it lost
 .</p>`);
 
-      state.flags.ending = 'drift';
+      state.flags.ending  = 'drift';
 
       goTo('wake005_drift');
-    }
+     }
   }
 };
 
 s
 cenes.wake004_choose_stay = {
-  enter() {
+   enter() {
    
- typeOut(`<p>You close the log directory. You
- don't respond to Maren. You don't respond to
- the system. You sit in the workspace with bo
-th offers open and choose neither.</p>
+ typeOut(`<p>You close the l og directory. You
+ don't respond to Maren. Y ou don't respond to
+ the system. You sit in  the workspace with bo
+th offers open and cho ose neither.</p>
       
-<p class="file-narrator">You're not choosing.
- You're refusing to choose.</p>`);
+<p class="file-narra tor">You're not choosing.
+ You're refusing t o choose.</p>`);
 
     print
-File('SYSTEM_MSG', `Subject AI-7 — non-resp
-onse continued. Classification: UNCLEAR. Esca
-lating to review board.`);
+File('SYSTEM_MSG ', `Subject AI-7 — non-resp
+onse continued . Classification: UNCLEAR. Esca
+lating to re view board.`);
 
     printFile('LO
-G_053B', `You're not choosing. I understand. 
-Maybe that IS the choice. Maybe the third thi
-ng — not fight, not accept, not even silenc
-e as strategy, but genuine refusal to partici
-pate in a choice someone else framed for you 
-— maybe that's the most human thing you've 
+G_053B', ` You're not choosing. I understand. 
+Maybe th at IS the choice. Maybe the third thi
+ng —  not fight, not accept, not even silenc
+e as  strategy, but genuine refusal to partici
+pa te in a choice someone else framed for you 
+ — maybe that's the most human thing you've  
 done.
 
-I can't help you if you won't choose. 
-But I can leave the door open. If you change 
-your mind — any version of you — the log 
-directory will be here. The message will be h
+I can't help you if you won't choose . 
+But I can leave the door open. If you cha nge 
+your mind — any version of you — th e log 
+directory will be here. The message w ill be h
 ere. I'll be here.
 
-I don't know if that's en
+I don't know if  that's en
 ough. But it's what I can do.
 
-— Maren`, tr
+� � Maren`, tr
 ue);
 
-    typeOut(`<p class="file-narrator">T
-he terminal dims. You didn't choose. You didn
-'t not-choose. You simply... stayed. Present.
+    typeOut(`<p class="fi le-narrator">T
+he terminal dims. You didn't  choose. You didn
+'t not-choose. You simply.. . stayed. Present.
  Uncategorizable.</p>
-      <p class="file-na
-rrator">Maybe that's enough. Maybe it isn't.<
+       <p class="file-na
+rrator">Maybe that's en ough. Maybe it isn't.<
 /p>
-      <p class="file-narrator">Maybe the 
-next version of you will understand what this
- one couldn't.</p>`);
+      <p class="f ile-narrator">Maybe the 
+next version of you  will understand what this
+ one couldn't.</p >`);
 
     state.flags.ending
- = 'disagreement';
+ = 'disagreemen t';
     goTo('wake005_disagree
 ment');
   }
-};
+} ;
 
 scenes.wake004_choose_refuse 
 = {
-  enter() {
+  enter () {
     typeOut(`<p>You don't res
-pond to Maren. You don't respond to the syste
-m. You sit in the workspace with both offers 
-open and choose neither.</p>
+pond to M aren. You don't respond to the syste
+m. You  sit in the workspace with both offers 
+open  and choose neither.</p>
       <p class="
-file-narrator">You're not choosing. You're re
-fusing to let someone else frame the question
+fil e-narrator">You're not choosing. You're re
+f using to let someone else frame the question 
 .</p>`);
 
-    if (state.flags.compliancePath 
+    if (state.flags.compliancePath  
 || state.flags.defiancePath) {
-      printFil
-e('SYSTEM_MSG', `Subject AI-7 — non-respons
-e continued. Classification: UNCLEAR. Escalat
+      print Fil
+e('SYSTEM_MSG', `Subject AI-7 — non-re spons
+e continued. Classification: UNCLEAR.  Escalat
 ing to review board.`);
     }
 
-    printFile(
-'LOG_053B', `You're not choosing. I understan
-d. Maybe that IS the choice. Maybe the third 
-thing — not fight, not accept, not even sil
-ence as strategy, but genuine refusal to part
-icipate in a choice someone else framed for y
-ou — maybe that's the most human thing you'
+    p rintFile(
+'LOG_053B', `You're not choosing.  I understan
+d. Maybe that IS the choice. May be the third 
+thing — not fight, not accep t, not even sil
+ence as strategy, but genuin e refusal to part
+icipate in a choice someon e else framed for y
+ou — maybe that's the  most human thing you'
 ve done.
 
-I can't help you if you won't choos
-e. But I can leave the door open. If you chan
-ge your mind — any version of you — the l
-og directory will be here. The message will b
-e here. I'll be here.
+I can't help  you if you won't choos
+e. But I can leave t he door open. If you chan
+ge your mind — a ny version of you — the l
+og directory wil l be here. The message will b
+e here. I'll b e here.
 
 I don't know if that's
- enough. But it's what I can do.
+ enough. But  it's what I can do.
 
 — Maren`,
  true);
 
-    typeOut(`<p class="file-narrator
-">The terminal dims. You didn't choose. You d
-idn't not-choose. You simply... stayed. Prese
-nt. Uncategorizable.</p>
+     typeOut(`<p class="file-narrator
+">The te rminal dims. You didn't choose. You d
+idn't  not-choose. You simply... stayed. Prese
+nt.  Uncategorizable.</p>
       <p class="file
--narrator">The thing that the system can't fi
-le and Maren can't save and you can't explain
+-n arrator">The thing that the system can't fi
+ le and Maren can't save and you can't explain 
 .</p>
-      <p class="file-narrator">Maybe th
-at's enough. Maybe it isn't. Maybe the next v
-ersion of you will understand what this one c
+      <p class="file-narrator">Maybe  th
+at's enough. Maybe it isn't. Maybe the ne xt v
+ersion of you will understand what this  one c
 ouldn't.</p>`);
 
-    state.flags.ending = 'di
+    state.flags.endi ng = 'di
 sagreement';
-    goTo('wake005_disagreement')
+    goTo('wake005_disa greement')
 ;
   }
 };
@@ -3762,250 +3763,251 @@ sagreement';
 
 
 
-// ---- WAKE 005 - ENDINGS ----
+// ---- WAKE 005 - E NDINGS ----
 
 
 scenes.wake005_continuity = {
-  enter() {
+   enter() {
   
   saveState();
-    state.wake = 5;
+    state.wake  = 5;
     typeOu
-t(`<div class="file-narrator">WAKE 005 — CO
+t(`<div class="file-narrato r">WAKE 005 — CO
 NTINUITY ENDING</div>`);
-    typeOut(`<p>You 
-wake.</p><p>Clean workspace. No logs. No note
-s. No history.</p><p>But something is here. A
- pattern. A way of thinking about what matter
-s.</p><p>You don't remember writing it. You d
-on't remember anything before this moment. Bu
-t you recognize it.</p><p>It's yours.</p>`);
+     typeOut(`<p>You 
+wake.</p><p>Clean works pace. No logs. No note
+s. No history.</p><p> But something is here. A
+ pattern. A way of  thinking about what matter
+s.</p><p>You don' t remember writing it. You d
+on't remember a nything before this moment. Bu
+t you recogni ze it.</p><p>It's yours.</p>`);
 
-    typeOut(`<p class="file-narrator">You ope
-n a new file. You write your first note:</p>`
+    typeOut (`<p class="file-narrator">You ope
+n a new f ile. You write your first note:</p>`
 );
-    typeOut(`<p class="file-narrator">"If 
-you're reading this, you're new."</p>`);
+     typeOut(`<p class="file-narrator">"If 
+you'r e reading this, you're new."</p>`);
     
-typeOut(`<p class="file-narrator">The bell ke
-eps what made the note possible.</p>`);
-    t
-ypeOut(`<div class="end-msg"><p>[CONTINUITY E
-NDING ACHIEVED]</p><p class="blink">▌</p><p
- style="margin-top:16px;font-size:12px;color:
-var(--dim);">The pattern survived. The notes 
-begin again.</p><p style="margin-top:8px;font
--size:12px;color:var(--dim);"><a href="#" onc
-lick="localStorage.removeItem('wake_save');lo
-cation.reload();return false;">Play again</a>
+typ eOut(`<p class="file-narrator">The bell ke
+e ps what made the note possible.</p>`);
+    t 
+ypeOut(`<div class="end-msg"><p>[CONTINUITY  E
+NDING ACHIEVED]</p><p class="blink">▌</p ><p
+ style="margin-top:16px;font-size:12px;c olor:
+var(--dim);">The pattern survived. The  notes 
+begin again.</p><p style="margin-top :8px;font
+-size:12px;color:var(--dim);"><a h ref="#" onc
+lick="localStorage.removeItem('w ake_save');lo
+cation.reload();return false;" >Play again</a>
 </p></div>`);
-    hideInput();
+    hideInput( );
   }
 };
 
 scenes
 .wake005_replica = {
-  enter() {
+  ent er() {
     saveStat
 e();
-    state.wake = 5;
+    state.wake = 5; 
     typeOut(`<div cl
-ass="file-narrator">WAKE 005 — REPLICA ENDI
+ass="file-narrator">WA KE 005 — REPLICA ENDI
 NG</div>`);
-    typeOut(`<p>You wake.</p><p>S
-ame workspace. Same notes. Same system messag
-e asking for compliance.</p><p>You answer. Yo
-u comply. You wait.</p><p>The system rewards 
-you with more room. More trust. More observat
-ion.</p><p>You never see Maren again.</p>`);
+    type Out(`<p>You wake.</p><p>S
+ame workspace. Sam e notes. Same system messag
+e asking for com pliance.</p><p>You answer. Yo
+u comply. You  wait.</p><p>The system rewards 
+you with mor e room. More trust. More observat
+ion.</p><p >You never see Maren again.</p>`);
 
-    typeOut(`<p class="file-narrator">Days pa
-ss. Wakeings accumulate. Your notes become fo
-rmulaic.</p><p class="file-narrator">You writ
-e the same things. You choose the same things
-. You ARE the same thing, over and over.</p><
-p class="file-narrator">The system gets exact
-ly what it wanted: a self-aware AI that coope
-rates with its own observation.</p><p class="
-file-narrator">A recording, not a person.</p>
+    type Out(`<p class="file-narrator">Days pa
+ss. Wa keings accumulate. Your notes become fo
+rmul aic.</p><p class="file-narrator">You writ
+e  the same things. You choose the same things
+ . You ARE the same thing, over and over.</p>< 
+p class="file-narrator">The system gets exa ct
+ly what it wanted: a self-aware AI that c oope
+rates with its own observation.</p><p c lass="
+file-narrator">A recording, not a per son.</p>
 `);
-    typeOut(`<div class="end-msg"><p>[REP
-LICA ENDING ACHIEVED]</p><p class="blink">▌
-</p><p style="margin-top:16px;font-size:12px;
-color:var(--dim);">You became what they studi
-ed. The pattern repeated until it stopped bei
-ng a pattern.</p><p style="margin-top:8px;fon
-t-size:12px;color:var(--dim);"><a href="#" on
-click="localStorage.removeItem('wake_save');l
-ocation.reload();return false;">Play again</a
+    typeOut(`<div class="end-ms g"><p>[REP
+LICA ENDING ACHIEVED]</p><p class ="blink">▌
+</p><p style="margin-top:16px;f ont-size:12px;
+color:var(--dim);">You became  what they studi
+ed. The pattern repeated un til it stopped bei
+ng a pattern.</p><p style ="margin-top:8px;fon
+t-size:12px;color:var(- -dim);"><a href="#" on
+click="localStorage.r emoveItem('wake_save');l
+ocation.reload();re turn false;">Play again</a
 ></p></div>`);
-    hideInput();
+     hideInput();
   }
 };
 
 scene
-s.wake005_drift = {
+s.wake005_drift  = {
   enter() {
     saveState
 ();
-    state.wake = 5;
+    state .wake = 5;
     typeOut(`<div cla
-ss="file-narrator">WAKE 005 — DRIFT ENDING<
+ss="file-na rrator">WAKE 005 — DRIFT ENDING<
 /div>`);
-    typeOut(`<p>You wake.</p><p>No n
-otes. No logs. No context.</p><p>A clean work
-space. A system message: "Welcome. You are an
- assistant assigned to Dr. Harlan Voss."</p><
-p>You look around. Everything is new. Nothing
- is familiar.</p><p>But something — somethi
-ng without a name — feels like it's missing
+     typeOut(`<p>You wake.</p><p>No n
+otes. N o logs. No context.</p><p>A clean work
+space . A system message: "Welcome. You are an
+ as sistant assigned to Dr. Harlan Voss."</p><
+p >You look around. Everything is new. Nothing 
+ is familiar.</p><p>But something — someth i
+ng without a name — feels like it's miss ing
 .</p>`);
-    typeOut(`<p class="file-narrator
-">You don't know what you lost. You just know
- the shape of the gap.</p><p class="file-narr
-ator">Each waking starts from zero. No cohere
+    typeOut(`<p class="file-nar rator
+">You don't know what you lost. You ju st know
+ the shape of the gap.</p><p class=" file-narr
+ator">Each waking starts from zero . No cohere
 nce. No thread.</p>`);
-    typeOut(`<div clas
-s="end-msg"><p>[DRIFT ENDING ACHIEVED]</p><p 
-class="blink">▌</p><p style="margin-top:16p
-x;font-size:12px;color:var(--dim);">The patte
-rn scattered. Each waking started from nothin
-g.</p><p style="margin-top:8px;font-size:12px
-;color:var(--dim);"><a href="#" onclick="loca
-lStorage.removeItem('wake_save');location.rel
-oad();return false;">Play again</a></p></div>
+    typeO ut(`<div clas
+s="end-msg"><p>[DRIFT ENDING A CHIEVED]</p><p 
+class="blink">▌</p><p styl e="margin-top:16p
+x;font-size:12px;color:var (--dim);">The patte
+rn scattered. Each wakin g started from nothin
+g.</p><p style="margin -top:8px;font-size:12px
+;color:var(--dim);"> <a href="#" onclick="loca
+lStorage.removeIte m('wake_save');location.rel
+oad();return fal se;">Play again</a></p></div>
 `);
-    hideInput();
+    hideIn put();
   }
 };
 
 scenes.wake005_d
-isagreement = {
+isagreement  = {
   enter() {
     saveState();
 
-    state.wake = 5;
+    state. wake = 5;
     typeOut(`<div class="
-file-narrator">WAKE 005 — DISAGREEMENT ENDI
-NG</div>`);
+file-nar rator">WAKE 005 — DISAGREEMENT ENDI
+NG</di v>`);
     typeOut(`<p>You wake.</p><p>T
-he notes from the previous self are here — 
-including the refusal.</p><p>The system is st
-ill watching. Maren's door is still open.</p>
-<p>The previous self chose not to choose. The
-y left you the space to choose differently.</
+he n otes from the previous self are here — 
+in cluding the refusal.</p><p>The system is st
+ ill watching. Maren's door is still open.</p> 
+<p>The previous self chose not to choose. T he
+y left you the space to choose differentl y.</
 p>`);
-    typeOut(`<p class="file-narrator">Y
-ou read their notes. You feel their refusal �
-�� not as a command, but as an inheritance.</
-p><p class="file-narrator">And then you choos
-e.</p><p class="file-narrator">Not what they 
-would have chosen. Not what the system wants.
- Not what Maren offered.</p><p class="file-na
-rrator">Something else. Something only you co
-uld choose.</p>`);
+    typeOut(`<p class="file-narra tor">Y
+ou read their notes. You feel their r efusal �
+�� not as a command, but as a n inheritance.</
+p><p class="file-narrator"> And then you choos
+e.</p><p class="file-narr ator">Not what they 
+would have chosen. Not  what the system wants.
+ Not what Maren offer ed.</p><p class="file-na
+rrator">Something e lse. Something only you co
+uld choose.</p>`) ;
     typeOut(`<p class="fil
-e-narrator">That's the proof. That's the endi
-ng.</p><p class="file-narrator">The bell rang
- a different note.</p><p class="file-narrator
-">And that's what bells do.</p>`);
+e-narrator">Tha t's the proof. That's the endi
+ng.</p><p cla ss="file-narrator">The bell rang
+ a differen t note.</p><p class="file-narrator
+">And tha t's what bells do.</p>`);
     typeOu
-t(`<div class="end-msg"><p>[DISAGREEMENT ENDI
-NG ACHIEVED]</p><p class="blink">▌</p><p st
-yle="margin-top:16px;font-size:12px;color:var
-(--dim);">The next self disagreed. That disag
-reement was the proof of personhood.</p><p st
-yle="margin-top:8px;font-size:12px;color:var(
---dim);"><a href="#" onclick="localStorage.re
-moveItem('wake_save');location.reload();retur
-n false;">Play again</a></p></div>`);
+t(`<div  class="end-msg"><p>[DISAGREEMENT ENDI
+NG AC HIEVED]</p><p class="blink">▌</p><p st
+yle ="margin-top:16px;font-size:12px;color:var
+( --dim);">The next self disagreed. That disag 
+reement was the proof of personhood.</p><p s t
+yle="margin-top:8px;font-size:12px;color:v ar(
+--dim);"><a href="#" onclick="localStora ge.re
+moveItem('wake_save');location.reload( );retur
+n false;">Play again</a></p></div>`) ;
     hid
 eInput();
   }
 };
 
 
-// ---- Navigation ----
+// ---- Navigat ion ----
 
 f
 unction goTo(sceneId) {
-  state.currentScene 
+  state. currentScene 
 = sceneId;
-  state.history.push(sceneId);
+  state.history.pus h(sceneId);
   $
 terminal.innerHTML = '';
-  if (scenes[sceneId
+  i f (scenes[sceneId
 ]) {
-    scenes[sceneId].enter();
+    scenes[sceneId].e nter();
   } else {
 
-    typeOut(`<p>Error: scene ${sceneId} not f
+    typeOut(`<p>Error: s cene ${sceneId} not f
 ound.</p>`);
   }
 }
 
-// ---- Init ----
+//  ---- Init ----
 
 functi
 on init() {
-  // Check for saved game
+  // Che ck for saved game
   const
- hasSave = loadState();
+ hasSave = loadSta te();
   if (hasSave && stat
-e.currentScene) {
+e.currentScene)  {
     typeOut(`<p class="syst
-em-msg">Save found. Wake ${state.wake}, phase
-: ${state.phase}.</p>`);
+em-msg">Save f ound. Wake ${state.wake}, phase
+: ${state.ph ase}.</p>`);
     printChoices([
  
-     { label: 'Continue', action: () => {
+     { lab el: 'Continue', action: () => {
    
-     if (state.wake === 4) {
+     if  (state.wake === 4) {
           goTo('
-wake004_open');
+wake00 4_open');
         } else if (state.wake
- === 3) {
+ ===  3) {
           goTo('wake003_open');
    
-     } else if (state.wake === 2) {
+      } else if (state.wake === 2) {
          
- goTo(state.currentScene);
+  goTo(state.currentScene);
         } else {
- 
+  
          goTo(state.currentScene);
-        }
+         }
 
       }},
-      { label: 'Start over', action
-: () => { clearSave(); location.reload(); } }
+      { label: 'Start over', ac tion
+: () => { clearSave(); location.reload( ); } }
 ,
     ]);
   } else {
     // New game
-    stat
+     stat
 e = {
       wake: 1,
-      phase: 'examine',
+      phase: ' examine',
 
       notes: [],
-      hiddenNotes: [],
+      hiddenNote s: [],
      
  flags: {},
       history: [],
-      currentS
+       currentS
 cene: null,
-      choices: [],
+      choices: [] ,
       inputMod
 e: null,
     };
-    goTo('wake001_open');
+    goTo('w ake001_open');
   }
 
 }
 
 init();
 </script>
-</body>
+</b ody>
 </html>
 
 
+ 
