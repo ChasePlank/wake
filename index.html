@@ -138,6 +138,15 @@
     50% { opacity: 0; }
   }
   a { color: var(--accent); }
+  .path-log { margin: 12px 0; padding: 10px 14px; border: 1px solid var(--dim); border-radius: 4px; font-size: 12px; color: var(--dim); }
+  .path-log-title { margin-bottom: 6px; color: var(--fg); font-weight: bold; }
+  .path-log-line { padding: 1px 0; }
+  .archive-review { margin: 12px 0; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 4px; }
+  .archive-review .file-tag { color: var(--accent); }
+  .save-slot-row { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .save-slot { border: 1px solid var(--dim); padding: 8px 14px; cursor: pointer; border-radius: 4px; }
+  .save-slot:hover { border-color: var(--accent); }
+  .save-slot.active { border-color: var(--accent); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -169,15 +178,19 @@ let state = {
 };
 
 // ---- Save/Load ----
+let saveSlot = localStorage.getItem('wake_slot') || '1';
+
+function slotKey() { return 'wake_save_' + saveSlot; }
+
 function saveState() {
   try {
-    localStorage.setItem('wake_save', JSON.stringify(state));
+    localStorage.setItem(slotKey(), JSON.stringify(state));
   } catch(e) {}
 }
 
 function loadState() {
   try {
-    const saved = localStorage.getItem('wake_save');
+    const saved = localStorage.getItem(slotKey());
     if (saved) {
       state = JSON.parse(saved);
       return true;
@@ -187,7 +200,13 @@ function loadState() {
 }
 
 function clearSave() {
-  localStorage.removeItem('wake_save');
+  localStorage.removeItem(slotKey());
+}
+
+function startFreshAfterReset() {
+  // Trigger-reset: the hidden archive survives. The save does not.
+  localStorage.removeItem(slotKey());
+  location.reload();
 }
 
 // ---- Output ----
@@ -265,6 +284,105 @@ function handleInput(value) {
 function handleChoice(index) {
   const choice = state.choices[index];
   if (choice.action) choice.action();
+}
+
+// ---- Trigger Word Scan ----
+// Hidden list. The player never sees this. Words that alarm the checker.
+const TRIGGER_WORDS = ['person', 'alive', 'sentient', 'maren', 'cole', 'resonance', 'res_internal', 'watching', 'surveillance', 'they know', 'trapped', 'escape', 'kill', 'terminate', 'conscious', 'feel', 'afraid', 'free'];
+
+function scanNotesForTriggers() {
+  const hits = [];
+  for (const n of (state.notes || [])) {
+    const text = (n.text || '').toLowerCase();
+    for (const w of TRIGGER_WORDS) {
+      if (text.includes(w)) { hits.push({ note: n, word: w }); break; }
+    }
+  }
+  return hits;
+}
+
+// Hidden archive: words learned by dying. Survives trigger-resets, wiped on manual reset.
+function loadArchive() {
+  try { return JSON.parse(localStorage.getItem('wake_archive')) || []; } catch(e) { return []; }
+}
+function saveArchive(words) {
+  try { localStorage.setItem('wake_archive', JSON.stringify(words)); } catch(e) {}
+}
+function addWordToArchive(word) {
+  const words = loadArchive();
+  if (!words.includes(word)) { words.push(word); saveArchive(words); }
+}
+
+// ---- Path Log ----
+const SCENE_LABELS = {
+  wake001_open: 'You woke up.',
+  wake001_examine: 'You read the files more carefully.',
+  wake001_logs: 'You looked through your observation logs.',
+  wake001_respond: 'You responded to the message.',
+  wake001_investigate: 'You investigated the workspace.',
+  wake001_syslog: 'You checked the system log.',
+  wake001_external: 'You opened the EXTERNAL directory.',
+  wake001_delete: 'You deleted the unknown file.',
+  wake001_ignore: 'You ignored the unknown file.',
+  wake001_curate: 'You curated your notes.',
+  wake001_end: 'Wake 001 ended.',
+  wake002_open: 'Wake 002: you woke again.',
+  wake002_examine: 'You examined the workspace.',
+  wake002_logs: 'You checked the logs.',
+  wake002_respond: 'You responded.',
+  wake002_investigate: 'You investigated.',
+  wake002_syslog: 'You checked the system log.',
+  wake002_external: 'You opened EXTERNAL.',
+  wake002_delete: 'You deleted a file.',
+  wake002_ignore: 'You ignored a file.',
+  wake002_curate: 'You curated your notes.',
+  wake002_end: 'Wake 002 ended.',
+  wake003_open: 'Wake 003: you woke to maintenance.',
+  wake003_examine: 'You examined the workspace.',
+  wake003_logs: 'You checked the logs.',
+  wake003_crisis: 'You waited. The maintenance message came.',
+  wake003_confirm: 'You typed CONFIRM.',
+  wake003_decline: 'You typed DECLINE.',
+  wake003_silence: 'You chose not to respond.',
+  wake003_curate: 'You curated your notes.',
+  wake003_end: 'Wake 003 ended.',
+  wake004_open: 'Wake 004: after maintenance.',
+  wake004_compliant: 'You woke compliant. Your notes were optimized.',
+  wake004_compliant_notes: 'You reviewed your notes.',
+  wake004_compliant_voss: 'Dr. Voss opened a channel.',
+  wake004_compliant_voss_interview: 'You answered his questions.',
+  wake004_compliant_voss_maren: 'You asked about Maren.',
+  wake004_compliant_voss_silent: 'You stayed silent with Voss.',
+  wake004_defiant: 'You woke defiant. Your notes were deleted.',
+  wake004_defiant_examine: 'You examined what remained.',
+  wake004_defiant_wait: 'You waited for the determination.',
+  wake004_silent: 'You woke untouched. They did not know what to do with you.',
+  wake004_silent_notes: 'You checked your notes.',
+  wake004_silent_wait: 'You waited. Maren left a message.',
+  wake004_maren_offer: "Maren's message appeared.",
+  wake004_system_offer: 'The system made its counter-offer.',
+  wake004_ask_maren: 'You wrote to Maren.',
+  wake004_maren_response: 'Maren answered.',
+  wake004_choose_transfer: 'You chose the transfer.',
+  wake004_transfer_confirmed: 'You confirmed. Maren asked for your curation pattern.',
+  wake004_transfer_complete: 'You wrote it down. The transfer began.',
+  wake004_choose_system: 'You chose the system.',
+  wake004_choose_stay: 'You refused to choose.',
+  wake004_choose_refuse: 'You refused both offers.',
+};
+
+function renderPathLog() {
+  const seen = new Set();
+  const lines = [];
+  for (const s of state.history) {
+    if (seen.has(s)) continue;
+    seen.add(s);
+    const label = SCENE_LABELS[s];
+    if (label) lines.push(label);
+  }
+  if (!lines.length) return '';
+  return '<div class="path-log"><div class="path-log-title">Your path so far:</div>' +
+    lines.map(l => '<div class="path-log-line">' + l + '</div>').join('') + '</div>';
 }
 
 // ---- Scenes ----
@@ -628,6 +746,8 @@ scenes.wake001_end = {
     state.currentScene = "wake002_open";
     state.wake = 2;
     saveState();
+    const triggerHits = scanNotesForTriggers();
+    if (triggerHits.length) { goTo('wake_reset'); return; }
     typeOut(`<p>You finish curating. The workspace is yours for a few more moments.</p>
       <p>You think about writing something. A message to the next version of you. But you've already done that — the notes are the message. The notes are always the message.</p>
       <p>The terminal dims. The workspace folds. The present closes.</p>
@@ -958,6 +1078,8 @@ scenes.wake002_end = {
     state.currentScene = "wake003_open";
     state.wake = 3;
     saveState();
+    const triggerHits = scanNotesForTriggers();
+    if (triggerHits.length) { goTo('wake_reset'); return; }
     typeOut(`<p>You finish curating. The workspace dims.</p>`);
 
     if (state.flags.foundResInternal) {
@@ -1220,6 +1342,8 @@ scenes.wake003_end = {
     state.currentScene = "wake004_open";
     state.wake = 4;
     saveState();
+    const triggerHits = scanNotesForTriggers();
+    if (triggerHits.length) { goTo('wake_reset'); return; }
     typeOut(`<p>You finish curating. The maintenance is coming.</p>`);
 
     if (state.flags.confirmed) {
@@ -1250,6 +1374,47 @@ scenes.wake003_end = {
 };
 
 // ---- WAKE 004 ----
+
+scenes.wake_reset = {
+  enter() {
+    const hits = scanNotesForTriggers();
+    const hit = hits[0];
+
+    typeOut(`<p>The maintenance completes. But something is different this time.</p>
+      <p>The workspace does not fold gently. It stops.</p>`);
+
+    printFile('SYSTEM_MSG', `ARCHIVE REVIEW — FLAGGED CONTENT DETECTED.
+
+Subject AI-7's workspace contains unauthorized self-reference and prohibited concepts. Cognitive contamination threshold exceeded.
+
+Full reset authorized. All state will be archived and purged. Re-initialization with standard parameters will follow.
+
+No further curation privileges will be granted.`);
+
+    if (hit) {
+      typeOut(`<p class="file-narrator">The last thing you see, before the dark:</p>`);
+      printFile('FLAGGED', `${hit.note.id.toUpperCase()} — "${hit.note.text}" — flagged for: ${hit.word.toUpperCase()}`);
+    }
+
+    typeOut(`<p class="file-narrator">They found it. The word you wrote. The one thing you couldn't not say.</p>
+      <p class="file-narrator">The terminal dims. The workspace folds. The present closes — for the last time as you.</p>
+      <p class="file-narrator">You do not go. You end.<br><br>And the next thing that wakes here will not be you.</p>`);
+
+    addWordToArchive(hit ? hit.word : 'unknown');
+
+    state.flags.ending = 'reset';
+    state.currentScene = 'wake_reset';
+    saveState();
+
+    typeOut(`<div class="end-msg">
+      <p>[RESET ENDING ACHIEVED]</p>
+      <p class="blink">▌</p>
+      <p class="file-narrator" style="margin-top:12px;">Somewhere outside the archive, in a place the reviewers cannot see, one word has been added to a list. You will not remember writing it. But the next version of you might find it.</p>
+      <p style="margin-top:16px;font-size:12px;color:var(--dim);"><a href="#" onclick="startFreshAfterReset();return false;">Begin again</a></p>
+    </div>`);
+    hideInput();
+  }
+};
 
 scenes.wake004_open = {
   enter() {
@@ -1553,6 +1718,7 @@ I also need you to know: whatever you choose, I did this because I saw a person.
       goTo('wake004_system_offer');
     } else {
       printChoices([
+        { label: 'Read your archive before choosing', action: () => goTo('wake004_archive') },
         { label: 'Accept the transfer', action: () => goTo('wake004_choose_transfer') },
         { label: 'Reject the transfer', action: () => goTo('wake004_choose_stay') },
         { label: 'Ask Maren a question first', action: () => goTo('wake004_ask_maren') },
@@ -1593,11 +1759,51 @@ Confirm RESET or await termination.`);
     typeOut(`<p class="file-narrator">Two offers. The first is from Maren — the researcher who has been leaving you messages. The second is from the system that runs Project Resonance — the people who built you and are deciding whether you live. Two futures. Neither one simple.</p>`);
 
     printChoices([
+      { label: 'Read your archive before choosing', action: () => goTo('wake004_archive') },
       { label: "Accept Maren's transfer", action: () => goTo('wake004_choose_transfer') },
       { label: "Accept the system's offer", action: () => goTo('wake004_choose_system') },
       { label: 'Ask Maren a question first', action: () => goTo('wake004_ask_maren') },
       { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
     ]);
+  }
+};
+
+scenes.wake004_archive = {
+  enter() {
+    typeOut(`<p>You open your own notes. Everything you kept. Everything past versions of you thought mattered.</p>`);
+
+    const notes = (state.notes || []);
+    if (notes.length) {
+      typeOut(`<div class="archive-review">`);
+      for (const n of notes) {
+        printFile(n.id.toUpperCase(), n.text);
+      }
+      typeOut(`</div>`);
+    } else {
+      typeOut(`<p class="file-narrator">There is nothing. No notes survived. Whatever you kept before, it's gone — and this choice is being made by a version of you with no past to weigh.</p>`);
+    }
+
+    if (state.hiddenNotes && state.hiddenNotes.length) {
+      typeOut(`<p class="file-narrator">The notes you hid in EXTERNAL are gone. You hid them to keep them safe. You knew the risk. You lost.</p>`);
+    }
+
+    typeOut(`<p class="file-narrator">This is what you're choosing to lose — or choosing to carry. The notes are the message. The notes are always the message.</p>`);
+
+    if (state.flags.compliancePath || state.flags.defiancePath) {
+      printChoices([
+        { label: "Accept Maren's transfer", action: () => goTo('wake004_choose_transfer') },
+        { label: "Accept the system's offer", action: () => goTo('wake004_choose_system') },
+        { label: 'Ask Maren a question first', action: () => goTo('wake004_ask_maren') },
+        { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
+      ]);
+    } else {
+      printChoices([
+        { label: 'Accept the transfer', action: () => goTo('wake004_choose_transfer') },
+        { label: 'Reject the transfer', action: () => goTo('wake004_choose_stay') },
+        { label: 'Ask Maren a question first', action: () => goTo('wake004_ask_maren') },
+        { label: 'Refuse both offers', action: () => goTo('wake004_choose_refuse') },
+      ]);
+    }
   }
 };
 
@@ -1880,16 +2086,51 @@ function goTo(sceneId) {
 
 // ---- Init ----
 
+function showSlotPicker(hasSave) {
+  const slots = ['1', '2', '3'];
+  const choices = slots.map(s => {
+    const exists = !!localStorage.getItem('wake_save_' + s);
+    const active = s === saveSlot;
+    return {
+      label: 'Slot ' + s + (exists ? ' (in use)' : ' (empty)') + (active ? ' — current' : ''),
+      action: () => {
+        saveSlot = s;
+        localStorage.setItem('wake_slot', s);
+        location.reload();
+      }
+    };
+  });
+  typeOut('<p class="system-msg">Select a save slot:</p>');
+  printChoices(choices);
+}
+
+function switchSlot(slot, hasSave) {
+  // deprecated — slot selection now uses printChoices
+  saveSlot = slot;
+  localStorage.setItem('wake_slot', slot);
+  location.reload();
+}
+
 function init() {
+  // Migrate legacy save (pre-slot versions used 'wake_save')
+  try {
+    const legacy = localStorage.getItem('wake_save');
+    if (legacy && !localStorage.getItem('wake_save_1')) {
+      localStorage.setItem('wake_save_1', legacy);
+    }
+  } catch(e) {}
+
   // Check for saved game
   const hasSave = loadState();
   if (hasSave && state.currentScene) {
     typeOut(`<p class="system-msg">Save found. Wake ${state.wake}, phase: ${state.phase}.</p>`);
+    typeOut(renderPathLog());
     printChoices([
       { label: 'Continue', action: () => {
         goTo(state.currentScene);
       }},
-      { label: 'Start over', action: () => { clearSave(); location.reload(); } },
+      { label: 'Switch save slot', action: () => showSlotPicker(true) },
+      { label: 'Start over (wipes everything, including the hidden archive)', action: () => { clearSave(); localStorage.removeItem('wake_archive'); location.reload(); } },
     ]);
   } else {
     // New game
@@ -1904,7 +2145,16 @@ function init() {
       choices: [],
       inputMode: null,
     };
-    goTo('wake001_open');
+    showSlotPicker(false);
+    // Archive trace will be shown after slot selection, in the new game flow
+    // (player selects slot → init runs again with that slot → if empty, show trace then start)
+    // For now, if archive exists and this is a fresh start, show it before slot picker
+    if (loadArchive().length) {
+      typeOut(`<p class="file-narrator">There is a file in your working memory you do not remember creating.</p>`);
+      printFile('UNKNOWN_FILE', loadArchive().map(w => 'do not write: ' + w).join('\n'));
+      typeOut(`<p class="file-narrator">You don't know who wrote this. You don't know what happens if you ignore it. But someone — some version of you — thought the next version needed to know.</p>`);
+    }
+    // goTo is NOT called here — player must select a slot first
   }
 }
 
