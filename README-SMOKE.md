@@ -60,3 +60,32 @@ mistake about your model of it, not about the thing itself.
 
 **Retired:** `trigger-test.js`, the UI drive. It was superseded by this and was failing for reasons about my
 harness rather than the game. It is in the history if the slow path is ever wanted.
+
+
+## path-search.js — is a scene reachable IN PLAY
+
+`CAP=250000 node path-search.js` — a state-carrying search from wake 1, exploring every path and carrying the
+game's own flags and notes forward. This answers the question a scene-by-scene walk cannot: **which scenes a
+player can actually reach.**
+
+```
+scenes reached IN PLAY: 44 of 60      scenes beyond wake 1: 33
+  wake 1: 11/12   wake 2: 9/10   wake 3: 8/9   wake 4: 13/24   wake 5: 3/4
+```
+
+It reports whether the search **finished** or hit its cap, because an unfinished search makes scenes *unproven*
+rather than unreachable — the same line the Aside auditor draws between CLEAN and INCONCLUSIVE.
+
+Two things it knows that are worth knowing before changing it:
+
+- **A transient scene is never observable.** `wake001_end` runs its scan and advances inside one synchronous
+  `goTo`, so no search can see it as a current scene. Its absence from the reached list is correct.
+- **The console must stay silenced.** Every transition renders and every render calls `scrollTo`; leaving
+  jsdom's virtual console active emitted **74 MB** of "not implemented" warnings in one run, which slowed the
+  search enough that it was killed before finishing. `path-search.js` passes a `VirtualConsole` with no
+  listeners. Do not remove it.
+
+**Retired:** `reachability.js`, the scene-by-scene walker. It reported 28 of 60 scenes unreachable, and most of
+that was its own method — it visits each scene from a cleared state, so transient scenes and flag-gated edges
+both read as stranded. The path search supersedes it entirely. It is in the history if the per-scene choice
+catalogue is ever wanted.
