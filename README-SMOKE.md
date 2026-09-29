@@ -33,3 +33,30 @@ entry screen that reads it at load time. The check is now real, and the code say
 
 jsdom gives every instance its own `localStorage`, so persistence is carried across by hand.
 That is the browser's job in reality and the harness's here.
+
+
+## mechanic-test.js — the trigger-word mechanic, tested directly
+
+`node mechanic-test.js` — 4 checks, seconds, no driving.
+
+**What it proves:** a note the PLAYER writes containing a trigger word reaches the reset ending at the
+checkpoint; the SAME words in the game's own orientation note do not; a player note without trigger words
+does not; and with no notes at all there is no reset.
+
+**Why it is not a UI drive.** Driving works, but it took three hours and eight separate harness bugs: wake 1
+is a hub whose rooms loop, the dialogue wants specific answers, prompts and clicks are two more interaction
+modes, and every one of my loops got one of those wrong in turn. The game exposes everything this mechanic
+needs — `state` is reachable through `eval`, `goTo` is global — so a checkpoint can be entered with a note
+already in place:
+
+```js
+w.eval("state.notes = " + JSON.stringify(notes));
+w.goTo('wake001_end');
+```
+
+**Seven seconds, and no interaction model to get wrong.** The rule this produced, which generalises: when a
+system provides an API, test through the API. Re-implementing its behaviour means every mistake you make is a
+mistake about your model of it, not about the thing itself.
+
+**Retired:** `trigger-test.js`, the UI drive. It was superseded by this and was failing for reasons about my
+harness rather than the game. It is in the history if the slow path is ever wanted.
