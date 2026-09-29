@@ -27,8 +27,12 @@ const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true
 const w = dom.window;
 
 const CAP = 40000;                    // frontier ceiling; the state space is small, but a bug should not hang
+// Notes are recorded WITH their provenance. The first version kept only the text and rebuilt them as
+// player notes on restore, which stripped the `game: true` flag from the game's own orientation notes -
+// so the trigger scan fired on them, every state reset, and the search reproduced the original bug by
+// construction while appearing to measure it. A harness that reconstructs state must reconstruct ALL of it.
 const SNAP = `JSON.stringify({wake: state.wake, phase: state.phase, flags: state.flags,
-  notes: (state.notes || []).map(n => n.text), currentScene: state.currentScene})`;
+  notes: (state.notes || []).map(n => (n.game ? 'g:' : 'p:') + n.text), currentScene: state.currentScene})`;
 
 function sig(step) {
   // The scene belongs here and was missing: without it every state in the same scene with the same flags
@@ -43,7 +47,9 @@ const tick = () => new Promise(r => setImmediate(r));      // let the queued tra
 const restore = (s) => w.eval(`state.wake = ${JSON.stringify(s.wake)};
   state.phase = ${JSON.stringify(s.phase)};
   state.flags = ${JSON.stringify(s.flags)};
-  state.notes = ${JSON.stringify(s.notes.map(t => ({ id: 'x', tag: 'new', text: t })))};`);
+  state.notes = ${JSON.stringify(s.notes)}.map(t => t.startsWith('g:')
+      ? { id: 'g', tag: 'context', game: true, text: t.slice(2) }
+      : { id: 'p', tag: 'new', text: t.slice(2) });`);
 
 (async () => {
 const start = { wake: 1, phase: 'examine', flags: {}, notes: [], currentScene: 'wake001_open' };
@@ -79,7 +85,7 @@ while (queue.length && seen.size < CAP) {
     await tick();
     const next = read();
     edges++;
-    if (traceOn && trace.length < 24) {
+    if (traceOn && trace.length < 60 && !(s.currentScene.startsWith('wake001_') && next.currentScene.startsWith('wake001_'))) {
       trace.push(`   ${s.currentScene}  --[${String(label).slice(0, 26)}]-->  ${next.currentScene}`);
     }
     if (!next.currentScene) continue;
@@ -101,16 +107,15 @@ console.log('signature sample:');
 for (const k of sample) console.log('   ' + k.slice(0, 110));
 const distinctScenesInKeys = new Set([...seen.keys()].map(k => k.split('|')[0])).size;
 console.log(`distinct scenes among explored states: ${distinctScenesInKeys}`);
-if (dead === 0) {
-  // Keyed on the impossibility itself, not on a size threshold - the first version required a frontier of
-  // fewer than 30 states, so it stayed silent through a 1359-state run that was equally untrustworthy.
-  // This story has nine ending scenes. Reaching none of them across a full search cannot be true.
-  console.log();
-  console.log('RESULT NOT TRUSTWORTHY: no ending was ever entered, across every state explored.');
-  console.log('This story has ending scenes, so a complete search must reach at least one. That means');
-  console.log('transitions are not landing - most likely they are queued with a delay longer than the');
-  console.log('tick this search waits - and every scene beyond the first wake will look unreachable.');
-}
+// No warning keyed on `dead === 0` any more. It was written when zero terminals looked impossible - and
+// then a working search still reported zero, because this game's endings all offer a choice of their own
+// ("wake again"), so a terminal state is rare rather than absent. The warning was firing on correct output.
+// The honest report is the numbers, and whether the search finished: a hit cap means the unreachable list
+// is UNPROVEN for everything past what was reached, not wrong.
+console.log(seen.size >= CAP
+  ? `SEARCH INCOMPLETE: state cap of ${CAP} reached. Scenes not listed as reached are UNPROVEN, not`
+    + ' unreachable - the Aside auditor draws the same line between CLEAN and INCONCLUSIVE.'
+  : 'search complete: the frontier emptied, so the reached set is exhaustive.');
 console.log(`scenes reached IN PLAY: ${reachable.size} of ${scenes.length}`);
 for (const n of [1, 2, 3, 4, 5]) {
   const family = scenes.filter(s => s.startsWith('wake00' + n));
