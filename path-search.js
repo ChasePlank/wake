@@ -52,23 +52,36 @@ const queue = [start];
 const reachable = new Set();
 const firstPath = new Map();
 let edges = 0, dead = 0;
+const trace = [];
+let traceOn = process.env.TRACE !== '0';   // on by default: a search that hides its edges hides its bugs
 
 while (queue.length && seen.size < CAP) {
   const s = queue.shift();
   restore(s);
   w.eval(`goTo(${JSON.stringify(s.currentScene)})`);
   await tick();
-  reachable.add(s.currentScene);
+  // A transient scene - one whose enter() runs and immediately advances, like a checkpoint - leaves
+  // currentScene somewhere else. That successor is the real state; the scene I asked for is just a place
+  // the player passes through. Recording reachability against the REQUESTED scene is what made checkpoints
+  // look unreachable and made the choices taken belong to the wrong scene.
+  const effective = String(w.eval('state.currentScene'));
+  reachable.add(effective);
+  if (effective !== s.currentScene) reachable.add(s.currentScene);
+  s.currentScene = effective;
   const n = w.eval('(state.choices || []).length');
   if (n === 0) { dead++; continue; }
   for (let i = 0; i < n; i++) {
     restore(s);
     w.eval(`goTo(${JSON.stringify(s.currentScene)})`);
     await tick();
+    const label = w.eval(`(state.choices[${i}] || {}).label || '?'`);
     w.eval(`state.choices[${i}].action();`);
-    await tick();                                         // the transition is queued; let it land
+    await tick();
     const next = read();
     edges++;
+    if (traceOn && trace.length < 24) {
+      trace.push(`   ${s.currentScene}  --[${String(label).slice(0, 26)}]-->  ${next.currentScene}`);
+    }
     if (!next.currentScene) continue;
     const k = sig(next);
     if (!seen.has(k)) { seen.set(k, s); queue.push(next); firstPath.set(k, s.currentScene + ' -> ' + next.currentScene); }
@@ -83,6 +96,7 @@ console.log(`states explored:  ${seen.size}   edges taken: ${edges}   terminal s
 // signature, and no amount of reasoning about the search would have shown it - printing three signatures
 // would have. A tool whose failure mode is "collapsed to ten states" should say what it is comparing.
 const sample = [...seen.keys()].slice(0, 3);
+if (traceOn) { console.log('edge trace:'); for (const t of trace) console.log(t); }
 console.log('signature sample:');
 for (const k of sample) console.log('   ' + k.slice(0, 110));
 const distinctScenesInKeys = new Set([...seen.keys()].map(k => k.split('|')[0])).size;
@@ -104,6 +118,11 @@ for (const n of [1, 2, 3, 4, 5]) {
   console.log(`  wake ${n}: ${ok.length}/${family.length}` + (ok.length < family.length
     ? '   missing: ' + family.filter(s => !reachable.has(s)).join(', ') : '   ALL REACHABLE'));
 }
+// Which scene first led to each wake-2+ scene, if any did.
+const reachedWakes = [...reachable].filter(x => !x.startsWith('wake001_') && x !== 'wake_reset');
+console.log(`scenes reached beyond wake 1: ${reachedWakes.length}`);
+for (const x of reachedWakes.slice(0, 12)) console.log('   ' + x + '   first seen arriving from: '
+  + ([...firstPath.entries()].find(([k]) => k.includes(x)) || ['', '?'])[1]);
 console.log(`unreachable in play: ${unreachable.length}`);
 for (const s of unreachable) console.log('   !! ' + s);
 fs.writeFileSync('/root/workspace/wake-reachable.txt', [...reachable].sort().join('\n'));
