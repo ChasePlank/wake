@@ -97,8 +97,14 @@ const ALL_SCENES = fs.readFileSync('/root/workspace/wake-scenes.txt', 'utf8').tr
 const reachedScenes = new Set(['wake001_open']);
 
 const t0 = Date.now();
+// The script owns its deadline. The first version relied on the shell's timeout, which the script cannot see,
+// so a truncated run printed its numbers and read like a finished one - and I reported "44 is the reachable
+// set" from two runs that were both cut short. The Aside auditor draws exactly this line between CLEAN and
+// INCONCLUSIVE; this tool was written later and did not carry the pattern across. Fixing that is the point.
+const DEADLINE = t0 + parseInt(process.env.SECONDS || '240', 10) * 1000;
 let lastReport = 0;
-while (queue.length && seen.size < CAP && reachedScenes.size < ALL_SCENES.length) {
+while (queue.length && seen.size < CAP && reachedScenes.size < ALL_SCENES.length
+       && Date.now() < DEADLINE) {
   // Report the rate, not just the total. Three times in one hour I reasoned that a frontier structure was
   // fast enough and was wrong - a linear best-first, then buckets whose pop scanned every key. A rate makes
   // that visible while the search runs, instead of leaving it to be discovered as a timeout.
@@ -170,13 +176,21 @@ console.log(`distinct scenes among explored states: ${distinctScenesInKeys}`);
 // ("wake again"), so a terminal state is rare rather than absent. The warning was firing on correct output.
 // The honest report is the numbers, and whether the search finished: a hit cap means the unreachable list
 // is UNPROVEN for everything past what was reached, not wrong.
+const stopReason = reachedScenes.size >= ALL_SCENES.length ? 'goal reached'
+  : (Date.now() >= DEADLINE ? `deadline (${(DEADLINE - t0) / 1000}s)` : (seen.size >= CAP ? `state cap (${CAP})` : 'frontier emptied'));
+console.log(`stopped because: ${stopReason}`);
 console.log(reachedScenes.size >= ALL_SCENES.length
   ? `SEARCH COMPLETE BY GOAL: every one of ${ALL_SCENES.length} scenes was reached, so the reached set is`
     + ' exhaustive and any scene NOT listed is genuinely unreachable.'
   : seen.size >= CAP
   ? `SEARCH INCOMPLETE: state cap of ${CAP} reached. Scenes not listed as reached are UNPROVEN, not`
     + ' unreachable - the Aside auditor draws the same line between CLEAN and INCONCLUSIVE.'
-  : 'search complete: the frontier emptied, so the reached set is exhaustive.');
+  : (stopReason === 'frontier emptied'
+      ? 'SEARCH COMPLETE: the frontier emptied, so the reached set is exhaustive and any scene NOT listed is'
+        + ' genuinely unreachable.'
+      : `SEARCH INCOMPLETE (${stopReason}): the ${ALL_SCENES.length - reachedScenes.size} scenes not listed are`
+        + ' UNPROVEN, not unreachable. Raise SECONDS or CAP and run again - and read the stop reason before'
+        + ' believing any number above it.'));
 console.log(`scenes reached IN PLAY: ${reachable.size} of ${scenes.length}`);
 for (const n of [1, 2, 3, 4, 5]) {
   const family = scenes.filter(s => s.startsWith('wake00' + n));
