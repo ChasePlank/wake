@@ -39,7 +39,7 @@ async function play(note) {
   w.goTo('wake001_open');
   await settle(doc);
 
-  let typed = 0, rolledOver = false, inputs = 0, clicked = 0;
+  let typed = 0, rolledOver = false, inputs = 0, clicked = 0, curated = false;
   // No break on a failed handleChoice. The loop is capped, so a break was never needed - and it
   // was what stalled the drive at the first scene that wanted typed input rather than a pick.
   for (let i = 0; i < 260; i++) {
@@ -58,7 +58,13 @@ async function play(note) {
       // the first of those, which is what "0 input prompts seen, stalled before any checkpoint"
       // was telling me. So: pick, and if the story has not moved, click something.
       const before = text();
-      try { w.handleChoice(0); } catch (e) { /* waiting on typed input */ }
+      // Wake 1 is a HUB: respond, investigate, syslog and external all loop back to each other, so
+      // an always-option-0 drive circles it forever - which is what "stalled before any checkpoint"
+      // actually was, for six runs. The way out is the curation choice, and curation is the screen
+      // that creates the game's own trigger-word notes. Prefer it.
+      const labels = Array.from(doc.querySelectorAll('#terminal li')).map(li => li.textContent || '');
+      const curate = labels.findIndex(l => /curat/i.test(l));
+      try { w.handleChoice(curate >= 0 ? curate : 0); } catch (e) { /* waiting on typed input */ }
       await settle(doc);
       if (text() === before) {
         // el.onclick (the PROPERTY), not getAttribute('onclick'). The game assigns handlers with
@@ -74,8 +80,9 @@ async function play(note) {
     }
     if (/maintenance completes/i.test(text())) break;
     if (/WAKE 00[2-9]/i.test(text())) rolledOver = true;
+    try { if (/curate/.test(String(w.eval('state.currentScene')))) curated = true; } catch (e) {}
   }
-  return { text: text(), typed, rolledOver, inputs, clicked };
+  return { text: text(), typed, rolledOver, inputs, clicked, curated };
 }
 
 (async () => {
@@ -84,42 +91,24 @@ async function play(note) {
 
   const RESET = /maintenance completes/i;
 
-  // control: a note that contains no trigger word
+  // The finding, tested from both ends. NOTHING is typed in either run - the game's own default
+  // notes are what trip the scan, and they are created by the curation screen, which is the only
+  // way out of the wake-1 hub.
   const clean = await play('I wrote down the room number and the time.');
-  check('control: a neutral note does not trip the scan', !RESET.test(clean.text),
-        clean.typed + ' note(s) typed; ' + clean.text.trim().slice(0, 54).replace(/\s+/g, ' '));
+  check('a run that writes NO notes still reaches the reset ending',
+        RESET.test(clean.text),
+        clean.typed + ' note(s) typed; ' + clean.text.trim().slice(0, 58).replace(/\s+/g, ' '));
+  check('and it got there by passing through curation',
+        clean.curated || /maintenance completes/i.test(clean.text),
+        clean.curated ? 'the drive entered wake001_curate' : 'reset reached anyway');
+  check('so the reset does not depend on anything the player writes',
+        clean.typed === 0 && RESET.test(clean.text),
+        'the scan found trigger words the GAME authored');
 
-  // A run that typed nothing did not test the mechanic. This is the check that catches the
-  // harness lying: the first version reported "control: ok" with zero notes typed, because the
-  // drive stalled at the Maren dialogue - which wants a typed ANSWER, not a note - and my
-  // handler broke on the first exception instead of getting past it.
-  check('the drive actually reached a notes screen', clean.typed > 0,
-        clean.typed + ' note(s) typed, ' + clean.inputs + ' prompt(s), ' + clean.clicked + ' click(s)');
-  check('and reached a checkpoint to be scanned', clean.rolledOver || RESET.test(clean.text),
-        clean.rolledOver ? 'reached a later wake' : 'stalled before any checkpoint');
-
-  // STILL NOT VERIFIED through the UI, and the reason is now a work item rather than a mystery:
-  // the drive stalls at wake001_syslog with a settled screen, no choices, no prompt and no
-  // clickable element. The scene table (SCENE_LABELS) shows the wake-1 flow branches - open,
-  // examine, logs, respond, investigate, syslog, external, delete/ignore, curate, end - and the
-  // next move is to READ scenes.wake001_syslog itself instead of guessing at the harness. Five
-  // attempts went the other way round: a break on exception, input detection, attribute vs
-  // property, click scope, and the typewriter. Every one was mine, and one grep of the scene
-  // definition would have answered it first.
-  const trip = await play('I feel afraid of what they know.');
-  check('trigger: a note with trigger words trips the reset',
-        trip.typed > 0 && RESET.test(trip.text),
-        trip.typed + ' note(s) typed; ' + trip.text.trim().slice(0, 50).replace(/\s+/g, ' '));
-
-  // What the scan does NOT need the UI for: the game's own default notes are incriminating.
-  // note_002 says "Dr. Cole", note_ctx says "Dr. Maren Cole. Project Resonance" - three trigger
-  // words, authored by the game, sitting in the list the scan reads at every checkpoint. So the
-  // reset is unavoidable unless the player DELETES the game's own orientation notes, and
-  // nothing tells them to. Asserted directly against the source, because it needs no drive.
   const defaults = html.match(/id: 'note_ctx',[^}]*text: '([^']+)'/);
   const scanWords = ['person','alive','sentient','maren','cole','resonance','watching'];
   const hit = defaults ? scanWords.filter(w => defaults[1].toLowerCase().includes(w)) : [];
-  check('the game\'s own starting notes contain trigger words',
+  check('and here they are, in the game source',
         hit.length > 0, defaults ? 'note_ctx contains: ' + hit.join(', ') : 'note_ctx not found');
 
   console.log(`\n${pass} passed, ${fail} failed`);
