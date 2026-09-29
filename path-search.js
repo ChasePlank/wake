@@ -62,15 +62,56 @@ const restore = (s) => w.eval(`state.wake = ${JSON.stringify(s.wake)};
 (async () => {
 const start = { wake: 1, phase: 'examine', flags: {}, notes: [], currentScene: 'wake001_open' };
 const seen = new Map([[sig(start), null]]);
-const queue = [start];
+
+// GOAL-DIRECTED, not exhaustive. The first version used a FIFO queue and explored breadth-first until it
+// hit a state cap - 250,000 states did not finish, because scenes times flag combinations is combinatorial.
+// But reachability does not need the whole space: it needs ONE path to each scene. So the frontier is
+// searched best-first, preferring the state whose scene has been reached least often, which streaks toward
+// unexplored territory instead of re-treading the hub. And the search STOPS when every scene is reached,
+// because that is the question. The cap becomes a safety net rather than the stopping condition.
+const sceneVisits = new Map();
+// Bucketed frontier, not a linear scan. Preferring the least-visited scene is the right rule, but the first
+// implementation searched the whole queue for it on every pop - O(n^2) - and that is what made a
+// goal-directed search take minutes instead of seconds. Buckets keyed by visit count give the same order in
+// O(1): always take from the lowest non-empty bucket.
+const buckets = new Map([[0, [start]]]);
+const pushState = (st) => {
+  const v = sceneVisits.get(st.currentScene) || 0;
+  if (!buckets.has(v)) buckets.set(v, []);
+  buckets.get(v).push(st);
+};
+const popState = () => {
+  let min = Infinity;
+  for (const k of buckets.keys()) if (buckets.get(k).length && k < min) min = k;
+  if (min === Infinity) return null;
+  return buckets.get(min).pop();
+};
+const queue = { get length() { return [...buckets.values()].reduce((n, b) => n + b.length, 0); } };
 const reachable = new Set();
 const firstPath = new Map();
-let edges = 0, dead = 0;
+let edges = 0, dead = 0, skipped = 0;
 const trace = [];
 let traceOn = process.env.TRACE !== '0';   // on by default: a search that hides its edges hides its bugs
 
-while (queue.length && seen.size < CAP) {
-  const s = queue.shift();
+const ALL_SCENES = fs.readFileSync('/root/workspace/wake-scenes.txt', 'utf8').trim().split('\n');
+const reachedScenes = new Set(['wake001_open']);
+
+const t0 = Date.now();
+let lastReport = 0;
+while (queue.length && seen.size < CAP && reachedScenes.size < ALL_SCENES.length) {
+  // Report the rate, not just the total. Three times in one hour I reasoned that a frontier structure was
+  // fast enough and was wrong - a linear best-first, then buckets whose pop scanned every key. A rate makes
+  // that visible while the search runs, instead of leaving it to be discovered as a timeout.
+  if (seen.size - lastReport >= 20000) {
+    lastReport = seen.size;
+    const secs = (Date.now() - t0) / 1000;
+    console.log(`  ... ${seen.size} states, ${reachedScenes.size}/${ALL_SCENES.length} scenes, `
+      + `${Math.round(seen.size / secs)} states/sec, frontier ${queue.length}`);
+  }
+  const s = popState();
+  if (!s) break;
+  sceneVisits.set(s.currentScene, (sceneVisits.get(s.currentScene) || 0) + 1);
+  reachedScenes.add(s.currentScene);
   restore(s);
   w.eval(`goTo(${JSON.stringify(s.currentScene)})`);
   await tick();
@@ -80,7 +121,8 @@ while (queue.length && seen.size < CAP) {
   // look unreachable and made the choices taken belong to the wrong scene.
   const effective = String(w.eval('state.currentScene'));
   reachable.add(effective);
-  if (effective !== s.currentScene) reachable.add(s.currentScene);
+  reachedScenes.add(effective);
+  if (effective !== s.currentScene) { reachable.add(s.currentScene); reachedScenes.add(s.currentScene); }
   s.currentScene = effective;
   const n = w.eval('(state.choices || []).length');
   if (n === 0) { dead++; continue; }
@@ -88,6 +130,12 @@ while (queue.length && seen.size < CAP) {
     restore(s);
     w.eval(`goTo(${JSON.stringify(s.currentScene)})`);
     await tick();
+    // Re-read the count at the point of use. The count measured after entering the scene can differ from the
+    // count here, because a scene whose enter() advances in a CHAIN leaves the successor's list - and that
+    // list may be shorter. Believing the earlier count crashed the search with "undefined (reading 'action')".
+    // Anything that can move under you should be read where it is used, not before.
+    const here = w.eval('(state.choices || []).length');
+    if (i >= here) { skipped++; continue; }
     const label = w.eval(`(state.choices[${i}] || {}).label || '?'`);
     w.eval(`state.choices[${i}].action();`);
     await tick();
@@ -98,13 +146,15 @@ while (queue.length && seen.size < CAP) {
     }
     if (!next.currentScene) continue;
     const k = sig(next);
-    if (!seen.has(k)) { seen.set(k, s); queue.push(next); firstPath.set(k, s.currentScene + ' -> ' + next.currentScene); }
+    if (!seen.has(k)) { seen.set(k, s); pushState(next); firstPath.set(k, s.currentScene + ' -> ' + next.currentScene); }
   }
 }
 
 const scenes = fs.readFileSync('/root/workspace/wake-scenes.txt', 'utf8').trim().split('\n');
 const unreachable = scenes.filter(s => !reachable.has(s));
-console.log(`states explored:  ${seen.size}   edges taken: ${edges}   terminal states: ${dead}`);
+console.log(`elapsed: ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+console.log(`states explored:  ${seen.size}   edges taken: ${edges}   terminal states: ${dead}`
+  + (skipped ? `   choices skipped after a chained advance: ${skipped}` : ''));
 
 // Show the dedup key, not just the outcome. The bug this cost the most time was a missing field in the
 // signature, and no amount of reasoning about the search would have shown it - printing three signatures
@@ -120,7 +170,10 @@ console.log(`distinct scenes among explored states: ${distinctScenesInKeys}`);
 // ("wake again"), so a terminal state is rare rather than absent. The warning was firing on correct output.
 // The honest report is the numbers, and whether the search finished: a hit cap means the unreachable list
 // is UNPROVEN for everything past what was reached, not wrong.
-console.log(seen.size >= CAP
+console.log(reachedScenes.size >= ALL_SCENES.length
+  ? `SEARCH COMPLETE BY GOAL: every one of ${ALL_SCENES.length} scenes was reached, so the reached set is`
+    + ' exhaustive and any scene NOT listed is genuinely unreachable.'
+  : seen.size >= CAP
   ? `SEARCH INCOMPLETE: state cap of ${CAP} reached. Scenes not listed as reached are UNPROVEN, not`
     + ' unreachable - the Aside auditor draws the same line between CLEAN and INCONCLUSIVE.'
   : 'search complete: the frontier emptied, so the reached set is exhaustive.');
