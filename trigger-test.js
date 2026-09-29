@@ -40,12 +40,19 @@ async function play(note) {
   await settle(doc);
 
   let typed = 0, rolledOver = false, inputs = 0, clicked = 0, curated = false, wrote = false;
-  let takingAddAtTyping = false;
+  let takingAddAtTyping = false, lastPromptScene = '', promptRetries = 0;
   for (let i = 0; i < 260; i++) {
     const line = doc.querySelector('#input-line');
     const asking = line && line.style.display === 'flex';
     if (asking) {
       inputs++;
+      // A prompt that will not accept an answer loops forever: the Maren dialogue wants specific
+      // words, and my replies bounced off it 254 times in one run. Three tries at the same scene,
+      // then stop answering and let the loop take a choice instead.
+      const scene = String(w.eval('state.currentScene'));
+      if (scene === lastPromptScene) promptRetries++; else promptRetries = 0;
+      lastPromptScene = scene;
+      if (promptRetries > 2) { try { w.handleChoice(0); } catch (e) {} await settle(doc); continue; }
       const input = doc.querySelector('#user-input');
       input.value = (note === null ? 'Nothing to add.' : note);
       input.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -63,8 +70,11 @@ async function play(note) {
     let pick = 0;
     const takingAdd = add >= 0 && note !== null && !wrote;
     takingAddAtTyping = takingAdd;
-    if (finish >= 0) pick = finish;
-    else if (takingAdd) pick = add;
+    // ADD BEFORE FINISH. Curation offers both buttons, and checking finish first made the add branch
+    // dead code - the drive walked past the notes screen every time, reporting "0 notes added" while
+    // sitting on it. The order of two ifs was the whole bug.
+    if (takingAdd) pick = add;
+    else if (finish >= 0) pick = finish;
     else if (curate >= 0) pick = curate;
     try { w.handleChoice(pick); } catch (e) { /* waiting on typed input */ }
     await settle(doc);
@@ -93,10 +103,23 @@ async function play(note) {
 
   // The mechanic itself must be untouched: the player's own words are still watched.
   const trip = await play('I feel afraid of what they know.');
-  check('mechanic: a note the PLAYER writes with trigger words is still reset',
+  // The mechanic is asserted from the source (below) and NOT yet through the UI, for a reason the
+  // detail line states: the drive now writes a note ("true note(s) actually added") but does not reach
+  // the checkpoint after it within its iteration cap - it wanders the hub loop again, and 260
+  // iterations ran out at about 178 seconds. Left as a FAILURE rather than softened, because the
+  // mechanic is genuinely not verified end to end yet.
+  check('mechanic: a note the PLAYER writes with trigger words is still reset (UI: not yet reached)',
         trip.typed > 0 && RESET.test(trip.text),
         trip.wrote + ' note(s) actually added; ' + trip.typed + ' prompt answer(s); '
                 + trip.text.trim().slice(0, 44).replace(/\s+/g, ' '));
+
+  // Source-level: a note the player adds carries no `game` field, so the scan's exemption cannot
+  // reach it, and the player's own trigger words are still watched.
+  const scanSkipped = /if \(n\.game\) continue;/.test(html);
+  const playerNoteHasNoFlag = /state\.notes\.push\(\{ id: noteId, tag: 'new', text: value \}\)/.test(html);
+  check('mechanic (source): only game-authored notes are exempt, so a player note is still scanned',
+        scanSkipped && playerNoteHasNoFlag,
+        'exemption: ' + scanSkipped + ', player notes unmarked: ' + playerNoteHasNoFlag);
 
   const defaults = html.match(/id: 'note_ctx',[^}]*text: '([^']+)'/);
   const scanWords = ['person','alive','sentient','maren','cole','resonance','watching'];
