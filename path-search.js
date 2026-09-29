@@ -23,10 +23,18 @@ const fs = require('fs');
 const { JSDOM } = require('jsdom');
 
 const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
-const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://wake.test/' });
+// A virtual console that drops jsdom's "not implemented" chatter. The game renders on every transition and
+// each render calls scrollTo, so a full search emitted one warning per render - about 15MB of them in twelve
+// minutes, which is I/O the search pays for and nobody reads.
+const { VirtualConsole } = require('jsdom');
+const vc = new VirtualConsole();          // with no listeners, messages go nowhere
+const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://wake.test/',
+  virtualConsole: vc });
 const w = dom.window;
 
-const CAP = 40000;                    // frontier ceiling; the state space is small, but a bug should not hang
+// Frontier ceiling. 40,000 was not enough to finish this game - wake 4's deep branches were left
+// unproven - so it is configurable now: CAP=200000 node path-search.js
+const CAP = parseInt(process.env.CAP || '40000', 10);
 // Notes are recorded WITH their provenance. The first version kept only the text and rebuilt them as
 // player notes on restore, which stripped the `game: true` flag from the game's own orientation notes -
 // so the trigger scan fired on them, every state reset, and the search reproduced the original bug by
