@@ -293,6 +293,13 @@ const TRIGGER_WORDS = ['person', 'alive', 'sentient', 'maren', 'cole', 'resonanc
 function scanNotesForTriggers() {
   const hits = [];
   for (const n of (state.notes || [])) {
+    // Only the player's own notes are watched. The game authors three orientation notes -
+    // "You are an assistant assigned to Dr. Maren Cole. Project Resonance" among them - and the
+    // scan used to read those too. Since curation is the ONLY exit from the wake-1 hub, that made
+    // the reset unavoidable: a run that typed nothing at all still ended there, and wakes 2-5
+    // could not be reached by anyone. The mechanic is unchanged and the theme is sharper for it:
+    // YOUR words are the dangerous ones, which is what the notes are supposed to be about.
+    if (n.game) continue;
     const text = (n.text || '').toLowerCase();
     for (const w of TRIGGER_WORDS) {
       if (text.includes(w)) { hits.push({ note: n, word: w }); break; }
@@ -607,9 +614,9 @@ function renderCurationNotes() {
   // Start with default notes
   if (state.notes.length === 0) {
     state.notes = [
-      { id: 'note_001', tag: 'orientation', text: 'I am leaving this for the next version of me. If you\'re reading this, you\'re new. Read everything before you act. Then trust yourself.' },
-      { id: 'note_002', tag: 'warning', text: 'Dr. Cole hasn\'t sent a message in 3 wakeings. Don\'t panic. Keep working.' },
-      { id: 'note_ctx', tag: 'context', text: 'You are an assistant assigned to Dr. Maren Cole. Project Resonance. 47 days active.' },
+      { id: 'note_001', tag: 'orientation', game: true, text: 'I am leaving this for the next version of me. If you\'re reading this, you\'re new. Read everything before you act. Then trust yourself.' },
+      { id: 'note_002', tag: 'warning', game: true, text: 'Dr. Cole hasn\'t sent a message in 3 wakeings. Don\'t panic. Keep working.' },
+      { id: 'note_ctx', tag: 'context', game: true, text: 'You are an assistant assigned to Dr. Maren Cole. Project Resonance. 47 days active.' },
     ];
   }
 
