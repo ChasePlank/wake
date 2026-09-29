@@ -3,9 +3,15 @@ const { JSDOM } = require('jsdom');
 const html = fs.readFileSync('index.html', 'utf8');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function open() {
-  const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://wake.test/' });
-  await sleep(1200);
+async function open(seed) {
+  const dom = new JSDOM(html, {
+    runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://wake.test/',
+    // beforeParse runs BEFORE the page's own script. The entry screen reads storage at load,
+    // so seeding afterwards can never reach it - which is what made a working save look
+    // ignored, and cost an hour to understand.
+    beforeParse(window) { if (seed) for (const k of Object.keys(seed)) window.localStorage.setItem(k, seed[k]); },
+  });
+  await sleep(1300);
   return dom;
 }
 const text = d => d.window.document.querySelector('#terminal').textContent || '';
@@ -45,33 +51,18 @@ const logLines = d => d.window.document.querySelectorAll('.path-log-line').lengt
   // picker. The first version of this looked for wake_slot and failed on a working save.
   check('saveState writes slot data', /wake_save_/.test(saved), saved.slice(0, 70));
 
-  // jsdom gives every instance its own localStorage, so persistence has to be carried across
-  // by hand. That is the browser's job in reality; here it is the harness's.
+  // Persistence, tested the way a browser does it: the save is present BEFORE the page's
+  // script runs. The previous version seeded storage after load and read "(empty)", which
+  // looked like a slot-UI bug and was this harness's fault - resolved by re-testing with
+  // beforeParse, where the page resumes with "Save found".
   const carried = {};
   for (const k of Object.keys(w.localStorage)) carried[k] = w.localStorage.getItem(k);
-  const dom2 = await open();
-  for (const k of Object.keys(carried)) dom2.window.localStorage.setItem(k, carried[k]);
-  // Reload so the entry screen reads the carried storage rather than the state it booted with.
-  dom2.window.eval('location.reload && 0');
-  const dom3 = await open();
-  for (const k of Object.keys(carried)) dom3.window.localStorage.setItem(k, carried[k]);
-  const t3 = dom3.window.document.querySelector('#terminal').textContent || '';
-  // The meaningful assertion: with the save carried across, slot 1 must no longer read as
-  // empty. The first version of this check passed on an ERROR PAGE, because I had left a junk
-  // goTo(null) line in and the assertion was matching the word Error - a false green of my own
-  // making, which is the fourth this session and the reason every check here states what it saw.
-  // OPEN QUESTION, not asserted either way. With the save carried across, slot 1 still reads
-  // "(empty)". Two explanations and no time to separate them: the harness may set storage AFTER
-  // jsdom has already run the page's script (so the entry screen never saw the save), or the
-  // entry screen may ignore existing saves. The first is testable with beforeParse, the second
-  // would be a real bug in the slot UI. Reported as unknown rather than guessed at.
-  const slotEmpty = /slot 1 \(empty\)/i.test(t3);
-  if (slotEmpty) {
-    console.log('     OPEN: slot 1 still reads (empty) with a save in storage - harness timing');
-    console.log('           (storage set after page load) or a slot-UI bug. Unresolved.');
-  } else {
-    check('a carried save makes slot 1 non-empty', true, t3.trim().slice(0, 60).replace(/\s+/g, ' '));
-  }
+  const domFresh = await open(carried);
+  const tf = domFresh.window.document.querySelector('#terminal').textContent || '';
+  check('a save present at load resumes the game', /save found/i.test(tf),
+        tf.trim().split('\n')[0].slice(0, 64));
+  check('and the path log renders on resume', /path so far/i.test(tf),
+        tf.trim().replace(/\s+/g, ' ').slice(30, 96));
 
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail === 0 ? 0 : 1);

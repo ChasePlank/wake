@@ -13,12 +13,23 @@ What it establishes, all measured:
 - choices advance the story, 10 out of 10 clicks
 - `saveState()` writes slot data (`wake_save_1`)
 
-Two things it records rather than asserts, because a zero is not a failure:
+Also:
 
-- the path log draws at checkpoints and endings, not mid-scene
-- **an open question:** carrying a save across jsdom instances, slot 1 still reads "(empty)".
-  Either the harness sets storage after the page has already run its script, or the entry
-  screen ignores existing saves. Unexplained, and stated as such.
+- **`saveState()` writes slot data**, and a save that is present **before the page's script
+  runs** resumes the game — "Save found. Wake 1, phase: examine." — with the **path log
+  rendering on resume**.
+
+One thing it records rather than asserts, because a zero is not a failure: the path log draws
+at checkpoints, endings and resumes, not mid-scene.
+
+## The open question, resolved
+
+Last revision left this open: carrying a save across jsdom instances, slot 1 still read
+"(empty)" — the harness setting storage too late, or a slot-UI bug?
+
+**It was the harness.** jsdom's `beforeParse` hook seeds storage *before* the page's script
+runs, and with that the game resumes correctly. Setting storage after load can never reach an
+entry screen that reads it at load time. The check is now real, and the code says why.
 
 jsdom gives every instance its own `localStorage`, so persistence is carried across by hand.
 That is the browser's job in reality and the harness's here.
