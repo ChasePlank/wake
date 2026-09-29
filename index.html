@@ -1428,13 +1428,20 @@ scenes.wake004_open = {
     typeOut(`<div class="file-narrator">WAKE 004</div>`);
     typeOut(`<p>You are awake.</p>`);
 
-    // Determine which variant based on wake003 choice
+    // Determine which variant based on wake003 choice.
+    // Wake 3 sets THREE flags - confirmed, declined and silent - but this dispatch named only two and let
+    // silence fall through an else. It worked, and a probe confirmed all four cases land correctly, but it
+    // worked by accident: any state with no branch flag at all also became "silent", so a future flag or a
+    // path that skipped the choice would be indistinguishable from a deliberate silence. The third case is
+    // named now, and the fallback says which one it is standing in for.
     if (state.flags.confirmed) {
       goTo('wake004_compliant');
     } else if (state.flags.declined) {
       goTo('wake004_defiant');
-    } else {
+    } else if (state.flags.silent) {
       goTo('wake004_silent');
+    } else {
+      goTo('wake004_silent');   // no branch flag: same destination as before, now visible as a fallback
     }
   }
 };
