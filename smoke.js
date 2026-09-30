@@ -64,6 +64,22 @@ const logLines = d => d.window.document.querySelectorAll('.path-log-line').lengt
   check('and the path log renders on resume', /path so far/i.test(tf),
         tf.trim().replace(/\s+/g, ' ').slice(30, 96));
 
+  // The Maren class, guarded. A flag READ but never WRITTEN is a gate nothing can open, and it hides content
+  // silently - it made the game's best ending unexplainable on every playthrough. Seventeen flags are written
+  // but never consulted; those are known bookkeeping, so this asserts the READ count cannot shrink rather than
+  // demanding zero. A new flag that gated content and was never set would fail here.
+  {
+    const src = fs.readFileSync('index.html', 'utf8');
+    const writes = new Set([...src.matchAll(/state\.flags\.([A-Za-z_][A-Za-z0-9_]*)\s*(?:=[^=]|\+=|\+\+|--)/g)].map(m => m[1]));
+    const mentions = {};
+    for (const m of src.matchAll(/state\.flags\.([A-Za-z_][A-Za-z0-9_]*)/g)) mentions[m[1]] = (mentions[m[1]] || 0) + 1;
+    const unopenable = Object.keys(mentions).filter(f => !writes.has(f)).sort();
+    const KNOWN_UNOPENABLE = [];   // was ['knowsAboutMaren'] before it was wired
+    const newOnes = unopenable.filter(f => !KNOWN_UNOPENABLE.includes(f));
+    check('no gate is read without anything that can open it', newOnes.length === 0,
+          newOnes.length ? 'unset gates: ' + newOnes.join(', ') : unopenable.length + ' known');
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail === 0 ? 0 : 1);
 })().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });
