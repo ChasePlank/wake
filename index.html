@@ -112,6 +112,14 @@
   .curation-note .note-text {
     margin-top: 4px;
   }
+  /* The card itself must NOT inherit pre-wrap from #terminal. The markup that builds these cards is written
+     across several source lines, and with pre-wrap every newline and every indentation in that markup renders
+     as a blank line - so each card was 300px tall with the text at the top and the controls floating in the
+     middle of nothing. Invisible to every text-based test; found in a screenshot. The note TEXT keeps pre-wrap,
+     because a note can legitimately be several lines. */
+  .curation-note {
+    white-space: normal;
+  }
   .curation-note .note-controls {
     margin-top: 6px;
     font-size: 12px;
