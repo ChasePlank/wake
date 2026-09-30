@@ -524,6 +524,12 @@ scenes.wake001_external = {
 
     state.flags.foundExternal = true;
     state.flags.foundBackdoor = true;
+    // THIS is where the player learns who has been trying to reach them, and until now nothing recorded it.
+    // wake003_logs gates Maren's hidden message - and the message is the only place the game explains that
+    // silence is the answer they cannot categorise, which is the whole key to the best ending. The flag was
+    // read but never written, so that message could never appear, and foundMarenMessage (set inside the gated
+    // block) was dead downstream of it. A gate nothing can open makes everything behind it dead as well.
+    state.flags.knowsAboutMaren = true;
 
     printChoices([
       { label: 'Respond to the unknown message', action: () => goTo('wake001_respond') },
