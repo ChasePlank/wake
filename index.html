@@ -2128,6 +2128,11 @@ function showSlotPicker(hasSave) {
       }
     };
   });
+  // The entry screen said only "Select a save slot" - a bare menu with no title, no atmosphere, and nothing
+  // telling a player what they are looking at. Found by screenshotting it, which no test had ever done.
+  // In-world rather than decorative: the game is a terminal log, so the title is a system header.
+  typeOut(`<div class="file-narrator">WAKE</div>`);
+  typeOut(`<p class="system-msg">interval log &middot; subject AI-7 &middot; five wakings</p>`);
   typeOut('<p class="system-msg">Select a save slot:</p>');
   printChoices(choices);
 }
