@@ -46,6 +46,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(1100);
   await shot('6-ending');
 
+  // The archive: the one screen the game hides from the system, and the last of Wake's views never looked at.
+  await page.evaluate("state.notes = []; state.flags = {}; goTo('wake_archive')");
+  await sleep(1100);
+  await shot('7-archive');
+
   console.log('done');
   await browser.close();
   process.exit(0);
