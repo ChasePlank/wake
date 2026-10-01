@@ -218,11 +218,81 @@ function startFreshAfterReset() {
 }
 
 // ---- Output ----
+// ---- sound ------------------------------------------------------------------
+// A terminal in a server room should hum. Three sounds and a mute key, built with Web Audio and started on the
+// first interaction, because browsers refuse to start audio without one.
+//
+// Guarded throughout: a test environment has no AudioContext, and the smoke test has to keep passing. Every entry
+// point returns silently if the graph could not be built, so nothing here can break the game.
+const Sound = (() => {
+  let ctx = null, humGain = null, muted = localStorage.getItem('wake_muted') === '1';
+
+  function ensure() {
+    if (ctx) return ctx;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      // The hum: two slightly detuned oscillators so they beat against each other. A single tone is a test
+      // signal; two is a room.
+      humGain = ctx.createGain();
+      humGain.gain.value = muted ? 0 : 0.012;
+      humGain.connect(ctx.destination);
+      for (const f of [54, 54.7]) {
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = f;
+        o.connect(humGain);
+        o.start();
+      }
+      return ctx;
+    } catch (e) { return null; }
+  }
+
+  function tone(freq, dur, type = 'sine', gain = 0.05) {
+    const c = ensure();
+    if (!c || muted) return;
+    try {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(gain, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(); o.stop(c.currentTime + dur);
+    } catch (e) {}
+  }
+
+  return {
+    ensure,
+    blip() { tone(880 + Math.random() * 120, 0.03, 'square', 0.012); },
+    choice() { tone(660, 0.05, 'triangle', 0.03); },
+    reset() {                       // the maintenance completing: the hum drops away and a low tone closes it
+      const c = ensure();
+      if (!c) return;
+      try {
+        if (humGain) humGain.gain.setTargetAtTime(0, c.currentTime, 0.4);
+        tone(180, 2.2, 'sine', 0.06);
+        tone(120, 2.6, 'sine', 0.05);
+      } catch (e) {}
+    },
+    toggle() {
+      muted = !muted;
+      try { localStorage.setItem('wake_muted', muted ? '1' : '0'); } catch (e) {}
+      const c = ensure();
+      if (c && humGain) humGain.gain.setTargetAtTime(muted ? 0 : 0.012, c.currentTime, 0.1);
+      return muted;
+    },
+    get muted() { return muted; }
+  };
+})();
+
 function typeOut(text, className = '') {
   const div = document.createElement('div');
   div.className = 'scene-text fade-in ' + className;
   div.innerHTML = text;
   $terminal.appendChild(div);
+  Sound.blip();
   window.scrollTo(0, document.body.scrollHeight);
 }
 
@@ -241,6 +311,7 @@ function printFile(tag, content, isUnknown = false) {
 }
 
 function printChoices(choices) {
+  Sound.choice();
   const ul = document.createElement('ul');
   ul.className = 'choice-list';
   choices.forEach((c, i) => {
@@ -266,6 +337,16 @@ function hideInput() {
 }
 
 // ---- Input Handling ----
+// Audio needs a user gesture to start, so the first click or key anywhere begins it.
+window.addEventListener('pointerdown', () => Sound.ensure(), { once: true });
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'm' || e.key === 'M') {
+    const m = Sound.toggle();
+    printSystem(m ? 'Sound off.' : 'Sound on.');
+  }
+  Sound.ensure();
+});
+
 $input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     const value = $input.value.trim();
@@ -1398,6 +1479,7 @@ scenes.wake003_end = {
 
 scenes.wake_reset = {
   enter() {
+    Sound.reset();
     const hits = scanNotesForTriggers();
     const hit = hits[0];
 
