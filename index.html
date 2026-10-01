@@ -25,6 +25,15 @@
     max-width: 720px;
     margin: 0 auto;
   }
+  /* The key legend. The VN engine has one and this game did not, so the mute key existed with nothing to
+     discover it by. Fixed to the bottom, dim, out of the way of the story. */
+  #hints {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 6px 20px; font-size: 12px; color: var(--dim);
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    pointer-events: none;
+  }
+  body { padding-bottom: 44px; }
   #terminal {
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -159,6 +168,7 @@
 </head>
 <body>
 <div id="terminal"></div>
+<div id="hints">SPACE advance &middot; H history &middot; F5 save &middot; F9 load &middot; M sound &middot; ESC menu</div>
 <div id="input-line" style="display:none;">
   <span id="prompt-char">&gt;</span>
   <input id="user-input" type="text" autocomplete="off" autofocus />
