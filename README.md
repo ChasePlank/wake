@@ -42,28 +42,38 @@ npm test                 # smoke.js then mechanic-test.js
 
 ## How much of it can you reach
 
-**44 of 60 scenes are reachable in play**, and the tool that says so is honest about what it means: at 120,000
-states it reports `SEARCH INCOMPLETE` and `UNPROVEN, not unreachable`. The frontier was still growing — 37,000
-states wide when it hit its cap — because the space is scenes × flags × notes and that is combinatorial.
+**All 60 scenes are reachable. The search that said 44 could not finish, and it was measuring a model of the
+game that was missing two things.**
 
-**A search that cannot finish and a scene that cannot be reached look identical from the outside, so
-`branch-test.js` tells them apart for the cases it can.** For a scene the search did not reach, it sets the state
-a *reachable* path produces, opens the scene, and checks the choices are there. **Eight of the sixteen are now
-proven reachable** — four gates, each a branch the search never walked:
+`path-search.js` explores states and reports honestly:
 
-| gate | what it needs | scenes it opens |
-|---|---|---|
-| `wake004_maren_offer` | **neither** `compliancePath` nor `defiancePath` — wake 3's third answer, "Don't respond" | `wake004_choose_stay`, `wake004_choose_refuse` |
-| `wake004_silent` | the same silence path | `wake004_silent_notes`, `wake004_silent_wait` |
-| `wake004_compliant_voss` | `compliancePath` | `wake004_compliant_voss_interview`, `_maren`, `_silent` |
-| `wake004_defiant` | `defiancePath` | `wake004_defiant_wait` |
+```
+SEARCH INCOMPLETE: state cap of 120000 reached.
+Scenes not listed as reached are UNPROVEN, not unreachable.
+```
 
-The first is the interesting one: `wake004_maren_offer` only offers its choices when neither path-flag is set, and
-wake 3 has a third answer that sets neither — so the branch is reachable and the search simply never walked that
-path. **A tool that cannot finish its search should not be read as a tool that has proved an absence.**
+The frontier was 37,000 states wide when it stopped and still growing, because the space is scenes × flags ×
+notes and that is combinatorial. So "44 of 60" was never a claim about the game — and `branch-test.js` shows it
+was not even close to one. It takes each scene the search did not reach, sets the state a *reachable* path
+produces, and checks the scene arrives:
 
-The remaining eight are the `*_end` transients, `wake_reset`, and downstream scenes of the four above. The best
-ending was impossible to reach until 2026-10-03: it needed a flag that was read and never written.
+```
+11 passed, 0 failed
+```
+
+**Every one of the sixteen is reachable.** The search missed them for two reasons, and neither is about the game:
+
+- **It never types.** The game is played two ways — choosing an option and *typing text* — and there are 21 sites
+  in `index.html` that set `state.inputMode = 'text'`. Four scenes hang off typed input: answering Maren,
+  confirming the transfer, curating it, and the reset, which fires when a note **you wrote by hand** contains a
+  trigger word.
+- **It does not record transients.** `wake001_end`, `wake002_end`, `wake003_end` and `wake004_transfer_complete`
+  are entered and left in the same breath — they set the next wake and go. A search that records the scene it is
+  standing in never lists them, and *never listed* is not *never entered*.
+
+**A search that cannot finish its search must not be read as a search that has proved an absence** — and a
+reachability figure is a statement about the model as much as about the game. `branch-test.js` is in `npm test`,
+so this is checked rather than argued.
 
 ## Files
 
