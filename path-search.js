@@ -214,7 +214,10 @@ for (const x of reachedWakes.slice(0, 12)) console.log('   ' + x + '   first see
   + ([...firstPath.entries()].find(([k]) => k.includes(x)) || ['', '?'])[1]);
 console.log(`unreachable in play: ${unreachable.length}`);
 for (const s of unreachable) console.log('   !! ' + s);
-fs.writeFileSync('/root/workspace/wake-reachable.txt', [...reachable].sort().join('\n'));
+// Written BESIDE the script, not to an absolute path in a directory the sandbox wipes. The input had the same
+// defect and it is what made this tool unrunnable; an output outside the repository is the same problem with a
+// longer fuse, because the file is gone by the time anyone looks for it.
+fs.writeFileSync(__dirname + '/wake-reachable.txt', [...reachable].sort().join('\n'));
 process.exit(0);
 })().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });
 
