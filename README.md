@@ -7,7 +7,8 @@ of you decided was worth keeping. Five wakings. The notes you leave are the mess
 
 ## Play it
 
-It is one self-contained HTML file with no build step and no server:
+It is one self-contained HTML file with no build step and no server. **[Download it from
+Releases](https://github.com/ChasePlank/wake/releases/latest)** and open it, or run it from a checkout:
 
 ```
 open index.html          # macOS
