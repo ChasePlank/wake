@@ -93,7 +93,16 @@ let edges = 0, dead = 0, skipped = 0;
 const trace = [];
 let traceOn = process.env.TRACE !== '0';   // on by default: a search that hides its edges hides its bugs
 
-const ALL_SCENES = fs.readFileSync('/root/workspace/wake-scenes.txt', 'utf8').trim().split('\n');
+// THE SCENE LIST IS DERIVED, NOT READ FROM A FILE.
+//
+// It used to come from `/root/workspace/wake-scenes.txt` - an absolute path OUTSIDE this repository, in a
+// directory the sandbox wipes on reboot. That file is not in git history and never was, so the tool could not
+// run from a fresh clone at all, and the reachability figure in the README could not be re-verified by anyone.
+// Found by trying to run it.
+//
+// The list is right there in index.html: every scene is `scenes.<id> = {`. Reading it from the game means the
+// tool cannot be handed a stale list, which is the same defect as a hardcoded count.
+const ALL_SCENES = [...html.matchAll(/scenes\.([a-z0-9_]+)\s*=\s*\{/g)].map(m => m[1]);
 const reachedScenes = new Set(['wake001_open']);
 
 const t0 = Date.now();
@@ -156,7 +165,7 @@ while (queue.length && seen.size < CAP && reachedScenes.size < ALL_SCENES.length
   }
 }
 
-const scenes = fs.readFileSync('/root/workspace/wake-scenes.txt', 'utf8').trim().split('\n');
+const scenes = ALL_SCENES;
 const unreachable = scenes.filter(s => !reachable.has(s));
 console.log(`elapsed: ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 console.log(`states explored:  ${seen.size}   edges taken: ${edges}   terminal states: ${dead}`
