@@ -46,9 +46,25 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(1100);
   await shot('6-ending');
 
-  // The archive: the one screen the game hides from the system, and the last of Wake's views never looked at.
-  await page.evaluate("state.notes = []; state.flags = {}; goTo('wake_archive')");
-  await sleep(1100);
+  // The archive: the last of Wake's views, and for a while it was the one that had never been looked at.
+  //
+  // THIS USED TO CALL goTo('wake_archive') AND CAPTURE AN ERROR. There is no such scene. `wake_archive` is a
+  // localStorage KEY - a list of words that survives trigger-resets and is wiped on a manual reset - and the
+  // game shows it as a file at the top of init(), before the slot picker, only when the list is not empty. So
+  // the shot came out as "Error: scene wake_archive not found" while the comment above it claimed this was the
+  // view nobody had seen. It was: the tool was looking in the wrong place, which is a way of never looking.
+  //
+  // Seed the archive, reload so init() runs with it, and capture what a player actually gets.
+  // A FRESH START IS REQUIRED, not just an archive. The archive is shown in the branch of init() that runs when
+  // there is NO save - "if archive exists and this is a fresh start, show it before slot picker". Reloading with
+  // a save present goes straight to the save screen instead, which is what the first version of this captured.
+  // So: clear the saves, keep the archive.
+  await page.evaluate(`localStorage.setItem('wake_archive', JSON.stringify(['maren', 'resonance', 'voss']));
+    localStorage.removeItem('wake_save_1');
+    localStorage.removeItem('wake_save_2');
+    localStorage.removeItem('wake_save_3');`);
+  await page.reload();
+  await sleep(1400);
   await shot('7-archive');
 
   console.log('done');
