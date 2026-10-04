@@ -4,6 +4,6 @@
     "puppeteer": "^25.12.0"
   },
   "scripts": {
-    "test": "node smoke.js && node mechanic-test.js && node branch-test.js"
+    "test": "node smoke.js && node mechanic-test.js && node branch-test.js && node archive-test.js"
   }
 }

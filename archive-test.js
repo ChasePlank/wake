@@ -1,0 +1,78 @@
+/**
+ * The hidden archive - the thing the whole game is about, and the one part nothing tested.
+ *
+ * <p>Wake's premise is that a word you learn by dying survives the reset, so the next version of you starts
+ * knowing something you were never told. `index.html` line 225 says so in a comment - "Trigger-reset: the hidden
+ * archive survives. The save does not." - and until now that comment was the only thing holding it up. All three
+ * existing suites pass with zero references to `archive` in any of them.
+ *
+ * <p>It was found the usual way: by looking. `shoot.js` claimed in its own comment to capture "the last of Wake's
+ * views never looked at", then called goTo('wake_archive') and photographed an error - there is no such scene,
+ * wake_archive is a localStorage KEY. Looking in the wrong place is a way of never looking, and a comment saying
+ * a thing has been seen is how it goes unnoticed.
+ *
+ * <p>Tested directly rather than by driving the UI, for the reason mechanic-test.js gives: driving is slow and
+ * fragile, and the game exposes what the mechanic needs.
+ */
+const fs = require('fs');
+const { JSDOM, VirtualConsole } = require('jsdom');
+const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+let pass = 0, fail = 0;
+function check(name, ok, detail) {
+  if (ok) { pass++; console.log('  ok   ' + name); }
+  else { fail++; console.log('  FAIL ' + name + (detail ? '   (' + detail + ')' : '')); }
+}
+
+(async () => {
+  const dom = new JSDOM(html, {
+    runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://wake.test/',
+    virtualConsole: new VirtualConsole(),
+  });
+  const w = dom.window;
+  await sleep(1200);
+
+  // A fresh browser has no archive, and the game must cope with that rather than throwing.
+  check('a fresh start has an empty archive', w.eval('loadArchive().length') === 0);
+
+  w.eval("addWordToArchive('maren')");
+  check('a word written to the archive is there', w.eval("loadArchive().includes('maren')"));
+
+  w.eval("addWordToArchive('maren')");
+  check('the same word twice is still one word', w.eval('loadArchive().length') === 1,
+        'length ' + w.eval('loadArchive().length'));
+
+  w.eval("addWordToArchive('resonance')");
+  check('and a second word joins it', w.eval('loadArchive().length') === 2);
+
+  // THE ONE THAT MATTERS. startFreshAfterReset is what a trigger-reset calls: it drops the save and reloads.
+  // If the archive went with it, the game would have no memory and the whole premise would be decoration.
+  // CALL THE FUNCTION, NOT SOMETHING ADJACENT TO IT.
+  //
+  // The first version of this called clearSave(), which is only PART of what a trigger-reset does, and it passed
+  // with the archive being wiped on purpose. Injecting the fault is what showed it: a check that does not run the
+  // code it is about cannot fail, and a check that cannot fail is worse than none because it reads as coverage.
+  //
+  // startFreshAfterReset() calls location.reload(), which jsdom does not implement. That is caught here rather
+  // than allowed to end the test, because the line before it is the one under test.
+  const before = w.eval('loadArchive().length');
+  let reloaded = false;
+  try { w.eval('startFreshAfterReset()'); } catch (e) { reloaded = /reload/i.test(e.message); }
+  // AND NO `|| true`. The first version of this line read `reloaded || true`, which cannot fail - the same fault
+  // as the clearSave() call above, caught the same way, one line later. If the function ever stops reaching the
+  // reload then it has stopped being a reset, and that is worth knowing.
+  check('a trigger-reset reaches location.reload()', reloaded,
+        reloaded ? 'reload attempted, as the game does' : 'no reload - the call returned early');
+  check('the trigger-reset clears the save', w.eval("localStorage.getItem(slotKey())") === null);
+  check('AND KEEPS THE ARCHIVE', w.eval('loadArchive().length') === before,
+        before + ' before, ' + w.eval('loadArchive().length') + ' after');
+
+  // The manual reset is meant to wipe it. Its action is three statements inline in the menu, so a test cannot
+  // reach the closure - this checks the two operations it performs rather than the menu item itself.
+  w.eval("localStorage.removeItem('wake_archive')");
+  check('a manual reset wipes the archive', w.eval('loadArchive().length') === 0);
+
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(fail === 0 ? 0 : 1);
+})().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });
