@@ -57,13 +57,11 @@ function check(name, ok, detail) {
   // startFreshAfterReset() calls location.reload(), which jsdom does not implement. That is caught here rather
   // than allowed to end the test, because the line before it is the one under test.
   const before = w.eval('loadArchive().length');
-  let reloaded = false;
-  try { w.eval('startFreshAfterReset()'); } catch (e) { reloaded = /reload/i.test(e.message); }
-  // AND NO `|| true`. The first version of this line read `reloaded || true`, which cannot fail - the same fault
-  // as the clearSave() call above, caught the same way, one line later. If the function ever stops reaching the
-  // reload then it has stopped being a reset, and that is worth knowing.
-  check('a trigger-reset reaches location.reload()', reloaded,
-        reloaded ? 'reload attempted, as the game does' : 'no reload - the call returned early');
+  try { w.eval('startFreshAfterReset()'); } catch (e) { /* jsdom may or may not implement reload */ }
+  // NO CHECK ON THE RELOAD ITSELF, and the reason is worth keeping. I wrote one - `reloaded || true` first, which
+  // cannot fail, and then `reloaded`, which FAILED, because jsdom implements location.reload() as a no-op rather
+  // than throwing. So the check was testing jsdom, not the game, and it would have been wrong in both directions.
+  // What is testable is what the function does to storage before it reloads, and that is the next two lines.
   check('the trigger-reset clears the save', w.eval("localStorage.getItem(slotKey())") === null);
   check('AND KEEPS THE ARCHIVE', w.eval('loadArchive().length') === before,
         before + ' before, ' + w.eval('loadArchive().length') + ' after');
