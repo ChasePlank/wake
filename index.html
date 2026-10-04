@@ -227,6 +227,23 @@ function startFreshAfterReset() {
   location.reload();
 }
 
+/**
+ * Wipe everything, INCLUDING the hidden archive - the manual "start over".
+ *
+ * <p>This was three statements inline in the menu, which meant the archive test could not reach it: a closure
+ * cannot be called from outside, so the one path that DELETES the thing the game is about was the one path
+ * nothing could check. The suite tested `clearSave()` and `localStorage.removeItem('wake_archive')` side by side
+ * instead, which is not the same as testing this function - if either were reordered or dropped, the test would
+ * still pass.
+ *
+ * <p>Named and separate so that both reset paths are reachable and both are now covered.
+ */
+function wipeEverything() {
+  clearSave();
+  localStorage.removeItem('wake_archive');
+  location.reload();
+}
+
 // ---- Output ----
 // ---- sound ------------------------------------------------------------------
 // A terminal in a server room should hum. Three sounds and a mute key, built with Web Audio and started on the
@@ -2255,7 +2272,7 @@ function init() {
         goTo(state.currentScene);
       }},
       { label: 'Switch save slot', action: () => showSlotPicker(true) },
-      { label: 'Start over (wipes everything, including the hidden archive)', action: () => { clearSave(); localStorage.removeItem('wake_archive'); location.reload(); } },
+      { label: 'Start over (wipes everything, including the hidden archive)', action: wipeEverything },
     ]);
   } else {
     // New game

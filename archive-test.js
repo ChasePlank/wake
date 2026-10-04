@@ -66,9 +66,10 @@ function check(name, ok, detail) {
   check('AND KEEPS THE ARCHIVE', w.eval('loadArchive().length') === before,
         before + ' before, ' + w.eval('loadArchive().length') + ' after');
 
-  // The manual reset is meant to wipe it. Its action is three statements inline in the menu, so a test cannot
-  // reach the closure - this checks the two operations it performs rather than the menu item itself.
-  w.eval("localStorage.removeItem('wake_archive')");
+  // The manual reset is meant to wipe it. It was three statements inline in the menu, so this could only check
+  // the two operations side by side - not the path itself, which meant if either were reordered or dropped the
+  // test would still pass. It is a named function now, so the test calls the thing the menu calls.
+  w.eval('wipeEverything()');
   check('a manual reset wipes the archive', w.eval('loadArchive().length') === 0);
 
   console.log(`\n${pass} passed, ${fail} failed`);
