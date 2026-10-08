@@ -22,9 +22,12 @@ Or serve it if you prefer: `npx serve .` and open the URL it prints.
 
 ## The tests
 
+**`npm test` runs four scripts**, and this section used to name two of them - a list that under-describes the gate
+is the same fault as a count that has gone stale, and it is the reason `archive-test.js` was not mentioned at all.
+
 ```bash
 npm install
-npm test                 # smoke.js then mechanic-test.js
+npm test                 # smoke, mechanic, branch and archive, in that order
 ```
 
 - **`smoke.js`** — loads `index.html` in jsdom and drives the story through the game's own entry points. Eight
@@ -33,10 +36,14 @@ npm test                 # smoke.js then mechanic-test.js
   something that can open it. It exists because nothing had verified this game since it was written, and a
   browser game can break without anything in the repository changing.
 - **`mechanic-test.js`** — the four mechanics the story depends on.
-- **`path-search.js`** — best-first search over the scene graph, carrying state, to answer "can a player actually
-  reach this?". It reports its own progress and splits CLEAN from INCONCLUSIVE.
 - **`branch-test.js`** — for scenes the search did not reach, sets the state a reachable path produces and checks
   the branch opens. Tells "the search could not finish" apart from "you cannot get there".
+- **`archive-test.js`** — the archive across the two reset paths, which is where the story's memory and its saves
+  interact: a word written is still there, the same word twice is still one word, the trigger reset clears the
+  save and **keeps** the archive, and a manual reset wipes it.
+- **`path-search.js`** — best-first search over the scene graph, carrying state, to answer "can a player actually
+  reach this?". It reports its own progress and splits CLEAN from INCONCLUSIVE. **It is not part of `npm test`** —
+  it is a search, run when the question is reachability, and the section below is what it said.
 
 `README-SMOKE.md` explains the smoke test in more detail than this does.
 
