@@ -47,6 +47,33 @@ npm test                 # smoke, mechanic, branch and archive, in that order
 
 `README-SMOKE.md` explains the smoke test in more detail than this does.
 
+**`tools/mutations.sh` asks a different question: are these checks able to fail?** It breaks one invariant at a time
+and runs the suite, and it is not part of `npm test` for the same reason the path search is not — five mutations are
+five full runs of four jsdom suites, which is minutes rather than seconds. An audit to run when adding a check, not a
+tax on every commit.
+
+```
+  archive: the same word twice is two words      caught
+  archive: nothing is ever written               caught
+  archive: the archive never loads               caught
+  reset: a manual reset keeps the archive        caught
+  reset: the trigger reset wipes the archive     caught
+
+  caught: 5   not caught: 0   never applied or ambiguous: 0
+```
+
+**All five are caught, and it took three attempts to be able to say that honestly — which is the argument for having
+the tool rather than trusting the green.** A check that cannot fail is worse than no check, because it reads as
+coverage.
+
+**It reports three different kinds of nothing, because they are not the same thing:**
+- **NOT CAUGHT** — the mutation applied and no test noticed. This is the finding.
+- **ANCHOR MISSING** — the mutation never applied, so the run proves nothing.
+- **AMBIGUOUS ANCHOR** — the anchor fits more than one place. This one is the subtle one: the first version of the
+  trigger-reset entry landed inside `clearSave()` instead, where wiping the archive is harmless because the only
+  caller wipes it anyway, and the tool reported *"NOT CAUGHT — no test covers this"* about a claim that is in fact
+  covered. All three print as silence if the tool only prints findings.
+
 ## How much of it can you reach
 
 **All 60 scenes are reachable. The search that said 44 could not finish, and it was measuring a model of the
