@@ -37,6 +37,11 @@ MUTATIONS=(
   # THE STORY'S STRUCTURE, which the archive entries do not touch: the first waking has to END somewhere, and the
   # branch test says "wake001_end is entered and advances to wake 2" - so a scene that is not there should be noticed.
   "the first waking ends nowhere|index.html|scenes.wake001_end = {|scenes.wake001_end_x = {|"
+  # The path log and the flags: the two claims the smoke test makes that the archive entries could not reach. The
+  # gate one is the interesting shape - the check scans the SOURCE for flags that are read and never written, so
+  # removing the write is what it should notice, not removing the read.
+  "the path log stops saying where you have been|index.html|>Your path so far:<|>:<|"
+  "nothing ever sets foundExternal|index.html|state.flags.foundExternal = true;|;|"
   "archive: the same word twice is two words|index.html|if (!words.includes(word)) { words.push(word); saveArchive(words); }|if (true) { words.push(word); saveArchive(words); }"
   "archive: nothing is ever written|index.html|try { localStorage.setItem('wake_archive', JSON.stringify(words)); } catch(e) {}|try { } catch(e) {}"
   "archive: the archive never loads|index.html|try { return JSON.parse(localStorage.getItem('wake_archive')) || []; } catch(e) { return []; }|try { return []; } catch(e) { return []; }"
