@@ -30,7 +30,7 @@ npm install
 npm test                 # smoke, mechanic, branch and archive, in that order
 ```
 
-- **`smoke.js`** — loads `index.html` in jsdom and drives the story through the game's own entry points. Eight
+- **`smoke.js`** — loads `index.html` in jsdom and drives the story through the game's own entry points. Nine
   checks: the entry screen is the save-slot picker, `goTo` is reachable, WAKE 001 renders, choices advance the
   story, `saveState` writes, a save resumes, the path log renders on resume, and no gate is read without
   something that can open it. It exists because nothing had verified this game since it was written, and a

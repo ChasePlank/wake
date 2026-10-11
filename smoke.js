@@ -80,6 +80,17 @@ const logLines = d => d.window.document.querySelectorAll('.path-log-line').lengt
           newOnes.length ? 'unset gates: ' + newOnes.join(', ') : unopenable.length + ' known');
   }
 
+  // THE MUTE IS A PREFERENCE, and a preference you set again on every launch is not one. The README advertises the
+  // M key; nothing checked that it sticks. Found by tools/mutations.sh - "the mute never persists" came back NOT
+  // CAUGHT from all four suites, which is the argument for asking rather than assuming.
+  {
+    const before = w.eval("localStorage.getItem('wake_muted')");
+    w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'm', bubbles: true }));
+    const after = w.eval("localStorage.getItem('wake_muted')");
+    check('the M key writes the sound preference', (after === '0' || after === '1') && after !== before,
+          String(before) + ' -> ' + String(after));
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail === 0 ? 0 : 1);
 })().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });

@@ -26,6 +26,14 @@ cd "$(dirname "$0")/.." || exit 2
 
 # label | file | anchor | replacement
 MUTATIONS=(
+  # THE OTHER HALF OF THE GAME. The five entries above are all about the archive - the memory you leave behind -
+  # and nothing here touched the save, the settings or the story rendering. These do.
+  "the save writes nothing|index.html|localStorage.setItem(slotKey(), JSON.stringify(state));|void 0;|"
+  "the save never loads|index.html|const saved = localStorage.getItem(slotKey());|const saved = null;|"
+  "the mute never persists|index.html|localStorage.setItem('wake_muted', muted ? '1' : '0');|void 0;|"
+  # A BACKTICK IN A DOUBLE-QUOTED BASH ARRAY IS A COMMAND SUBSTITUTION, which broke this list the first time it
+  # was written - the third shell metacharacter to do that in one week, after a literal \n and a stray pipe.
+  "the first waking does not render|index.html|typeOut(\`<div class=\"file-narrator\">WAKE 001</div>\`);|typeOut(\`\`);|"
   "archive: the same word twice is two words|index.html|if (!words.includes(word)) { words.push(word); saveArchive(words); }|if (true) { words.push(word); saveArchive(words); }"
   "archive: nothing is ever written|index.html|try { localStorage.setItem('wake_archive', JSON.stringify(words)); } catch(e) {}|try { } catch(e) {}"
   "archive: the archive never loads|index.html|try { return JSON.parse(localStorage.getItem('wake_archive')) || []; } catch(e) { return []; }|try { return []; } catch(e) { return []; }"
@@ -41,6 +49,16 @@ if [ "${1:-}" = "--list" ]; then
   exit 0
 fi
 
+# THE TREE HAS TO BE CLEAN BEFORE THIS RUNS AND CLEAN WHEN IT FINISHES, the same two guards the other two lists
+# have and for the same reason: a trap restores on a clean exit, and NOTHING restores on a SIGKILL. Two interrupted
+# runs in the release's list left four mutated files in its tree in one hour, and `git status` was the only thing
+# that said so.
+if [ -n "$(git status --porcelain -- index.html)" ]; then
+  echo "mutations: index.html is already modified - commit or discard first, so a leftover from this run can be told" >&2
+  echo "           apart from a change that was already here." >&2
+  exit 2
+fi
+
 filter="${1:-}"
 caught=0; missed=0; broken=0
 for m in "${MUTATIONS[@]}"; do
@@ -50,6 +68,7 @@ for m in "${MUTATIONS[@]}"; do
   if [ -n "$filter" ] && [[ "$label" != *"$filter"* ]]; then continue; fi
   printf '  %-46s ' "$label"
   BAK="$(mktemp)"; cp "$file" "$BAK"
+  trap 'cp "$BAK" "$file" 2>/dev/null; rm -f "$BAK"' EXIT
   # \n IN AN ENTRY MEANS A NEWLINE. A bash array cannot hold one literally, and the sibling project's list carries
   # a note about that - so this converts it instead, which is one less thing to remember when writing an entry.
   ANCHOR="$(printf '%b' "$anchor")" REPL="$(printf '%b' "$repl")" FILE="$file" node -e '
@@ -83,6 +102,12 @@ for m in "${MUTATIONS[@]}"; do
   fi
   cp "$BAK" "$file"; rm -f "$BAK"
 done
+
+if [ -n "$(git status --porcelain -- index.html)" ]; then
+  echo "  THIS RUN LEFT index.html MODIFIED - a restore did not happen:" >&2
+  git status --porcelain -- index.html >&2
+  broken=$((broken + 1))
+fi
 
 echo
 echo "  caught: $caught   not caught: $missed   never applied or ambiguous: $broken"
