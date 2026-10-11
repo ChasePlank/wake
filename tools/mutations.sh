@@ -34,6 +34,9 @@ MUTATIONS=(
   # A BACKTICK IN A DOUBLE-QUOTED BASH ARRAY IS A COMMAND SUBSTITUTION, which broke this list the first time it
   # was written - the third shell metacharacter to do that in one week, after a literal \n and a stray pipe.
   "the first waking does not render|index.html|typeOut(\`<div class=\"file-narrator\">WAKE 001</div>\`);|typeOut(\`\`);|"
+  # THE STORY'S STRUCTURE, which the archive entries do not touch: the first waking has to END somewhere, and the
+  # branch test says "wake001_end is entered and advances to wake 2" - so a scene that is not there should be noticed.
+  "the first waking ends nowhere|index.html|scenes.wake001_end = {|scenes.wake001_end_x = {|"
   "archive: the same word twice is two words|index.html|if (!words.includes(word)) { words.push(word); saveArchive(words); }|if (true) { words.push(word); saveArchive(words); }"
   "archive: nothing is ever written|index.html|try { localStorage.setItem('wake_archive', JSON.stringify(words)); } catch(e) {}|try { } catch(e) {}"
   "archive: the archive never loads|index.html|try { return JSON.parse(localStorage.getItem('wake_archive')) || []; } catch(e) { return []; }|try { return []; } catch(e) { return []; }"
