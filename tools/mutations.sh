@@ -101,6 +101,26 @@ for m in "${MUTATIONS[@]}"; do
     fi
     broken=$((broken + 1)); cp "$BAK" "$file"; rm -f "$BAK"; continue
   fi
+  # A PAGE THAT DOES NOT PARSE IS NOT A TEST THAT NOTICED.
+  #
+  # `npm test` is four jsdom suites that load `index.html` and run its script. A mutation that breaks the page's
+  # syntax makes every one of them fail at load, and the branch below reads any failure as "a test noticed" - so the
+  # one outcome that proves nothing was being reported as the one that proves everything. Found on 2026-10-12 by
+  # finding the same fault in `aside`'s runner. The game is ONE `<script>` block inside index.html, so the parse
+  # check is that block, extracted and handed to `node --check`; a mutation aimed at a .js file is checked directly.
+  if [ "$file" = "index.html" ]; then
+    node -e 'const fs=require("fs");const s=fs.readFileSync("index.html","utf8");
+      const m=[...s.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+      fs.writeFileSync("/tmp/wake-mutation-script.js", m.map(x=>x[1]).join("\n"));' || true
+    PARSE_TARGET=/tmp/wake-mutation-script.js
+  else
+    PARSE_TARGET="$file"
+  fi
+  if ! node --check "$PARSE_TARGET" >/tmp/wake-mutation-parse.log 2>&1; then
+    printf 'WILL NOT PARSE - the mutation is not a state the page can be in: %s\n' \
+      "$(grep -m1 -E 'SyntaxError|Error' /tmp/wake-mutation-parse.log | tr -s ' ' | cut -c1-60)"
+    broken=$((broken + 1)); cp "$BAK" "$file"; rm -f "$BAK"; continue
+  fi
   if timeout 600 npm test >/tmp/wake-mutation.log 2>&1; then
     printf 'NOT CAUGHT - no test covers this\n'
     missed=$((missed + 1))
