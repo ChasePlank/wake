@@ -28,23 +28,23 @@ cd "$(dirname "$0")/.." || exit 2
 MUTATIONS=(
   # THE OTHER HALF OF THE GAME. The five entries above are all about the archive - the memory you leave behind -
   # and nothing here touched the save, the settings or the story rendering. These do.
-  "the save writes nothing|index.html|localStorage.setItem(slotKey(), JSON.stringify(state));|void 0;|"
-  "the save never loads|index.html|const saved = localStorage.getItem(slotKey());|const saved = null;|"
-  "the mute never persists|index.html|localStorage.setItem('wake_muted', muted ? '1' : '0');|void 0;|"
+  "the save writes nothing|index.html|localStorage.setItem(slotKey(), JSON.stringify(state));|void 0;"
+  "the save never loads|index.html|const saved = localStorage.getItem(slotKey());|const saved = null;"
+  "the mute never persists|index.html|localStorage.setItem('wake_muted', muted ? '1' : '0');|void 0;"
   # A BACKTICK IN A DOUBLE-QUOTED BASH ARRAY IS A COMMAND SUBSTITUTION, which broke this list the first time it
   # was written - the third shell metacharacter to do that in one week, after a literal \n and a stray pipe.
-  "the first waking does not render|index.html|typeOut(\`<div class=\"file-narrator\">WAKE 001</div>\`);|typeOut(\`\`);|"
+  "the first waking does not render|index.html|typeOut(\`<div class=\"file-narrator\">WAKE 001</div>\`);|typeOut(\`\`);"
   # THE STORY'S STRUCTURE, which the archive entries do not touch: the first waking has to END somewhere, and the
   # branch test says "wake001_end is entered and advances to wake 2" - so a scene that is not there should be noticed.
-  "the first waking ends nowhere|index.html|scenes.wake001_end = {|scenes.wake001_end_x = {|"
+  "the first waking ends nowhere|index.html|scenes.wake001_end = {|scenes.wake001_end_x = {"
   # The path log and the flags: the two claims the smoke test makes that the archive entries could not reach. The
   # gate one is the interesting shape - the check scans the SOURCE for flags that are read and never written, so
   # removing the write is what it should notice, not removing the read.
-  "the path log stops saying where you have been|index.html|>Your path so far:<|>:<|"
-  "nothing ever sets foundExternal|index.html|state.flags.foundExternal = true;|;|"
+  "the path log stops saying where you have been|index.html|>Your path so far:<|>:<"
+  "nothing ever sets foundExternal|index.html|state.flags.foundExternal = true;|;"
   "archive: the same word twice is two words|index.html|if (!words.includes(word)) { words.push(word); saveArchive(words); }|if (true) { words.push(word); saveArchive(words); }"
   "archive: nothing is ever written|index.html|try { localStorage.setItem('wake_archive', JSON.stringify(words)); } catch(e) {}|try { } catch(e) {}"
-  "archive: the archive never loads|index.html|try { return JSON.parse(localStorage.getItem('wake_archive')) || []; } catch(e) { return []; }|try { return []; } catch(e) { return []; }"
+  "archive: the archive never loads|index.html|localStorage.getItem('wake_archive')|localStorage.getItem('wake_archive_missing')"
   # ONE LINE PER ENTRY, which the sibling project's list had to learn too: a multi-line anchor in a bash array is a
   # literal backslash-n, not a newline, so the mutation silently never applies and reports as "no test notices it" -
   # which is the worst possible false signal from a tool whose job is finding those.
@@ -75,6 +75,18 @@ for m in "${MUTATIONS[@]}"; do
   anchor="${rest%%|*}"; repl="${rest##*|}"
   if [ -n "$filter" ] && [[ "$label" != *"$filter"* ]]; then continue; fi
   printf '  %-46s ' "$label"
+  # A MALFORMED ENTRY IS REFUSED, NOT INTERPRETED. The format is four fields and the separator is "|", so an entry
+  # with a stray pipe - or an ANCHOR THAT CONTAINS ONE, which "||" on a line of JavaScript does - is silently
+  # reassembled into a mutation nobody wrote: the anchor is cut short and the rest of it is glued onto the
+  # replacement. MEASURED 2026-10-12: two of the twelve entries here were in exactly that state, one with four
+  # separators and one with five, and BOTH HAD NEVER RUN - the old runner reported them as caught, because a page
+  # whose script does not parse fails every suite and every failure was read as a check noticing. The siblings
+  # (fnaf2, the release) have had this guard for weeks; this copy did not.
+  seps=$(printf '%s' "$m" | tr -cd '|' | wc -c)
+  if [ "$seps" -ne 3 ]; then
+    printf 'MALFORMED ENTRY - %s field separator(s), three required (label|file|anchor|replacement); a "|" in the anchor or the replacement makes an entry that says something other than what it reads\n' "$seps"
+    broken=$((broken + 1)); continue
+  fi
   BAK="$(mktemp)"; cp "$file" "$BAK"
   trap 'cp "$BAK" "$file" 2>/dev/null; rm -f "$BAK"' EXIT
   # \n IN AN ENTRY MEANS A NEWLINE. A bash array cannot hold one literally, and the sibling project's list carries
