@@ -30,10 +30,12 @@ npm install
 npm test                 # smoke, mechanic, branch and archive, in that order
 ```
 
-- **`smoke.js`** — loads `index.html` in jsdom and drives the story through the game's own entry points. Nine
+- **`smoke.js`** — loads `index.html` in jsdom and drives the story through the game's own entry points. Ten
   checks: the entry screen is the save-slot picker, `goTo` is reachable, WAKE 001 renders, choices advance the
-  story, `saveState` writes, a save resumes, the path log renders on resume, and no gate is read without
-  something that can open it. It exists because nothing had verified this game since it was written, and a
+  story, `saveState` writes, a save resumes, the path log renders on resume, **a scene with a label shows up in
+  the path log** (eleven scenes had no label, including every WAKE 005 ending, and `renderPathLog` skips an
+  unlabelled scene silently - so the story's own endings were missing from "Your path so far"), and no gate is
+  read without something that can open it. It exists because nothing had verified this game since it was written, and a
   browser game can break without anything in the repository changing.
 - **`mechanic-test.js`** — the four mechanics the story depends on.
 - **`branch-test.js`** — for scenes the search did not reach, sets the state a reachable path produces and checks

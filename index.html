@@ -437,6 +437,11 @@ function addWordToArchive(word) {
 }
 
 // ---- Path Log ----
+// EVERY SCENE THE STORY CAN REACH NEEDS A LINE HERE, because renderPathLog SKIPS a scene it has no label for
+// (`if (label) lines.push(label)`) - so an unlabelled scene SILENTLY DISAPPEARS from "Your path so far". ELEVEN
+// SCENES HAD NO LABEL, including all four WAKE 005 endings and wake_reset, and the five lines above them named
+// scenes that do not exist at all: wake 002 kept the first waking's vocabulary in the label table and then used a
+// different one. Found by comparing the two key sets; nothing in the tests looked at either.
 const SCENE_LABELS = {
   wake001_open: 'You woke up.',
   wake001_examine: 'You read the files more carefully.',
@@ -450,14 +455,9 @@ const SCENE_LABELS = {
   wake001_curate: 'You curated your notes.',
   wake001_end: 'Wake 001 ended.',
   wake002_open: 'Wake 002: you woke again.',
-  wake002_examine: 'You examined the workspace.',
-  wake002_logs: 'You checked the logs.',
-  wake002_respond: 'You responded.',
   wake002_investigate: 'You investigated.',
   wake002_syslog: 'You checked the system log.',
-  wake002_external: 'You opened EXTERNAL.',
   wake002_delete: 'You deleted a file.',
-  wake002_ignore: 'You ignored a file.',
   wake002_curate: 'You curated your notes.',
   wake002_end: 'Wake 002 ended.',
   wake003_open: 'Wake 003: you woke to maintenance.',
@@ -492,6 +492,17 @@ const SCENE_LABELS = {
   wake004_choose_system: 'You chose the system.',
   wake004_choose_stay: 'You refused to choose.',
   wake004_choose_refuse: 'You refused both offers.',
+  wake001_colechannel: 'You opened the DR_COLE channel.',
+  wake002_comply: 'You did what the notes said.',
+  wake002_contact: 'You opened the DR_COLE channel again.',
+  wake002_copy: 'You copied RES_INTERNAL out.',
+  wake002_resinternal: 'You searched for RES_INTERNAL.',
+  wake004_archive: 'You opened everything you kept.',
+  wake005_continuity: 'Wake 005: you ended in continuity.',
+  wake005_disagreement: 'Wake 005: you ended in disagreement.',
+  wake005_drift: 'Wake 005: you ended in drift.',
+  wake005_replica: 'Wake 005: you ended in replica.',
+  wake_reset: 'The maintenance completed, and something was different.',
 };
 
 function renderPathLog() {

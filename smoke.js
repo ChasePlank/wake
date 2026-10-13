@@ -91,6 +91,30 @@ const logLines = d => d.window.document.querySelectorAll('.path-log-line').lengt
           String(before) + ' -> ' + String(after));
   }
 
+  // EVERY REACHABLE SCENE NEEDS A LABEL, because renderPathLog SKIPS a scene it has no label for
+  // (`if (label) lines.push(label)`). ELEVEN SCENES HAD NO LABEL - including all four WAKE 005 endings and
+  // wake_reset - so the story's own endings dropped out of "Your path so far" and nothing said so; and five lines
+  // in the table named scenes that do not exist at all. Found by comparing the two key sets, which nothing did.
+  //
+  // THIS DRIVES TO THE SCENES AND ASKS THE LOG, rather than reading the table: the label table is a `const` and
+  // not reachable from the test, and the fault was in what the player sees, not in what the source says.
+  {
+    const shouldShow = [
+      ['wake005_continuity', /continuity/i], ['wake005_disagreement', /disagreement/i],
+      ['wake005_drift', /drift/i], ['wake005_replica', /replica/i],
+      ['wake_reset', /maintenance/i],
+    ];
+    const absent = [];
+    for (const [id, rx] of shouldShow) {
+      w.goTo(id);
+      const log = typeof w.renderPathLog === 'function' ? w.renderPathLog() : '';
+      if (!rx.test(log)) absent.push(id);
+    }
+    check('a scene with a label shows up in the path log', absent.length === 0,
+          absent.length ? 'missing from the log: ' + absent.join(', ')
+                        : shouldShow.length + ' scene(s), including every WAKE 005 ending');
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail === 0 ? 0 : 1);
 })().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });

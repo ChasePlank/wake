@@ -37,6 +37,11 @@ MUTATIONS=(
   # THE STORY'S STRUCTURE, which the archive entries do not touch: the first waking has to END somewhere, and the
   # branch test says "wake001_end is entered and advances to wake 2" - so a scene that is not there should be noticed.
   "the first waking ends nowhere|index.html|scenes.wake001_end = {|scenes.wake001_end_x = {"
+  # AND A SCENE WITH NO LABEL, which is not a rendering fault at all: renderPathLog SKIPS a scene it has no label
+  # for, so the scene disappears from "Your path so far". Eleven were in that state - every WAKE 005 ending and
+  # wake_reset among them. THE KEY IS RENAMED RATHER THAN THE LINE BLANKED, because an empty replacement is what
+  # this list got wrong once already: a trailing pipe made a mutation DELETE its anchor instead of changing it.
+  "a scene ends up with no label|index.html|  wake005_drift: 'Wake 005: you ended in drift.',|  wake005_drift_unlabelled: 'Wake 005: you ended in drift.',"
   # The path log and the flags: the two claims the smoke test makes that the archive entries could not reach. The
   # gate one is the interesting shape - the check scans the SOURCE for flags that are read and never written, so
   # removing the write is what it should notice, not removing the read.
