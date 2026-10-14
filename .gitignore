@@ -1,1 +1,4 @@
 node_modules/
+# The release asset is a copy of index.html built by tools/release.sh. The other releases did not track theirs,
+# and a stale copy of the game in the tree is a file that can be mistaken for the game.
+wake-*.html
