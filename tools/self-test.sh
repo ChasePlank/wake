@@ -68,5 +68,19 @@ printf '# Wake\n\nNo quoted blocks at all.\n' > README.md
 expect "refuses to pass when it is reading nothing" "reading nothing"
 
 cp "$BAK" README.md
+# ---- mutations.sh must REFUSE A FILTER THAT NAMES NO ENTRY ------------------------------------------------------
+# THE GUARD HAS EXISTED FOR WEEKS AND WAS NEVER INJECTED - verified by hand once, on a tool that is not in this gate,
+# so nothing would have noticed it being removed. The injection costs NOTHING, because a filter matching nothing runs
+# no suites at all, and what it guards is a run that prints OK over nothing: a typo in a filter, or an entry renamed,
+# reads as a pass.
+if [ -x tools/mutations.sh ]; then
+  mout=$(tools/mutations.sh "zzz-no-such-mutation-zzz" 2>&1); mrc=$?
+  if [ $mrc -ne 0 ] && grep -q "FILTER MATCHED NOTHING" <<<"$mout"; then
+    printf '  ok   %s\n' "mutations refuses a filter that names no entry"; pass=$((pass + 1))
+  else
+    printf '  FAIL %s\n       printed OK (rc=%s) over a filter matching nothing\n' "mutations refuses a filter that names no entry" "$mrc"; fail=$((fail + 1))
+  fi
+fi
+
 echo "=== $pass passed, $fail failed ==="
 [ "$fail" -eq 0 ] || exit 1
