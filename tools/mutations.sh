@@ -156,6 +156,18 @@ fi
 
 echo
 echo "  caught: $caught   not caught: $missed   never applied or ambiguous: $broken"
+# A FILTER THAT MATCHES NOTHING IS A FAILURE, NOT A SUCCESS.
+#
+# MEASURED 2026-10-16: `tools/mutations.sh "zzz-no-such-mutation-zzz"` printed "caught: 0   not caught: 0   never
+# applied or ambiguous: 0" AND THEN "OK every invariant listed here is one ..." AND EXITED 0 - A CLEAN RUN THAT
+# CHECKED NOTHING. A typo in a filter, or an entry renamed, reads as a pass. The engine repository's copy of this
+# script has had this guard for weeks and says the same thing in its comment; THIS COPY DID NOT. Same shape as the
+# guard it already has for an anchor that never applied: the run has to be able to say it did nothing.
+if [ -n "$filter" ] && [ $((caught + missed + broken)) -eq 0 ]; then
+  echo "  THE FILTER MATCHED NOTHING - \"$filter\" names no entry, so this run checked nothing." >&2
+  exit 2
+fi
+
 if [ "$missed" -eq 0 ] && [ "$broken" -eq 0 ]; then
   echo "  OK every invariant listed here is one the tests would notice breaking"
   exit 0
