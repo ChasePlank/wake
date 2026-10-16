@@ -41,12 +41,17 @@ if (forms.size === 0) {
 const fenced = [...README.matchAll(/```[a-z]*\n([\s\S]*?)```/g)].map(m => m[1]).join('\n');
 const quoted = [];
 for (const m of fenced.matchAll(/(SEARCH [A-Z]+[^\n]*)/g)) quoted.push(m[1].trim());
-if (quoted.length === 0) {
-  console.log('=== the README quotes no search verdicts ===');
-  process.exit(0);
-}
+// AND AN EMPTY HALF IS A FAILURE, NOT AN EXIT. THIS USED TO `process.exit(0)` HERE - written when the checker had
+// only this one half - WHICH MADE THE TWO GUARDS ADDED BELOW IT UNREACHABLE: measured 2026-10-16, a README with no
+// quoted blocks at all printed "the README quotes no search verdicts" AND EXITED 0, so the case the guards exist for
+// was short-circuited by an earlier exit. A GUARD THAT CANNOT FIRE IS THE FAULT THIS FILE WAS WRITTEN TO CATCH,
+// reproduced inside it. Each half now reports its own emptiness and the exit code follows.
 
 let bad = 0;
+if (quoted.length === 0) {
+  console.error('  the README quotes no search verdicts - this half is reading nothing, which is not the same as passing');
+  bad++;
+}
 for (const q of quoted) {
   // Match on the verdict's fixed prefix, because the quoted run fills in numbers: an emitted form starts with the
   // same words up to its first substitution.

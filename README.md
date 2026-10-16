@@ -22,12 +22,15 @@ Or serve it if you prefer: `npx serve .` and open the URL it prints.
 
 ## The tests
 
-**`npm test` runs four scripts**, and this section used to name two of them - a list that under-describes the gate
-is the same fault as a count that has gone stale, and it is the reason `archive-test.js` was not mentioned at all.
+**`npm test` runs six things - four suites, a checker of this README, and the checker's own self-test** - and this
+sentence has now gone stale twice. It used to name two of the four suites, which is the fault it warns about: A LIST
+THAT UNDER-DESCRIBES THE GATE IS THE SAME FAULT AS A COUNT THAT HAS GONE STALE, and it is the reason `archive-test.js`
+was not mentioned at all. **It then said "four scripts" while the gate ran six, because the two below were added in
+one hour and this paragraph was not read again until the end of it.**
 
 ```bash
 npm install
-npm test                 # smoke, mechanic, branch and archive, in that order
+npm test                 # the four suites, then the README checker and its self-test
 ```
 
 - **`smoke.js`** — loads `index.html` in jsdom and drives the story through the game's own entry points. Ten
@@ -46,6 +49,18 @@ npm test                 # smoke, mechanic, branch and archive, in that order
 - **`path-search.js`** — best-first search over the scene graph, carrying state, to answer "can a player actually
   reach this?". It reports its own progress and splits CLEAN from INCONCLUSIVE. **It is not part of `npm test`** —
   it is a search, run when the question is reachability, and the section below is what it said.
+
+- **`tools/check-readme-quotes.js`** — **the check on this document.** It verifies that every run quoted here is still
+  what the tool prints, in the three shapes this file uses: a quoted **verdict** must be one the tool can emit (read
+  out of the tool rather than listed in the checker), a quoted **test count** is re-run and compared, and a quoted
+  **mutation** must still be in `tools/mutations.sh`'s list - checked by name rather than re-run, because that tool is
+  minutes and this is seconds. **And every half refuses to pass by reading nothing**, which is not the same as
+  passing.
+- **`tools/self-test.sh`** — **breaks each of the checker's four failure modes and requires it to notice.** It exists
+  because those four had been injected by hand, once each, and **an hour after the checker was written it turned out to
+  have a DEAD GUARD**: an early `process.exit(0)` for the empty case, written before the later guards existed, made
+  them unreachable, so a README quoting nothing printed a reassuring line and exited 0. A guard that cannot fire is the
+  fault this project keeps finding, and it was reproduced inside the checker built to catch it.
 
 `README-SMOKE.md` explains the smoke test in more detail than this does.
 
