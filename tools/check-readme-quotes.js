@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * check-readme-runs.js - is every run the README quotes a run the tool can still produce?
+ * check-readme-quotes.js - is every run the README quotes STILL what the tool prints?
  *
- *   node tools/check-readme-runs.js
+ *   node tools/check-readme-quotes.js
  *
  * WHY. The README quotes this project's own tools, and A QUOTED RUN IS A CLAIM NOBODY RE-RUNS. On 2026-10-16 the
  * `path-search.js` block was quoting `SEARCH INCOMPLETE: state cap of 120000 reached` with no CAP and no SECONDS
@@ -31,7 +31,7 @@ const forms = new Set();
 for (const m of SRC.matchAll(/`(SEARCH [A-Z ]+[^`$]*)/g)) forms.add(m[1].trim());
 for (const m of SRC.matchAll(/'(SEARCH [A-Z ]+[^']*)'/g)) forms.add(m[1].trim());
 if (forms.size === 0) {
-  console.error('check-readme-runs: found no SEARCH verdicts in path-search.js - this check is reading nothing');
+  console.error('check-readme-quotes: found no SEARCH verdicts in path-search.js - this check is reading nothing');
   process.exit(2);
 }
 
@@ -60,5 +60,50 @@ for (const q of quoted) {
   }
 }
 
-console.log('=== ' + forms.size + ' verdict(s) the tool can print, ' + quoted.length + ' quoted, ' + bad + ' stale ===');
+// ---------------------------------------------------------------------------------------------------------------
+// AND TWO MORE SHAPES THE README QUOTES, BOTH MEASURED BY HAND THIS HOUR AND BOTH CORRECT - WHICH IS LUCK, NOT
+// COVERAGE, BECAUSE NOTHING RE-RAN THEM: `11 passed, 0 failed` attributed to `branch-test.js`, and a mutation verdict
+// from `tools/mutations.sh`. One is seconds to re-run and one is minutes, so they are checked differently:
+//
+//   * A QUOTED TEST COUNT IS RE-RUN AND COMPARED. The suite named in the prose above the block is executed and its
+//     last line compared, so the quote is either current or this fails.
+//   * A QUOTED MUTATION NAME IS CHECKED FOR EXISTENCE IN THE LIST, not re-run. `tools/mutations.sh` runs four jsdom
+//     suites per mutation and the README says so itself - minutes, not seconds - so re-running it here would make
+//     `npm test` the tax the README says it is not. The NAME is the fragile part: a mutation renamed in the list
+//     leaves the README quoting something that no longer exists.
+const { execFileSync } = require('child_process');
+const suiteFor = /`([a-z-]+-test\.js)`[\s\S]{0,400}?```\n(\d+ passed, \d+ failed)/g;
+let suiteQuotes = 0;
+for (const m of README.matchAll(suiteFor)) {
+  const file = m[1], claimed = m[2];
+  let actual = '';
+  try { actual = execFileSync(process.execPath, [path.join(ROOT, file)], { encoding: 'utf8' }).trim().split('\n').pop().trim(); }
+  catch (e) { actual = '(it did not run)'; }
+  suiteQuotes++;
+  if (actual !== claimed) {
+    console.error('  the README quotes "' + claimed + '" for ' + file + ' and it prints "' + actual + '"');
+    bad++;
+  }
+}
+if (suiteQuotes === 0) {
+  console.error('  found no quoted test counts - this half is reading nothing, which is not the same as passing');
+  bad++;
+}
+
+const muts = fs.readFileSync(path.join(ROOT, 'tools/mutations.sh'), 'utf8');
+let mutQuotes = 0;
+for (const m of README.matchAll(/^\s{2}([a-z][^\n]{6,60}?)\s{2,}(caught|not caught)\s*$/gm)) {
+  mutQuotes++;
+  if (!muts.includes(m[1].trim())) {
+    console.error('  the README quotes the mutation "' + m[1].trim() + '" and the list no longer has it');
+    bad++;
+  }
+}
+if (mutQuotes === 0) {
+  console.error('  found no quoted mutation verdicts - this half is reading nothing either');
+  bad++;
+}
+
+console.log('=== ' + forms.size + ' verdict(s) the tool can print, ' + quoted.length + ' quoted, '
+  + suiteQuotes + ' suite quote(s) re-run, ' + mutQuotes + ' mutation quote(s) checked, ' + bad + ' stale ===');
 process.exit(bad ? 1 : 0);
