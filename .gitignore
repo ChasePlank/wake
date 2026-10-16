@@ -2,3 +2,9 @@ node_modules/
 # The release asset is a copy of index.html built by tools/release.sh. The other releases did not track theirs,
 # and a stale copy of the game in the tree is a file that can be mistaken for the game.
 wake-*.html
+
+# AND THE OTHER THING A TOOL WRITES. `path-search.js` regenerates `wake-reachable.txt` on every run - the sorted list
+# of scenes it reached - and it was showing up as untracked noise after every search. Same reason as the line above,
+# one member short: A FILE A TOOL WRITES IS NOT A FILE THE REPOSITORY KEEPS, and leaving it untracked means every run
+# leaves the tree dirty for whoever looks next.
+wake-reachable.txt
