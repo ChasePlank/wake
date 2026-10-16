@@ -81,16 +81,25 @@ coverage.
 **All 60 scenes are reachable. The search that said 44 could not finish, and it was measuring a model of the
 game that was missing two things.**
 
-`path-search.js` explores states and reports honestly:
+`path-search.js` explores states and reports honestly, **AND IT SAYS WHICH LIMIT STOPPED IT.** It has four verdicts —
+`SEARCH COMPLETE BY GOAL` (every scene reached), `SEARCH COMPLETE` (the frontier emptied), `SEARCH INCOMPLETE: state cap
+of N reached`, and `SEARCH INCOMPLETE (reason)` for anything else — and **this block used to quote the third without
+saying what CAP or SECONDS produced it, so nobody could run it again and get the same thing.** Quoted here with its
+parameters, which is the only way a quoted run is worth anything:
+
+```bash
+CAP=120000 node path-search.js
+```
 
 ```
-SEARCH INCOMPLETE: state cap of 120000 reached.
-Scenes not listed as reached are UNPROVEN, not unreachable.
+SEARCH INCOMPLETE (deadline (240s)): the 16 scenes not listed are UNPROVEN, not unreachable.
+scenes reached IN PLAY: 44 of 60
 ```
 
-The frontier was 37,000 states wide when it stopped and still growing, because the space is scenes × flags ×
-notes and that is combinatorial. So "44 of 60" was never a claim about the game — and `branch-test.js` shows it
-was not even close to one. It takes each scene the search did not reach, sets the state a *reachable* path
+The frontier was 17,535 states wide when it stopped and still growing, because the space is scenes × flags ×
+notes and that is combinatorial. **The numbers move with the machine** — this is 240 seconds of search, not a fixed
+amount of work, so `44 of 60` should be read as "the search had not finished", which is the only thing it ever
+meant. It was never a claim about the game — and `branch-test.js` shows it was not even close to one. It takes each scene the search did not reach, sets the state a *reachable* path
 produces, and checks the scene arrives:
 
 ```
